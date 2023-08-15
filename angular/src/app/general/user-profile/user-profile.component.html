@@ -1,0 +1,24 @@
+<div class="row clearfix">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="card main-content">
+      <!-- <div class="header">
+        <h2>
+          {{l('')}}
+        </h2>
+      </div> -->
+      <div class="body table-responsive">
+        <mat-tab-group>
+          <mat-tab label="Profile" dynamicHeight=true>
+            <app-tab-profile></app-tab-profile>
+          </mat-tab>
+          <mat-tab label="Certification" dynamicHeight=true *ngIf="isGranted('Pages.Certification')">
+            <app-tab-certification></app-tab-certification>
+          </mat-tab>
+          <mat-tab label="Setting" dynamicHeight=true>
+            <app-tab-setting></app-tab-setting>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </div>
+  </div>
+</div>

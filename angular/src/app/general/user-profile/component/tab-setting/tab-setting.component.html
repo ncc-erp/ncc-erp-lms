@@ -1,0 +1,114 @@
+<div class="wrapper">
+  <div style="margin-bottom: 20px;">
+    <div class="col-md-12">
+      <form class="form-inline" #settingForm="ngForm" enctype="multipart/form-data" (ngSubmit)="onSave()">
+        <div class="form-group">
+          <label class="col-sm-2 control-label">{{ l('Language') }}</label>
+          <select class="readonly-select col-sm-7" disabled="disabled" [(ngModel)]="users.languageId" name="languageId">
+            <option *ngFor="let item of languages" [value]="item.id">{{ item.displayName }}</option>
+          </select>
+
+        </div>
+        <div class="form-group">
+          <label class="col-sm-2 control-label">{{ l('Time Zone') }}</label>
+          <select class="readonly-select col-sm-7" disabled="disabled" [(ngModel)]="users.timeZoneId" name="timeZoneId">
+            <option *ngFor="let item of timeZone" [value]="item.id">{{ item.displayName }}</option>
+          </select>
+        </div>
+        <button class="col-sm-offset-8 btn btn-primary outline" *ngIf="!isEdit" (click)="onEdit()" style="width: 95px;">{{
+          l('Edit') }}</button>
+        <div>
+          <p style="font-size: 17px;">{{ l('Feature Options') }}</p>
+          <div class="content">
+            <ng-container *ngIf="isGranted('Pages.Certification')">
+              <div class="col-sm-7">
+                <label>{{ l('Personal Info view by Public')}}</label>
+                <p>{{ l('To display your basic information to public. Includes Email and Title.') }}</p>
+              </div>
+              <div class="col-sm-4">
+                <label class="checkbox">
+                  <input type="checkbox" disabled="disabled" [(ngModel)]="users.userPersonalInfoViewByPublic"
+                    name="userPersonalInfoViewByPublic">
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+              <div class="col-sm-7">
+                <label>{{ l('Personal Links view by public') }}</label>
+                <p>{{ l('To display your link(s) to public ') }}</p>
+              </div>
+              <div class="col-sm-4">
+                <label class="checkbox">
+                  <input type="checkbox" [(ngModel)]="users.userPersonalLinksViewByPublic" disabled="disabled"
+                    name="userPersonalLinksViewByPublic">
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+              <div class="col-sm-7">
+                <li>Achievement view by public</li>
+                <ul>
+                  <li>To display your achievement(s) to public</li>
+                </ul>
+                <!-- <label>{{ l('Personal Links view by public') }}</label>
+                <p>{{ l('To display your link(s) to public ') }}</p> -->
+              </div>
+              <div class="col-sm-4">
+                <label class="checkbox">
+                  <input type="checkbox" [(ngModel)]="users.userPersonalAchievementViewByPublic" disabled="disabled"
+                    name="userPersonalAchievementViewByPublic">
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+              <div class="col-sm-7">
+                <li>Centification view by public</li>
+                <ul>
+                  <li>To display your centification(s) to public</li>
+                </ul>
+                <!-- <label>{{ l('Personal Links view by public') }}</label>
+                  <p>{{ l('To display your link(s) to public ') }}</p> -->
+              </div>
+              <div class="col-sm-4">
+                <label class="checkbox">
+                  <input type="checkbox" [(ngModel)]="users.userPersonalCertificationViewByPublic" disabled="disabled"
+                    name="userPersonalCertificationViewByPublic">
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="!isGranted('Pages.Certification')">
+              <div class="col-sm-7">
+                <label>{{ l('Personal Info view by Public')}}</label>
+                <p>{{ l('To display your basic information to public. Includes Email and Title.') }}</p>
+              </div>
+              <div class="col-sm-4">
+                <label class="checkbox">
+                  <input type="checkbox" disabled="disabled" [(ngModel)]="users.userPersonalInfoViewByPublic"
+                    name="userPersonalInfoViewByPublic">
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+              <div class="col-sm-7">
+                <label>{{ l('Personal Links view by public') }}</label>
+                <p>{{ l('To display your link(s) to public ') }}</p>
+              </div>
+              <div class="col-sm-4">
+                <label class="checkbox">
+                  <input type="checkbox" [(ngModel)]="users.userPersonalLinksViewByPublic" disabled="disabled"
+                    name="userPersonalLinksViewByPublic">
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div class="text-right" style="clear: both;" *ngIf="isEdit">
+          <button type="button" style="width: 80px;height: 35px;" (click)="onCancel()"
+            class="btn btn-secondary waves-effect">
+            {{ l('Cancel') }}</button>
+          <button type="submit" data-toggle="modal" style="width: 80px;height: 35px;"
+            class="ml-5 btn btn-green waves-effect">{{
+            l('Save') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

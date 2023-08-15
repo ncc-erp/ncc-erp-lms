@@ -1,0 +1,19 @@
+<div class="row" style="margin-top: 24px;">
+  <div class="col-md-12">
+    <div class="row pt-4">
+      <div class="col-md-12 text-center">
+          <mat-icon style=" transform: scale(3); color: orange;">error_outline</mat-icon>
+        <div *ngIf="countUnsaveAnswered===0" style="margin-top: 45px; font-size: 20px; "> Your test will be submited.
+          You can not continue.<br /> Are you sure to finish your test ?</div>
+        <div *ngIf="countUnsaveAnswered > 0" style="margin-top: 45px; font-size: 20px; ">
+          <strong style="font-size: 26px;">You have <span class="text-danger">{{countUnsaveAnswered}} answers </span>not saved yet</strong> .<br />
+          Please save your answers before finish!
+        </div>
+      </div>
+    </div>
+    <div class="action-btn-group">
+      <button type="button" class="btn btn-danger mr-2" style="margin-right: 5px;" (click)="submit()" *ngIf="countUnsaveAnswered == 0">Finish</button>
+      <button type="button" class="btn btn-secondary"  mat-dialog-close>cancel</button>
+    </div>
+  </div>
+</div>

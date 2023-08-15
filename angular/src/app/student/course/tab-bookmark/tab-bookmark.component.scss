@@ -1,0 +1,53 @@
+a:hover { text-decoration: none !important }
+
+.main {
+  padding: 0 5rem;
+}
+.box {
+  // background-color: #fff;
+  border: 1px solid gray;
+  border-radius: 9px;
+  margin: 30px 0;
+  // min-height: 100px;
+}
+.content{
+  margin-top: 0px;
+  padding: 0px 37px 8px 55px
+
+}
+$ribboncolor: #2191f3;
+$ribbonwidth: 20px;
+$ribbonbottom: 20px;
+.ribbon {
+  margin:-5px 0 0 20px;
+  position: relative;
+  width: $ribbonwidth;
+  height: 23px;
+  background: $ribboncolor;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+
+  &:after, &:before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    bottom: -$ribbonbottom;
+    border-top: $ribbonbottom solid transparent;
+    border-bottom: $ribbonbottom solid transparent;
+  }
+
+  &:before {
+    left: 0;
+    border-left: $ribbonwidth/2 solid $ribboncolor;
+  }
+
+  &:after {
+    right: 0;
+    border-right: $ribbonwidth/2 solid $ribboncolor;
+  }
+}
+
+// .ribbon:hover {
+//   height: 31px;
+// }

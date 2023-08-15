@@ -1,0 +1,25 @@
+input.form-control{
+    border:1px solid #C8C8C8;
+    border-radius: 4px;
+    padding: 0 10px;
+}
+.mt-10{
+    margin-top: 10px;
+}
+.mr-10{
+    margin-right: 10px;
+}
+.table-label{
+    margin-bottom: 0;
+    line-height: 32px;
+    font-weight: normal;
+}
+.table-striped>tbody>tr:nth-of-type(odd)
+{
+    background:none;
+}
+.table-hover>tbody>tr:hover{
+      background:none;
+}
+.biginput{width:65%}
+.smallinput{width:35%}

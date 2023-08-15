@@ -1,0 +1,65 @@
+.video {
+  width: 100%;
+}
+.producer {
+  font-size: 25px;
+  font-weight: 400;
+  margin-left: 5px;
+}
+.time {
+  margin-top: 5rem;
+}
+.content-top {
+  color: #000000;
+}
+.img-prod {
+  max-width: 250px;
+  max-height: 200px;
+  width: 100%;
+}
+
+.content-center {
+  color: #000000;
+}
+
+.clear-border {
+  border-bottom: 2px solid #c8c8c8;
+  margin-top: 15px;
+}
+
+.border-content {
+  border: 1px solid #c8c8c8;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #c8c8c8;
+}
+
+.btn.btn-secondary {
+  color: #ffffff;
+  background-color: #a6a6a6;
+}
+.lenght {
+  display: flex;
+  font-size: 15px;
+  padding: 5px;
+  color: #000000;
+  .title {
+    width: 115px;
+  }
+}
+.instructor {
+  border-radius: 50%;
+  width: 85px;
+  height: 85px;
+  margin-bottom: 5px;
+}
+.associated {
+  display: block;
+  width: 100%;
+  border-bottom: 1px solid #c8c8c8;
+}
+.program-title {
+  margin-left: 5px;
+  width: 100px;
+}

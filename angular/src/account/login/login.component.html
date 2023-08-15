@@ -1,0 +1,60 @@
+﻿<div class="" [@routerTransition]>
+    <div #cardBody class="body">
+        <form #loginForm="ngForm" id="LoginForm" method="post" novalidate (ngSubmit)="login()">
+            <h4 class="text-center" style="color:#43425d;">{{l("Login")}}</h4>
+
+            <mat-form-field class="form-group">
+                <input matInput [(ngModel)]="loginService.authenticateModel.userNameOrEmailAddress" autoFocus
+                    type="text" autocomplete="off" placeholder="{{l('Username')}}" name="userNameOrEmailAddress"
+                    maxlength="255">
+            </mat-form-field>
+
+            <mat-form-field class="form-group">
+                <input matInput type="password" [(ngModel)]="loginService.authenticateModel.password"
+                    class="form-control" name="password" placeholder="{{l('Password')}}" maxlength="32">
+            </mat-form-field>
+
+            <mat-form-field class="form-group">
+                <input matInput type="text" [(ngModel)]="tenancyName" class="form-control" name="tenant"
+                    placeholder="{{l('Tenant')}}" maxlength="32">
+            </mat-form-field>
+
+            <!-- <div *ngIf="showCaptcha" style="margin-top: -3rem;">
+                <div style="text-align: center">
+                    <app-recaptcha2 (Captcha)="captchaSuccess = true" [lang]="localization.currentLanguage.name">
+                    </app-recaptcha2>
+                </div>
+            </div> -->
+
+            <div class="row">
+                <div class="col-xs-8 p-t-5">
+                    <label class="checkbox">
+                        <input type="checkbox" [(ngModel)]="loginService.rememberMe" name="rememberMe" id="rememberMe">
+                        <span class="checkmark"></span>
+                    </label>
+                    <label for="rememberme">{{l("RememberMe")}}</label>
+                </div>
+                <div class="col-xs-4">
+                    <button id="LoginButton" class="btn btn-lg btn-login pull-right"
+                        type="submit">{{l("Login")}}</button>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center" style="margin-top: 25px;">
+                <button mat-flat-button type="button" (click)="signInWithGoogle()" color="primary" style="width: 100%">
+                    Log In With Google
+                </button>
+            </div>
+            <div class="row m-t-35">
+                <div class="col-xs-12 text-center" style="color: #959595">
+                    <small style="font-size: 75%;">&copy; {{currentYear}} NCC LMS. Version {{versionText}}</small>
+                </div>
+            </div>
+
+            <!-- <div class="row m-t-15 m-b--20" *ngIf="isSelfRegistrationAllowed">
+                <div class="col-xs-12">
+                    <a [routerLink]="['../register']">{{l("Register")}}</a>
+                </div>
+            </div> -->
+        </form>
+    </div>
+</div>

@@ -1,0 +1,147 @@
+//Content List View
+.content-list-view {
+  margin-bottom: 20px;
+  &:hover {
+    text-decoration: none;
+  }
+  a {
+    display: inline-flex;
+    &:hover {
+      text-decoration: none;
+    }
+    h4 {
+      display: -webkit-box;
+      max-height: 32px;
+      /* autoprefixer: off */
+      -webkit-box-orient: vertical;
+      -moz-box-orient: vertical;
+      /* autoprefixer: on */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: normal;
+      -webkit-line-clamp: 2;
+      line-height: 1.6rem;
+    }
+    p {
+      display: -webkit-box;
+      max-height: 20px;
+      /* autoprefixer: off */
+      -webkit-box-orient: vertical;
+      -moz-box-orient: vertical;
+      /* autoprefixer: on */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: normal;
+      // -webkit-line-clamp: 2;
+      font-size: 1.4rem;
+      font-weight: 500;
+      line-height: 1.6rem;
+    }
+  }
+  * {
+    color: #000;
+  }
+  img {
+    width: 250px;
+    float: left;
+    margin-right: 20px;
+    height: 150px;
+  }
+}
+// .module {
+//   width: 100%;
+//   margin: 0 0 1em 0;
+//   overflow: hidden;
+//   position: relative;
+//   height: 69px;
+// }
+
+// .module h4 {
+//   line-height: calc(23 / 18);
+//   font-size: 18px;
+//   margin: 0;
+// }
+
+// .module:after {
+//   content: "";
+//   text-align: right;
+//   position: absolute;
+//   bottom: 0;
+//   right: 0;
+//   width: 70%;
+//   height: 23px;
+//   background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 50%);
+// }
+
+//End Content List View
+
+/* 
+Content Grid View
+*/
+.items {
+  -webkit-box-shadow: 1px 2px 5px #ccc;
+  box-shadow: 1px 2px 5px #ccc;
+  background-color: #fdfdfd;
+  margin: 10px 10px 0px 50px;
+  padding: 0px;
+  width: 250px;
+  // border-bottom: 3px solid #080;
+  &:hover {
+    text-decoration: none;
+    outline: 2px solid #646464;
+  }
+  a:hover {
+    text-decoration: none;
+  }
+  img {
+    width: 100%;
+    height: 150px;
+  }
+  .content-items {
+    color: #333;
+    padding: 15px 0px 12px 12px;
+    height: 162px;
+    h4 {
+      display: -webkit-box;
+      max-height: 32px;
+      /* autoprefixer: off */
+      -webkit-box-orient: vertical;
+      -moz-box-orient: vertical;
+      /* autoprefixer: on */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: normal;
+      -webkit-line-clamp: 2;
+      line-height: 1.6rem;
+    }
+    p {
+      display: -webkit-box;
+      max-height: 3.2rem;
+      /* autoprefixer: off */
+      -webkit-box-orient: vertical;
+      -moz-box-orient: vertical;
+      /* autoprefixer: on */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: normal;
+      -webkit-line-clamp: 2;
+      font-size: 1.4rem;
+      font-weight: 500;
+      line-height: 1.6rem;
+    }
+    .course-start-info {
+      position: absolute;
+      bottom: 10px;
+      .date {
+        font-weight: normal;
+        font-size: 0.9em;
+        line-height: 20px;
+        color: #3d3e3f;
+        margin: 0;
+        clear: both;
+      }
+    }
+  }
+}
+
+// End Grid View

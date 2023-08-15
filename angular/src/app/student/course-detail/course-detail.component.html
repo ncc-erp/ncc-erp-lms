@@ -1,0 +1,60 @@
+<div class="row clearfix">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="card main-content">
+      <div class="body table-responsive">
+        <div class="row content-top col-sm-12">
+          <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+            <img [src]="getImageServerPath(courseDetail.course.imageCover)" class="img-prod img-responsive" alt=""
+              onerror="this.src = 'assets/images/dot.gif'">
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+            <div class="content">
+              <h3 class="break-word">{{ courseDetail.course.name }}</h3>
+              <p>
+                {{ courseDetail.course.description }}
+              </p>
+              <div class="logo">
+                <img src="../../../assets/images/logo-ncc.png" class="ico10564">
+                <!-- <span class="producer">NCC</span> -->
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+            <div class="time text-center">
+              <p>{{ courseDetail.isSelfPaced ? 'Self-Paced' : '' }}</p>
+              <p>Starts on {{ courseDetail.startTime | dateLocal:'MMMM dd, yyyy' }}</p>
+              <ng-container
+                *ngIf="courseDetail.status == 0 || (courseDetail.status == null && courseDetail.invitedInGroup)">
+                <button (click)="accept()" [disabled]="courseDetail.isArchived"
+                  class="btn btn-lg btn-success text-center w-170 mt-5">Accept</button>
+                <button (click)="reject()" [disabled]="courseDetail.isArchived"
+                  class="btn btn-lg btn-danger text-center w-170 ml-5 mt-5">Reject</button>
+              </ng-container>
+              <span *ngIf="courseDetail.status == 1">Waiting for approve</span>
+              <span *ngIf="courseDetail.isArchived">Archived course (finished on
+                {{courseDetail.endTime | dateLocal}})</span>
+              <a routerLink="/app/browsing/0/{{courseInstanceId}}"
+                *ngIf="courseDetail.canStart && courseDetail.status == 2 && courseDetail.course.sourse == 0"
+                class="btn btn-lg btn-primary text-center w-170">Start</a>
+
+              <!-- SCORM course -->
+              <a routerLink="/app/scorm/0/{{courseInstanceId}}"
+                *ngIf="courseDetail.canStart && courseDetail.status == 2 && courseDetail.course.sourse >= 1"
+                class="btn btn-lg btn-primary text-center w-170">Start</a>
+
+              <button (click)="reEnroll()" *ngIf="courseDetail.status == 4 && courseDetail.canReEnroll"
+                class="btn btn-lg btn-primary text-center w-170">Re-Enroll</button>
+
+              <button (click)="enroll()"
+                *ngIf="(courseDetail.status === null && !courseDetail.invitedInGroup && !courseDetail.canReEnroll)"
+                [disabled]="courseDetail.isArchived" class="btn btn-lg btn-primary text-center w-170">Enroll</button>
+
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 clear-border"></div>
+        <app-tab-overview [courseDetail]="courseDetail"></app-tab-overview>
+      </div>
+    </div>
+  </div>
+</div>

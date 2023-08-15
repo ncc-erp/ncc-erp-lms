@@ -1,0 +1,19 @@
+{
+    "remoteServiceBaseUrl": "http://lms-api.nccsoft.vn",
+    "appBaseUrl": "http://lms.nccsoft.vn",
+    "localeMappings": [{
+            "from": "pt-BR",
+            "to": "pt"
+        },
+        {
+            "from": "zh-CN",
+            "to": "zh"
+        },
+        {
+            "from": "he-IL",
+            "to": "he"
+        }
+    ],
+    "reCaptchaSiteKey": "6Le9m6cUAAAAAAU4Ng32MXngzJ9NGbKCtR8Mb31X",
+    "reCaptchaLoginCount": 2
+}

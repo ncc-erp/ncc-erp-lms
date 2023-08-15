@@ -1,0 +1,129 @@
+﻿<div class="wrapper col-sm-12" style="min-height: 800px;">
+    <div style="margin-bottom: 5px;" class="text-right col-sm-12">
+        <a (click)="onCreateGroup_click()" mat-button class="waves-effect">
+            <i class="material-icons"> add </i> Group</a>
+    </div>
+
+    <div class="col-sm-4">
+        <div>
+            <mat-checkbox class="pull-right" title="All students" (change)="onChangeFilterStudent()" color="primary"
+                [(ngModel)]="filterStudent">
+            </mat-checkbox>
+            <h4 *ngIf="filterStudent">{{l("UnssignedStudents")}} &nbsp;({{unAssignedStudents_filter?.length}})</h4>
+            <h4 *ngIf="!filterStudent">{{l("All Students")}}&nbsp;({{unAssignedStudents_filter?.length}})</h4>
+        </div>
+        <mat-form-field style="width: 100%">
+            <a *ngIf="searchStudent" title="Clear search" class="pull-right" (click)="searchStudent = ''">x</a>
+            <input style="width: 90%" matInput name="name" placeholder="{{l('Search')}}" [(ngModel)]="searchStudent"
+                maxlength="25">
+
+        </mat-form-field>
+        <div class="layout-padding border-layout">
+            <div class="layout-padding" [dndDropzone]="['student']"
+                (dndDrop)="onDrop_student($event, unAssignedStudents)">
+                <mat-card dndPlaceholderRef class="dndPlaceholder">
+                </mat-card>
+
+                <mat-card
+                    *ngFor="let item of unAssignedStudents_filter | filter :'fullName' : searchStudent | paginate: config "
+                    [dndDraggable]="item" dndEffectAllowed="copyLink" style="cursor:move" [dndType]="'student'"
+                    (dndCopied)="onDragged(item, unAssignedStudents_filter, 'copy')">
+
+                    <mat-icon mat-list-icon>
+                        <ngx-avatar size="20" name={{item.fullName}} [src]="getImageServerPath(item.imageCover)">
+                        </ngx-avatar>
+                    </mat-icon>
+                    {{item.fullName}}
+                    <ng-container *ngIf="item.countGroup > 0">&nbsp;({{item.countGroup}})</ng-container>
+
+                </mat-card>
+
+                <mat-card *ngIf="unAssignedStudents_filter?.length > config.itemsPerPage" style="padding: 6px 0 0 0">
+                    <pagination-controls (pageChange)="config.currentPage=$event" previousLabel="" nextLabel=""
+                        class="my-pagination">
+                    </pagination-controls>
+                </mat-card>
+
+            </div>
+        </div>
+        <br>
+    </div>
+    <div class="col-sm-8">
+        <h4> {{l("Groups")}} </h4>
+        <div class="layout-padding border-layout">
+
+            <div class="layout-padding">
+                <mat-expansion-panel *ngFor="let item of groupsStudents; let i = index"
+                    [ngClass]="i == 0 ? 'layout-padding-header' : 'layout-padding-header border-panel'"
+                    [hideToggle]="true" #panelModule>
+
+                    <mat-expansion-panel-header>
+
+                        <mat-panel-title>
+                            <mat-icon *ngIf="!panelModule.expanded"><i class="material-icons">arrow_right</i></mat-icon>
+                            <mat-icon *ngIf="panelModule.expanded"><i class="material-icons">arrow_drop_down</i>
+                            </mat-icon>
+                            <b style="margin-top: 2px;">{{item.name}}
+                                <span
+                                    title='{{item.userGroups?.length + (item.userGroups?.length > 1?" Students in Group":" Student in Group")}}'
+                                    *ngIf="item.userGroups?.length > 0">&nbsp;({{item.userGroups?.length}})
+                                </span>
+                            </b>
+                        </mat-panel-title>
+
+                        <mat-panel-description *ngIf="panelModule.expanded">
+                            <a (click)="onEditGroup_click(item)" title="Edit Group">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                <span> {{'edit'  | titlecase}}</span></a>&nbsp;&nbsp;
+                            <a (click)="onDeleteGroup_click(groupsStudents, i)" title="Delete Group">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                                <span>{{'delete' | titlecase}}</span>
+                            </a>&nbsp;&nbsp;
+                        </mat-panel-description>
+
+                    </mat-expansion-panel-header>
+                    <div class="layout-padding" [dndDropzone]="['student']"
+                        (dndDrop)="onDrop($event, item.userGroups, item.id )">
+                        <mat-card dndPlaceholderRef class="dndPlaceholder">
+                        </mat-card>
+
+                        <mat-card *ngFor="let user of item.userGroups; let index = index;" [dndDraggable]="user"
+                            dndEffectAllowed="move" [dndType]="'student'"
+                            (dndMoved)="onDragged(user, item.userGroups, 'none')">
+
+                            <div class="pull-right" style="margin-top: -6px;">
+                                <button mat-icon-button [matMenuTriggerFor]="submenu">
+                                    <mat-icon>more_vert</mat-icon>
+                                </button>
+                                <mat-menu #submenu="matMenu">
+                                    <button mat-menu-item (click)="onRemoveStudent_click(item.userGroups, index)">
+                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                        <span> Remove</span>
+                                    </button>
+                                    <button mat-menu-item disabled>
+                                        <i class="fa fa-user-o" aria-hidden="true"></i>
+                                        <span> Set as Leader</span>
+                                    </button>
+                                </mat-menu>
+                            </div>
+
+                            <mat-icon mat-list-icon>
+                                <ngx-avatar size="20" name={{user.fullName}}
+                                    [src]="getImageServerPath(user.imageCover)">
+                                </ngx-avatar>
+                            </mat-icon>
+                            {{user.fullName}}
+                        </mat-card>
+                        <mat-card *ngIf="item.userGroups?.length === 0"
+                            style="color:grey; text-align: center; height: 40px;">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            <strong> There are currently no students in this group. Add a student to get started!
+                            </strong>
+                        </mat-card>
+                    </div>
+                </mat-expansion-panel>
+            </div>
+        </div>
+        <br>
+    </div>
+</div>

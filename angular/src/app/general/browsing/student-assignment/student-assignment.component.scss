@@ -1,0 +1,24 @@
+
+.form-control[disabled], fieldset[disabled] .form-control{
+    cursor: auto;
+}
+.box-attachments{
+    border:1px solid #c0c0c0;
+    border-radius: 5px;
+    padding: 15px;
+}
+.box-attachments h4 i{
+    font-weight: bold;
+    font-size: 28px;
+    color:#b3b3b3;
+    margin-right: 5px;
+    transform: rotate(90deg);
+}
+.box-content{
+    border:1px solid #c0c0c0;
+    border-radius: 5px;
+    padding: 15px;
+}
+ i.fa.fa-download.fa-3x{
+    font-size: 1em;
+}

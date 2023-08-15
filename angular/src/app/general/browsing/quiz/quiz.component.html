@@ -1,0 +1,116 @@
+<div class="clearfix">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="card main-content">
+      <div class="body table-responsive" *ngIf="!quizOption.isExpired">
+
+        <!-- completed quiz, cannot do again -->
+        <div *ngIf="completedAttempts && completedAttempts.length > 0">
+          <div *ngIf="completedAttempts.length >= quizOption.allowAttempts && quizOption.testingAttempt == null">
+            <h3>{{quizOption.title}}</h3>
+            <div [innerHtml]="quizOption.content"></div>
+          </div>
+
+          <div *ngIf="quizOption.scoreKeepType === 0">
+            <h3 *ngIf="quizType === 'quiz_final'">You did this <b> final quiz</b>
+              {{completedAttempts.length}}/{{quizOption.allowAttempts}} times and got highest score:
+              {{highestAttempt.score}}</h3>
+            <h3 *ngIf="quizType === 'quiz'">You did this quiz {{completedAttempts.length}}/{{quizOption.allowAttempts}}
+              times and got highest score: {{highestAttempt.score}}</h3>
+            <!-- may be show the highest test attempt here-->
+
+          </div>
+
+          <div *ngIf="quizOption.scoreKeepType === 1">
+            <h3 *ngIf="quizType === 'quiz_final'">You did this <b style="color:red"> final quiz</b>
+              {{completedAttempts.length}}/{{quizOption.allowAttempts}} times and got avarage score: {{avarageScore}}
+            </h3>
+            <h3 *ngIf="quizType === 'quiz'">You did this quiz {{completedAttempts.length}}/{{quizOption.allowAttempts}}
+              times and got avarage score: {{avarageScore}}</h3>
+            <!-- may be show completed test attempts here -->
+          </div>
+          <div>
+            <h3 *ngIf="quizType === 'survey'">You have <span style="color: green;"><b>done</b></span> this survey</h3>
+          </div>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 quiz-timer" *ngIf="isViewCountDown">
+          <button class="btn btn-secondary time-remaining"> <span>{{l('Time remaining')}}: </span>
+            <countdown #countdown [config]="config" (event)="getEvents($event)" (start)="onStart()"
+              (finished)="onFinished()"></countdown>
+          </button>
+          <span class="text-danger warning-message">
+            Lưu ý: Hãy save từng câu sau khi trả lời
+          </span>
+        </div>
+
+
+        <!-- ready to go -->
+
+        <div *ngIf="completedAttempts.length < quizOption.allowAttempts && quizOption.testingAttempt == null">
+          <h3>{{quizOption.title}}</h3>
+          <div [innerHtml]="quizOption.content"></div>
+          <button class="btn-primary outline waves-effect waves-float btn-ready" (click)="startDoQuiz()">
+            {{l("Ready to go")}}
+          </button>
+        </div>
+
+
+        <!-- question list -->
+
+        <div *ngIf="quizOption.testingAttempt != null">
+          <div class="question-list col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <a (click)="onQuestionClick(i)" *ngFor="let item of questions; let i = index;"
+              [ngClass]="{'active': selectedItem == i}" class="col-sm-2 m-0" style="min-width: 130px">
+              <input type="checkbox" id="basic_checkbox_{{item.id}}" [checked]="item.isSaved" disabled>
+              <label class="question-label" for="basic_checkbox_{{item.id}}">{{l('Question')}} {{i+1}}</label>
+            </a>
+          </div>
+
+          <!-- question detail -->
+
+          <!-- <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" *ngIf="isViewCountDown">
+            <span>{{l('Time remaining')}}: </span>
+            <countdown #countdown [config]="config" (event)="getEvents($event)" (start)="onStart()"
+              (finished)="onFinished()"></countdown>
+          </div> -->
+          <div
+            *ngIf="quizOption.testingAttempt && quizOption.testingAttempt.score != null && quizOption.testingAttempt.status === 2 && quizType != 'survey'"
+            class="question-list col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>{{l('Your score')}}: {{quizOption.testingAttempt.score}}</h3>
+          </div>
+          <div style="padding: 20px;"
+            *ngFor="let item of displayQuestions | paginate: { id: 'server1', itemsPerPage: pageSize, currentPage: pageNumber, totalItems: totalItems }">
+            <app-view-question #question [quizType]="quizType" [question]="item" [testAttemptId]="quizOption.testingAttempt.id" [index]="selectedItem"
+              [option]="quizOption" [isAllSubmitted]="isAllSubmitted" [isFinished]="isFinished"></app-view-question>
+
+          </div>
+          <button *ngIf="!isDidTakeScore && !isFinished"  type="button"
+                class="btn-danger outline waves-effect pull-right btn-quizz" (click)="submit()">
+                {{l("Finish Test")}}
+              </button>
+          <button *ngIf="pageNumber < totalPages - 1" type="button"
+            class="btn-primary outline waves-effect pull-right btn-quizz" (click)="nextPage()">
+            {{l("Next")}}>>
+          </button>
+
+          <button [disabled]="isDidTakeScore" type="button" *ngIf="!quizOption.showOneQuestionAtATime"
+            class="btn-danger outline waves-effect pull-right btn-quizz" (click)="save()">
+            {{l("Save")}}
+          </button>
+          <button *ngIf="pageNumber >1" type="button" class="btn-primary outline waves-effect pull-right btn-quizz"
+            (click)="previousPage()">
+            <<{{l("Previous")}} </button>
+
+              <!-- <button type="button" class="btn btn-primary waves-effect pull-right" style="margin-left: 12px"  (click)="show()">
+            {{l("Show")}}
+          </button> -->
+
+        </div>
+
+      </div>
+      <div class="body table-responsive" *ngIf="quizOption.isExpired">
+        <p>This quiz avaiable from {{quizOption.settings.startTimeUtc | dateLocal }} to
+          {{quizOption.settings.endTimeUtc | dateLocal}}</p>
+      </div>
+    </div>
+  </div>
+</div>

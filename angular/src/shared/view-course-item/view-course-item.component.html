@@ -1,0 +1,76 @@
+<ng-container *ngIf="list">
+    <section class="card content-list-view">
+        <a [routerLink]="item.link">
+            <img [src]="getImageServerPath(item.imageCover)" onerror="this.src = 'assets/images/dot.gif'">
+            <div class="content-items">
+                <p>{{ item.relationInfo }}</p>
+                <div class="module">
+                    <h4>{{ item.name }}</h4>
+                </div>
+                <div class="course-start-info" style="position:absolute; bottom: 10px">
+                    <div class="availability">
+                        <ng-container *ngIf="item.alreadyStart">
+                            {{ 'Current' }}
+                        </ng-container>
+                        <ng-container *ngIf="item.isCommingSoon">
+                            {{ 'Starting Soon' }}
+                        </ng-container>
+                        <ng-container *ngIf="item.isUpComming">
+                            {{ 'Upcomming' }}
+                        </ng-container>
+                    </div>
+                    <div class="date">
+                        Starts:{{ item.startDate | dateLocal:'MMMM d, y' }} - {{ item.isSelfPaced ? 'Self Paced' : '' }}
+                    </div>
+                </div>
+            </div>
+        </a>
+    </section>
+</ng-container>
+
+<ng-container *ngIf="!list">
+    <div class="col-md-3 col-sm-4 items">
+        <a [routerLink]="item.link">
+            <img [src]="getImageServerPath(item.imageCover)" onerror="this.src = 'assets/images/dot.gif'">
+        </a>
+        <div class="content-items">
+            <a href="{{item.link}}">
+                <p>{{ item.relationInfo }}</p>
+            </a>
+            <a href="{{item.link}}">
+                <div class="module">
+                    <h4>{{ item.name }}</h4>
+                </div>
+            </a>
+            <div class="course-start-info">
+                <div class="availability">
+                    <ng-container *ngIf="item.alreadyStart">
+                        {{ 'Current' }}
+                    </ng-container>
+                    <ng-container *ngIf="item.isCommingSoon">
+                        {{ 'Starting Soon' }}
+                    </ng-container>
+                    <ng-container *ngIf="item.isUpComming">
+                        {{ 'Upcomming' }}
+                    </ng-container>
+                </div>
+                <div class="date">
+                    Starts:{{ item.startDate | dateLocal:'MMMM d, y' }} - {{ item.isSelfPaced ? 'Self Paced' : '' }}
+                </div>
+                <div *ngIf="item.state == 0">
+                   <button (click)="delteCourse(item)" type="button"
+                        class="btn btn-block btn-lg btn-primary waves-effect"> {{ 'Delete Course' }}</button>
+                </div>
+                <div *ngIf="isArchived">
+                    <button (click)="rePublishedCourse(item)" type="button"
+                        class="btn btn-block btn-lg btn-primary waves-effect"> {{ 'Re-Publish' }}</button>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="soure == 'student'" class="progress" style="height: 8px; margin-bottom: 0px">
+            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0"
+                aria-valuemax="100" [ngStyle]="{'width': item.completedPercent + '%'}">
+            </div>
+        </div>
+    </div>
+</ng-container>

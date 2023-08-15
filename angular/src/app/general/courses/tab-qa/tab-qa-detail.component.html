@@ -1,0 +1,415 @@
+<div style="padding: 0 5rem">
+    <!-- Search box -->
+    <div class="row">
+        <mat-form-field class="col-sm-6 pull-right">
+            <input matInput [(ngModel)]="searchText" placeholder="{{l('Search')}}" (blur)="searchFAQnDiscussion()"
+                (keyup.enter)="searchFAQnDiscussion()" type="text" maxlength="128">
+            <i class="icon-32 material-icons" matPrefix>search</i>
+        </mat-form-field>
+    </div>
+    <a class="back" (click)="returnPageFAQlist()"> {{l("Back_to_QnA")}} </a>
+
+    <!-- FAQ -->
+    <div class="main">
+        <div class="discussion">
+            <div class="pull-right" style="padding-right: 2rem;">
+                <a style="padding-right: 2rem;" *ngIf="!isSortFAQ && isShowFaq" (click)="isSortFAQ = true"><i
+                        class="fa fa-sort" aria-hidden="true"></i>&nbsp;{{l('Sort')}}</a>
+                <ng-container *ngIf="isSortFAQ">
+                    <a style="padding-right: 2rem;" (click)="isSortFAQ = false; getFAQQuestion()">
+                        <i class="fa fa-undo" aria-hidden="true"></i>&nbsp;{{l('Cancel')}}
+                    </a>
+                    <a style="padding-right: 2rem; color: red;" (click)="isSortFAQ = false; onSortFAQ_change()">
+                        <i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;{{l('Save')}}
+                    </a>
+                </ng-container>
+                <a *ngIf="!isSortFAQ" (click)="faqQuestionAdd.isEdit = true; isShowFaq = false;"><i class="fa fa-plus"
+                        aria-hidden="true"></i>&nbsp;{{l('New')}}</a>
+            </div>
+            <div (click)="faqQuestionAdd.isEdit?'': isShowFaq = !isShowFaq">
+                <i [ngClass]="[isShowFaq ? 'fa fa-chevron-up' : 'fa fa-chevron-down']" aria-hidden="true"></i>
+                <span style="font-weight: bold; font-size: 1.8rem">&nbsp;&nbsp;{{l('FAQ')}}</span>
+            </div>
+        </div>
+        <ng-container *ngIf="isShowFaq">
+            <ng-container *ngIf="isSortFAQ; else elseTemplateSortFAQ">
+                <div fxLayout="row">
+                    <div fxFlex class="layout-padding">
+                        <mat-list dndDropzone dndEffectAllowed="copyMove" (dndDrop)="onDrop($event, faqQuestions)"
+                            class="dndList">
+                            <mat-list-item dndPlaceholderRef class="dndPlaceholder">
+                            </mat-list-item>
+                            <mat-list-item *ngFor="let item of faqQuestions" [dndDraggable]="item" title="Drag and Drop"
+                                style="cursor: move; padding: 0px" [dndEffectAllowed]="'move'" [dndDisableIf]="false"
+                                (dndMoved)="onDragged(item, faqQuestions)">
+
+                                <ng-container>
+                                    <div class="title" style="cursor: move">
+                                        <i class="fa fa-bars" aria-hidden="true"></i>&nbsp;
+                                        {{ (item.title.length>100)? (item.title | slice:0:100)+' ... ':(item.title) }}
+                                    </div>
+                                </ng-container>
+                            </mat-list-item>
+                        </mat-list>
+                    </div>
+                </div>
+            </ng-container>
+            <ng-template #elseTemplateSortFAQ>
+                <ng-container *ngFor="let item of faqQuestions; let i = index;">
+                    <div class="box" style="min-height: 40px;  padding: 2px">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"
+                                style="padding-top: 0; padding-right: 0;">
+                                <div class="pull-right" style="padding: 1rem 2rem;">
+                                    <a
+                                        (click)="item.isEdit = true; item.isShowAnswer = false; item.contentOld = item.content; item.titleOld = item.title;"><i
+                                            class="fa fa-pencil" aria-hidden="true"></i>&nbsp;{{l('Edit')}}
+                                    </a>&nbsp;&nbsp;
+                                    <a (click)="onDeleteFAQ_Click(item, i)"><i class="fa fa-trash"
+                                            aria-hidden="true"></i>&nbsp;{{l('Delete')}}</a>
+                                </div>
+                                <div (click)="item.isEdit? '': item.isShowAnswer = !item.isShowAnswer" class="title"
+                                    style="font-weight: bold; padding: 1rem; width: 80%; cursor: pointer;">
+                                    {{item.title}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Answer of FAQ -->
+                        <ng-container *ngIf="item.isShowAnswer">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 "
+                                        style="width: 80px; padding-left:4rem;">
+                                        {{l('Answer')}}:
+                                    </div>
+                                    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10" style="padding-left:2rem;">
+                                        <span [innerHTML]="item.content"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
+
+                        <!-- Edit FAQ -->
+                        <ng-container *ngIf="item.isEdit">
+                            <div class="row">
+                                <div class="form-group row">
+                                    <label class="col-12 col-lg-2 text-right">{{l('Question')}}</label>
+                                    <div class="col-12 col-lg-9">
+                                        <mat-form-field style="width: 100%">
+                                            <input matInput [(ngModel)]="item.title" placeholder="Question title *">
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-12 col-lg-2 text-right">{{l('Overview')}}</label>
+                                    <div class="col-12 col-lg-10">
+                                        <editor apiKey={{tinymceApiKey}} name="content" [(ngModel)]="item.content">
+                                        </editor>
+
+                                    </div>
+                                </div>
+                                <div class="pull-right">
+                                    <mat-action-row>
+                                        <button mat-button color="warn"
+                                            (click)="item.content = item.contentOld; item.title = item.titleOld; item.isEdit = false; item.isShowAnswer= true;">{{l("Cancel")}}</button>
+                                        <button mat-button color="primary"
+                                            (click)=" onSaveFAQ_Click(item)">{{l("Save")}}</button>
+                                    </mat-action-row>
+                                </div>
+                            </div>
+                        </ng-container>
+                    </div>
+                </ng-container>
+
+            </ng-template>
+            <!-- Add FAQ -->
+            <ng-template #elseAddShowFaq>
+                <ng-container *ngIf="faqQuestionAdd.isEdit">
+                    <div class="box" style="min-height: 40px;  padding: 4px">
+                        <div class="row">
+                            <div class="form-group row">
+                                <label class="col-12 col-lg-2 text-right">{{l('Question')}}</label>
+                                <div class="col-12 col-lg-9">
+                                    <mat-form-field style="width: 100%">
+                                        <input matInput [(ngModel)]="faqQuestionAdd.title"
+                                            placeholder="Question title *">
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-12 col-lg-2 text-right">{{l('Overview')}}</label>
+                                <div class="col-12 col-lg-10">
+                                    <editor apiKey={{tinymceApiKey}} name="content"
+                                        [(ngModel)]="faqQuestionAdd.content">
+                                    </editor>
+
+                                </div>
+                            </div>
+                            <div class="pull-right">
+                                <mat-action-row>
+                                    <button mat-button color="warn"
+                                        (click)="faqQuestionAdd.isEdit = false">{{l('Cancel')}}</button>
+                                    <button mat-button color="primary"
+                                        (click)=" onAddFAQ_Click()">{{l('Save')}}</button>
+                                </mat-action-row>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-template>
+
+        </ng-container>
+
+        <ng-container *ngIf="faqQuestionAdd.isEdit">
+            <div class="box" style="min-height: 40px;  padding: 4px">
+                <div class="row">
+                    <div class="form-group row">
+                        <label class="col-12 col-lg-2 text-right">{{l('Question')}}</label>
+                        <div class="col-12 col-lg-9">
+                            <mat-form-field style="width: 100%">
+                                <input matInput [(ngModel)]="faqQuestionAdd.title" placeholder="Question title">
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-12 col-lg-2 text-right">{{l('Overview')}}</label>
+                        <div class="col-12 col-lg-10">
+                            <editor apiKey={{tinymceApiKey}} name="content" [(ngModel)]="faqQuestionAdd.content">
+                            </editor>
+
+                        </div>
+                    </div>
+                    <div class="pull-right">
+                        <mat-action-row>
+                            <button mat-button color="warn"
+                                (click)="faqQuestionAdd.isEdit = false; isShowFaq = true;">{{l('Cancel')}}</button>
+                            <button mat-button color="primary" [disabled]="!faqQuestionAdd.title"
+                                (click)=" onAddFAQ_Click()">{{l('Save')}}</button>
+                        </mat-action-row>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Discussion -->
+    <div class="main" style="margin-top: -21px;">
+        <div class="discussion" (click)="isShowDiscussion = !isShowDiscussion">
+            <i [ngClass]="[isShowDiscussion ? 'fa fa-chevron-up' : 'fa fa-chevron-down']" aria-hidden="true"></i>
+            <span style="font-weight: bold; font-size: 2rem">&nbsp;&nbsp;{{l("Discussions")}}</span>
+        </div>
+        <ng-container *ngIf="isShowDiscussion">
+            <ng-container *ngFor="let qaQuestion of qaQuestions; let i = index;">
+                <div class="box">
+                    <ng-container>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:0;">
+                                <div class="col-xs-1" style="width: 40px; padding: 4px">
+                                    <ngx-avatar size="35" name={{qaQuestion.fullName}}
+                                        [src]="getImageServerPath(qaQuestion.imageCover)"></ngx-avatar>
+                                </div>
+                                <div class="col-xs-11 col-sm-11 col-md-11 col-lg-11"
+                                    style="padding-top: 1rem; padding-right: 0;">
+                                    <div class="pull-right" style="padding-left: 2rem;">
+                                        <a (click)="onViewQuestion_Click(qaQuestion)"><i class="fa fa-comments"
+                                                aria-hidden="true"></i>
+                                            {{qaQuestion.isFollow? 'UnView': 'View'}}</a> &nbsp;&nbsp;&nbsp;
+                                        <a (click)="onDeleteDiscussion_Click(qaQuestion, i)"><i class="fa fa-trash"
+                                                aria-hidden="true"></i>&nbsp;{{l('Delete')}}</a>
+                                    </div>
+                                    <div>
+                                        <a class="title" (click)="onViewQuestion_Click(qaQuestion)">
+                                            <ng-container *ngIf="qaQuestion.isFollow">
+                                                {{ qaQuestion.title }}
+                                            </ng-container>
+                                            <ng-container *ngIf="!qaQuestion.isFollow">
+                                                {{ (qaQuestion.title.length>80)? (qaQuestion.title | slice:0:80)+' ... ':(qaQuestion.title) }}
+                                            </ng-container>
+                                        </a>
+                                        &nbsp;
+                                        <span class="badge badge-pill badge-success"
+                                            *ngIf="qaQuestion.isNew">{{l("New Question")}}
+                                        </span>&nbsp;
+                                        <span class="badge badge-pill badge-warning"
+                                            *ngIf="qaQuestion.responses > 0">{{qaQuestion.responses}}&nbsp;{{l("New Responses")}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="qaQuestion.isFollow">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:0;">
+                                <div class="col-xs-1" style="width: 40px; padding: 4px">
+                                </div>
+                                <div class="col-xs-11 col-sm-11 col-md-11 col-lg-11 content">
+                                    <span [innerHTML]="qaQuestion.content"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="answer"></div>
+                        <div class="row">
+                            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+                            </div>
+                            <div class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
+                                <ng-container *ngFor="let aqQuestionAnswer of qaQuestion.qaAnswers;let i2=index;">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:10px 0;">
+                                            <div class="col-xs-1" style="width: 36px; padding: 0;">
+                                                <ngx-avatar size="32" name={{aqQuestionAnswer.fullName}}
+                                                    [src]="getImageServerPath(aqQuestionAnswer.imageCover)">
+                                                </ngx-avatar>
+                                            </div>
+                                            <div class="Box-discus col-xs-11 col-sm-11 col-md-11 col-lg-11">
+
+                                                <div class="Box-header col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <div class="pull-right" style="padding-left: 2rem;">
+                                                        <a
+                                                            (click)="aqQuestionAnswer.isEdit = true; onReplyAnswer_Click(aqQuestionAnswer)">
+                                                            @&nbsp;{{l('Reply')}}</a> &nbsp;&nbsp;&nbsp;
+                                                        <a
+                                                            (click)="onDeleteAnswer_Click(aqQuestionAnswer, i2, qaQuestion.qaAnswers)"><i
+                                                                class="fa fa-trash"
+                                                                aria-hidden="true"></i>&nbsp;Delete</a>
+                                                    </div>
+                                                    <div style="padding-left: 1.5rem;"
+                                                        title={{aqQuestionAnswer.fullName}}>
+                                                        {{aqQuestionAnswer.fullName}}
+                                                        <span class="posted">
+                                                            commented on
+                                                            &nbsp;{{aqQuestionAnswer.creationTime | dateLocal:'d MMM y'}}
+                                                            &nbsp;at&nbsp;
+                                                            {{aqQuestionAnswer.creationTime | dateLocal:'hh:mm:ss a'}}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <span [innerHTML]="aqQuestionAnswer.content"></span>
+                                                </div>
+
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"
+                                                    *ngIf="aqQuestionAnswer.answers?.length > 0"
+                                                    style="font-weight: bold; padding-bottom: 2rem;">
+                                                    <ng-container *ngIf="!aqQuestionAnswer.isShowAnswer">
+                                                        <a (click)="aqQuestionAnswer.isShowAnswer = true;">
+                                                            {{l('View reply')}}
+                                                        </a>
+                                                        &nbsp; <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                                                    </ng-container>
+                                                    <ng-container *ngIf="aqQuestionAnswer.isShowAnswer">
+                                                        <a (click)="aqQuestionAnswer.isShowAnswer = false;">
+                                                            {{l('Hide reply')}}</a>&nbsp; <i class="fa fa-chevron-up"
+                                                            aria-hidden="true"></i>
+                                                    </ng-container>
+                                                </div>
+                                                <ng-container *ngIf="aqQuestionAnswer.isShowAnswer">
+                                                    <ng-container
+                                                        *ngFor="let sub_answer of aqQuestionAnswer.answers; let i3 = index;">
+                                                        <div class="col-xs-1" style="width: 35px; padding-left: 2rem;">
+                                                            <ngx-avatar size="30" name={{sub_answer.fullName}}
+                                                                [src]="getImageServerPath(sub_answer.imageCover)">
+                                                            </ngx-avatar>
+                                                        </div>
+                                                        <div
+                                                            class="Box-discus col-xs-11 col-sm-11 col-md-11 col-lg-11 pull-right">
+                                                            <div
+                                                                class="Box-header col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                                <div class="pull-right" style="padding-left: 2rem;">
+                                                                    <a
+                                                                        (click)="aqQuestionAnswer.isEdit = true; onReplySubAnswer_Click(aqQuestionAnswer, i3)">
+                                                                        @&nbsp;{{l('Reply')}}</a> &nbsp;&nbsp;&nbsp;
+                                                                    <a
+                                                                        (click)="onDeleteSubAnswer_Click(aqQuestionAnswer, i3)"><i
+                                                                            class="fa fa-trash"
+                                                                            aria-hidden="true"></i>&nbsp;Delete</a>
+                                                                </div>
+                                                                <div style="padding-left: 1.5rem;"
+                                                                    title={{sub_answer.fullName}}>
+                                                                    {{sub_answer.fullName}}
+                                                                    <span class="posted">
+                                                                        commented on
+                                                                        &nbsp;{{sub_answer.creationTime | dateLocal:'d MMM y'}}
+                                                                        &nbsp;at&nbsp;
+                                                                        {{sub_answer.creationTime | dateLocal:'hh:mm:ss a'}}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                                <span [innerHTML]="sub_answer.content"></span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                                &nbsp;
+                                                            </div>
+                                                        </div>
+                                                    </ng-container>
+                                                </ng-container>
+                                                <div class="row" *ngIf="aqQuestionAnswer.isEdit">
+                                                    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+                                                    </div>
+                                                    <div class="col-xs-11 col-sm-11 col-md-11 col-lg-11 pull-right"
+                                                        style="margin: 2rem 0.3rem 2rem 2rem">
+                                                        <div>
+                                                            <editor apiKey={{tinymceApiKey}} name="new_content"
+                                                                [(ngModel)]="aqQuestionAnswer.new_content"></editor>
+                                                        </div>
+                                                        <div class="col-sm-12" style="padding-top: 2rem;">
+                                                            <button
+                                                                (click)="onAddReplyAnswer_Click(aqQuestionAnswer, qaQuestion.id)"
+                                                                mat-raised-button color="primary" mat-button
+                                                                class="waves-effect pull-right">
+                                                                {{l("Reply")}}
+                                                            </button>
+                                                            <div class="pull-right my-1">&nbsp;</div>
+                                                            <button mat-raised-button
+                                                                (click)="aqQuestionAnswer.isEdit=false; aqQuestionAnswer.new_content = ''"
+                                                                mat-button class="waves-effect pull-right">
+                                                                {{l("Cancel")}}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+
+                        <h5>{{l('Your answer')}}</h5>
+                        <div class="row" style="padding-right: 3%">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <editor apiKey={{tinymceApiKey}} name="answer" [(ngModel)]="answer"></editor>
+                            </div>
+                            <div class="pull-right" style="margin: 1rem 2rem 1rem 0;">
+                                <button mat-raised-button color="primary" [disabled]="!answer" class="waves-effect"
+                                    (click)="onAddAnswerClick(qaQuestion)">{{l('Submit')}}</button>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </ng-container>
+            <br>
+        </ng-container>
+    </div>
+
+
+
+</div>

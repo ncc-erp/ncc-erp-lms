@@ -1,0 +1,305 @@
+<div class="row clearfix">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="card main-content">
+      <div class="header">
+        <h2>
+          {{l('Course')}}
+        </h2>
+      </div>
+      <div class="body table-responsive">
+        <mat-tab-group>
+          <mat-tab label="General" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-general [courseInstanceId]="courseInstanceId" [courseId]="courseId"
+                [dropdownList]="resolverObj.selectCoureAdmins" (stateOut)="onStateChange($event)" (sourseOut)="onCourseSourseChagne($event)"></app-tab-general>
+            </ng-template>
+          </mat-tab>
+          <mat-tab label="Annoucements" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-annoucements [courseInstanceId]="courseInstanceId" [courseId]="courseId"></app-tab-annoucements>
+            </ng-template>
+          </mat-tab>
+          <mat-tab label="Tags" dynamicHeight=true>
+            <ng-template matTabContent>
+              <div class="wrapper">
+                <div style="margin-bottom: 5px;">
+                  <div class="select-tags">
+                    <div class="col-sm-12 ">
+                      <ng-multiselect-dropdown name="selectedTagItems" [placeholder]="'Select Tags'"
+                        [data]="dropdownListTag" [(ngModel)]="selectedTagItems" [settings]="dropdownSettings">
+                      </ng-multiselect-dropdown>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" (click)="saveTags()" mat-button
+                class="btn btn-primary outline waves-effect pull-right">
+                {{l("Save")}}
+              </button>
+            </ng-template>
+          </mat-tab>
+          <mat-tab *ngIf="courseSourse == 0" label="Modules" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-modules [courseInstanceId]="courseInstanceId" [courseId]="courseId"></app-tab-modules>
+            </ng-template>
+          </mat-tab>
+          <mat-tab label="People" dynamicHeight=true>
+            <ng-template matTabContent>
+              <div class="body">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs tab-nav-right" role="tablist">
+                  <li role="presentation" class="active"><a href="#everyone" data-toggle="tab">Everyone</a></li>
+                  <li role="presentation"><a href="#group" data-toggle="tab">Group</a></li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                  <div role="tabpanel" class="tab-pane fade in active" id="everyone">
+
+                    <div class="wrapper">
+                      <div style="margin-bottom: 5px;">
+                        <div class="select-groups">
+                          <div class="col-sm-12 ">
+                            <ng-multiselect-dropdown name="selectedGroupItems" [placeholder]="'Select groups'"
+                              [data]="dropdownGroupList" [(ngModel)]="selectedGroupItems"
+                              [settings]="dropdownGroupSettings">
+                            </ng-multiselect-dropdown>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button type="button" (click)="saveGroups()" mat-button
+                      class="btn btn-primary outline waves-effect pull-right">
+                      {{l("Save")}}
+                    </button>
+
+                    <!-- ************************************************************** -->
+                    <div class="row clearfix">
+                      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="card main-content">
+
+                          <div class="body table-responsive">
+                            <div class="tab">
+
+                              <!-- ******************searching************************************** -->
+                              <div class="col-sm-12">
+                                <mat-form-field class="col-sm-6">
+                                  <input matInput placeholder="{{l('Text to search')}}" id="searchText1" type="text"
+                                    [(ngModel)]="searchTextAssign" maxlength="128" (keyup.enter)="reloadDataAssign()">
+                                  <i class="icon-15 material-icons" matPrefix>search</i>
+                                </mat-form-field>
+                                <div class="col-sm-6">
+                                  <button type="button" (click)="reloadDataAssign()" style="margin-top: 10px;"
+                                    class="btn btn-primary waves-effect mt-10">Search</button>
+                                </div>
+                              </div>
+
+                              <!-- ******************filtering************************************** -->
+                              <!-- <app-filter [inputFilters]="FILTER_CONFIG"
+                                (outputFilter)="onAddedFilterItemAssign($event)"
+                                (outputDoFilterData)="reloadDataAssign()">
+                              </app-filter> -->
+                            </div>
+                            <!-- <table class="table table-hover table-striped">
+                              <tbody>
+                                <tr *ngFor="let item of filterItems">
+                                  <td>{{item.propertyName}}</td>
+                                  <td>{{item.comparisionName}}</td>
+                                  <td>{{item.value}}</td>
+                                  <td><a href="javascript:void(0);" class="waves-effect waves-block"
+                                      (click)="deleteFilterItemAssign(item)"><i
+                                        class="material-icons">delete_sweep</i></a></td>
+                                </tr>
+                              </tbody>
+                            </table> -->
+                            <!-- ******************************************************** -->
+                            <div style="margin-bottom: 5px;" class="text-right">
+                              <button (click)="createPeople()" mat-button
+                                class="btn btn-primary outline waves-effect">New
+                                People</button>
+                            </div>
+
+                            <div class="header">
+                              <h2>
+                                {{l("Invitation accepted")}}
+                              </h2>
+                              <ul class="header-dropdown m-r--5">
+                                <i class="fa fa-spin fa-spinner" *ngIf="isTableLoadingAssignAccepted"></i>
+                                <li class="dropdown">
+                                  <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown"
+                                    role="button" aria-haspopup="true" aria-expanded="false">
+                                    <i class="material-icons">more_vert</i>
+                                  </a>
+                                  <ul class="dropdown-menu pull-right">
+                                    <li><a href="javascript:void(0);" class=" waves-effect waves-block()"
+                                        (click)="refreshAssignAccepted();"><i class="material-icons">refresh</i>
+                                        {{l('Refresh')}}</a></li>
+                                  </ul>
+                                </li>
+                              </ul>
+                            </div>
+
+                            <table class="table table-hover table-striped">
+                              <thead>
+                                <tr>
+                                  <th>{{l('Name')}}</th>
+                                  <th>{{l('Login ID')}}</th>
+                                  <th>{{l('Role')}}</th>
+                                  <th>{{l('LastActivity')}}</th>
+                                  <th>{{l('TotalActivity')}}</th>
+                                  <th>{{l('Actions')}}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr
+                                  *ngFor="let item of courseUsersAccepted | paginate: { id: 'serverAssignAccepted', itemsPerPage: pageSizeAssignAccepted, currentPage: pageNumberAssignAccepted, totalItems: totalItemsAssignAccepted } ">
+                                  <td>{{item.studentName}}</td>
+                                  <td>{{item.userName}}</td>
+                                  <td>{{item.roleName}}</td>
+                                  <td>{{item.lastActivity | dateLocal}}</td>
+                                  <td>{{item.totalActivity}}</td>
+                                  <td class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown"
+                                      role="button" aria-haspopup="true" aria-expanded="false">
+                                      <i class="material-icons">menu</i>
+                                    </a>
+                                    <ul class="dropdown-menu pull-right">
+                                      <li><a href="javascript:void(0);" class="waves-effect waves-block"
+                                          (click)="editCourseUser(item.id)"><i
+                                            class="material-icons">create</i>{{l('Edit')}}</a></li>
+                                    </ul>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                            <!-- ******************************************************** -->
+
+                            <div class="text-align: center;" *ngIf="totalItemsAssignAccepted > pageSizeAssignAccepted">
+                              <pagination-controls (pageChange)="getDataPageAssignAccepted($event)"
+                                id="serverAssignAccepted"></pagination-controls>
+                            </div>
+
+
+                            <!-- ******************************************************** -->
+                            <div class="header">
+                              <h2>
+                                {{l("Invitation haven't been accepted")}}
+                              </h2>
+                              <ul class="header-dropdown m-r--5">
+                                <i class="fa fa-spin fa-spinner" *ngIf="isTableLoadingAssign"></i>
+                                <li class="dropdown">
+                                  <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown"
+                                    role="button" aria-haspopup="true" aria-expanded="false">
+                                    <i class="material-icons">more_vert</i>
+                                  </a>
+                                  <ul class="dropdown-menu pull-right">
+                                    <li><a href="javascript:void(0);" class=" waves-effect waves-block()"
+                                        (click)="refreshAssign();"><i class="material-icons">refresh</i>
+                                        {{l('Refresh')}}</a></li>
+                                  </ul>
+                                </li>
+                              </ul>
+                            </div>
+
+                            <table class="table table-hover table-striped">
+                              <thead>
+                                <tr>
+                                  <th>{{l('Name')}}</th>
+                                  <th>{{l('Login ID')}}</th>
+                                  <th>{{l('Role')}}</th>
+                                  <th>{{l('LastActivity')}}</th>
+                                  <th>{{l('TotalActivity')}}</th>
+                                  <th>{{l('Actions')}}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr
+                                  *ngFor="let item of courseUsers | paginate: { id: 'serverAssign', itemsPerPage: pageSizeAssign, currentPage: pageNumberAssign, totalItems: totalItemsAssign } ">
+                                  <td>{{item.studentName}}</td>
+                                  <td>{{item.userName}}</td>
+                                  <td>{{item.roleName}}</td>
+                                  <td>{{item.lastActivity}}</td>
+                                  <td>{{item.totalActivity}}</td>
+                                  <td class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown"
+                                      role="button" aria-haspopup="true" aria-expanded="false">
+                                      <i class="material-icons">menu</i>
+                                    </a>
+                                    <ul class="dropdown-menu pull-right">
+                                      <li><a href="javascript:void(0);" class="waves-effect waves-block"
+                                          (click)="editCourseUser(item.id)"><i
+                                            class="material-icons">create</i>{{l('Edit')}}</a></li>
+                                        <li><a class="waves-effect waves-block"
+                                          (click)="removeCourseUser(item)"><i
+                                          class="material-icons">delete</i>{{l('Remove')}}</a></li>
+                                    </ul>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                            <!-- ******************************************************** -->
+
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- ************************************************************** -->
+
+                  </div>
+                  <div role="tabpanel" class="tab-pane fade" id="group">
+                    <app-tab-group [courseInstanceId]="courseInstanceId" [courseId]="courseId"></app-tab-group>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </mat-tab>
+          <mat-tab *ngIf="courseSourse == 0" label="Quizzes" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-quizzes [courseInstanceId]="courseInstanceId" [courseId]="courseId"></app-tab-quizzes>
+            </ng-template>
+          </mat-tab>
+          <mat-tab *ngIf="courseSourse == 0" label="Assignment" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-assignment [courseInstanceId]="courseInstanceId" [courseId]="courseId"></app-tab-assignment>
+            </ng-template>
+          </mat-tab>
+          <mat-tab label="Grades" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-grades [courseInstanceId]="courseInstanceId" [courseId]="courseId"></app-tab-grades>
+            </ng-template>
+          </mat-tab>
+          <mat-tab label="Settings" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-settings [courseInstanceId]="courseInstanceId" [courseId]="courseId"></app-tab-settings>
+            </ng-template>
+          </mat-tab>
+          <mat-tab label="Pending Approve" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-pending-approve [courseInstanceId]="courseInstanceId"></app-tab-pending-approve>
+            </ng-template>
+          </mat-tab>
+          <mat-tab *ngIf="courseState == 1 && courseSourse == 0" label="Course Statistics" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-statistics [courseInstanceId]="courseInstanceId"></app-tab-statistics>
+            </ng-template>
+          </mat-tab>
+          <mat-tab *ngIf="courseSourse != 0" label="Course Statistics" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-scormstatistics [courseInstanceId]="courseInstanceId"></app-tab-scormstatistics>
+            </ng-template>
+          </mat-tab>
+          <mat-tab label="Course History" dynamicHeight=true>
+            <ng-template matTabContent>
+              <app-tab-history [courseInstanceId]="courseInstanceId"></app-tab-history>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </div>
+  </div>
+</div>
+<create-student-modal #createStudentModal (modalSave)="refreshAssign()" [courseInstanceId]="courseInstanceId">
+</create-student-modal>

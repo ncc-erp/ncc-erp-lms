@@ -1,0 +1,570 @@
+<div class="wrapper">
+  <div style="margin-bottom: 5px;" *ngIf="ListPanel">
+    <div class="col-sm-12">
+      <mat-form-field class="col-sm-6">
+        <input matInput placeholder="{{l('Search for Quiz')}}" id="searchText" type="text" maxlength="128">
+        <i class="icon-15 material-icons" matPrefix>search</i>
+      </mat-form-field>
+      <div class="col-sm-6">
+        <button type="button" data-toggle="modal" style="font-size: 16px;"
+          class="btn btn-primary waves-effect waves-float pull-right" (click)="addNewQuiz()">
+          <i class="material-icons">add</i>
+          {{l('Quiz')}}
+        </button>
+      </div>
+    </div>
+    <div class="col-sm-12">
+      <div class="border-layout">
+        <mat-expansion-panel #panelAssignment [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <b style="margin-top: 2px;">Assignment Quizzes</b>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="layout-padding">
+            <ng-container *ngTemplateOutlet="Quiztemp; context:{ $implicit: assignmentQuizzes}"></ng-container>
+          </div>
+        </mat-expansion-panel>
+        <mat-expansion-panel #panelSurvey [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <b style="margin-top: 2px;">Survey</b>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="layout-padding">
+            <ng-container *ngTemplateOutlet="Quiztemp; context:{ $implicit: surveyQuizzes}"></ng-container>
+          </div>
+        </mat-expansion-panel>
+      </div>
+    </div>
+
+  </div>
+  <div class="clearfix" *ngIf="!ListPanel">
+    <div class="card main-content">
+      <div class="header">
+        <h2>
+          {{l('Quiz Detail')}}
+        </h2>
+        <div class="clearfix mt-10">
+          <a class="waves-effect waves-block" (click)="backToList()">
+            {{l('Back to List')}} </a>
+        </div>
+      </div>
+    </div>
+    <div class="body table-responsive">
+      <ul class="nav nav-tabs tab-nav-right" role="tablist">
+        <li role="presentation" class="active"><a href="#quiz-detail" data-toggle="tab">Quiz Detail</a></li>
+        <li role="presentation"><a href="#questions" data-toggle="tab">Questions</a></li>
+        <!-- <li role="presentation"><a href="#syllabus" data-toggle="tab">Syllabus</a></li> -->
+      </ul>
+      <div class="tab-content">
+        <!-- Tab Quiz Detail -->
+        <div role="tabpanel" class="tab-pane fade in active" id="quiz-detail">
+          <div class="wrapper">
+            <div style="margin-bottom: 5px;">
+              <form #editForm="ngForm" autocomplete="off" novalidate>
+                <div class=" clearfix mt-10">
+                  <div class="col-sm-12">
+                    <input required name="Title" class="form-control " required matInput placeholder="{{l('Title')}}"
+                      [(ngModel)]="quiz.title">
+                  </div>
+                </div>
+                <div class=" clearfix">
+                  <div class="col-sm-12">
+                    <label for="content">{{l("Quiz Instructions")}}</label>
+                    <editor [apiKey]="tinymceApiKey" name="content" [(ngModel)]="quiz.content" [init]="initTinymce">
+                    </editor>
+                  </div>
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                  <div class=" clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                      <label for="type">{{l("Quiz Type")}}</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                      <mat-select class="form-control" required name="type" [(ngModel)]="quiz.type">
+                        <mat-option *ngFor="let t of quiztypes" [value]="t.id">
+                          {{t.name}}
+                        </mat-option>
+                      </mat-select>
+                    </div>
+                  </div>
+                  <div *ngIf="quiz.type === 0" class=" clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                      <label for="totalNumberQuestion">{{l("Total nuber of questions")}}</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                      <input name="totalNumberQuestion" class="form-control" enterNumber
+                        [(ngModel)]="quiz.settings.totalNumberQuestion" type="text">
+                    </div>
+                  </div>
+                  <div *ngIf="quiz.type === 0" class=" clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                      <label for="Score">{{l("Score")}}</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                      <input name="Score" class="form-control" enterNumber [(ngModel)]="quiz.settings.point"
+                        type="text">
+                    </div>
+
+                  </div>
+                  <div class=" clearfix">
+                    <div class="col-sm-2">
+                      <label for="Score">{{l("Option")}}</label>
+                    </div>
+                    <div class="col-sm-10">
+                      <div class="col-sm-12 clearfix">
+                        <input type="checkbox" id="isshuffle" class="form-control" name="ShuffleAnswer"
+                          [(ngModel)]="quiz.isShuffleAnswer" checked>
+                        <label for="isshuffle">{{l("Shuffle Answer")}}</label>
+                      </div>
+                      <div class="clearfix">
+                        <div class="col-sm-3">
+                          <input type="checkbox" id="istimelimit" class="form-control" name="checkTimeLimit"
+                            [(ngModel)]="isTimeLimit" (change)="onTimeLimitChange()">
+                          <label for="istimelimit">{{l("TimeLimit")}}</label>
+                        </div>
+                        <div class="col-sm-4" *ngIf="isTimeLimit as value;">
+                          <input name="TimeLimit" class="form-control" [(ngModel)]="quiz.timeLimit" type="number"
+                            placeholder="{{l('minutes')}}">
+                        </div>
+                      </div>
+                      <div class="col-sm-12 " *ngIf="quiz.type === 0">
+                        <input id="isallowMultipleAttemps" [(ngModel)]="isallowAttemptsBox"
+                          (change)="onAllowAttemptBoxChange()" name="allowMultipleAttempts" type="checkbox">
+                        <label for="isallowMultipleAttemps">{{l("Allow Multiple Attemps")}}</label>
+                        <div class="col-sm-10 pull-right" *ngIf="isallowAttemptsBox as value;">
+                          <div class="clearfix">
+                            <div class="col-sm-6">
+                              <label for="scoretype">{{l("Quiz Score To Keep")}}</label>
+                            </div>
+                            <div class="col-sm-6">
+                              <mat-select class="form-control" name="scoretype" [(ngModel)]="quiz.scoreKeepType">
+                                <mat-option *ngFor="let t of quizscoretokeeptypes" [value]="t.id">
+                                  {{t.name}}
+                                </mat-option>
+                              </mat-select>
+                            </div>
+                          </div>
+                          <div class="clearfix">
+                            <!-- <input id="isallowAttemps" name="allowAttempts" type="checkbox"
+                              (click)="onAllowAttemptChange()" [(ngModel)]="isallowAttempts"> -->
+                            <label for="isallowAttemps">{{l("Allow Attemps")}}</label>
+                            <input name="allowattemps" class="form-control" type="number" matInput
+                              [(ngModel)]="quiz.allowAttempts">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-12 ">
+                        <input disabled id="showOneQuestionAtATime" name="showOneQuestionAtATime" type="checkbox"
+                          [(ngModel)]="quiz.showOneQuestionAtATime">
+                        <label for="showOneQuestionAtATime">{{l("ShowOneQuestionAtATime")}}</label>
+                        <div class="col-sm-10 pull-right" *ngIf="quiz.showOneQuestionAtATime as value;">
+                          <input id="lookQuestionAfterAnswer" name="lookQuestionAfterAnswer" type="checkbox"
+                            [(ngModel)]="quiz.lookQuestionAfterAnswer">
+                          <label for="lookQuestionAfterAnswer">{{l("Lock Question After Answer")}}</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-12 ">
+                        <input id="StudentReponseType" name="responseType" type="checkbox"
+                          [(ngModel)]="studentSeeTheirQuiz">
+                        <label for="StudentReponseType">{{l("Let Student See Their Quiz Response")}}</label>
+                        <div class="clearfix" *ngIf="studentSeeTheirQuiz">
+                          <div class="col-sm-10 pull-right" *ngFor="let t of studentreponsetypes">
+                            <input type="radio" id="{{t.name}}" [(ngModel)]="quiz.responseType"
+                              name="StudentReponseType" value={{t.id}}>
+                            <label for="{{t.name}}">{{t.name}}</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                  <div class=" clearfix">
+                    <div class="col-sm-2">
+                      <label for="Score">{{l("Assign")}}</label>
+                    </div>
+                    <div class="col-sm-10">
+                      <div class="col-sm-12 box-options">
+                        <div class=" clearfix mt-10">
+                          <label for="AssignTo">{{l("Assign to")}}</label>
+                        </div>
+                        <div class="clearfix col-sm-12">
+                          <ng-multiselect-dropdown name="AssigntTo" [placeholder]="'Select Groups'"
+                            [data]="dropdownListGroups" [(ngModel)]="selectedGroupItems" [settings]="dropdownSettings"
+                            (onSelect)="onItemSelect($event)">
+                          </ng-multiselect-dropdown>
+                        </div>
+
+                        <div class="col-sm-12 clearfix">
+                          <input type="checkbox" (change)="onChangeApplyTime()" id="applyDurationId"
+                            class="form-control" name="applyDurationName"
+                            [(ngModel)]="quiz.settings.applySameStartEndTimeAsCourse">
+                          <label for="applyDurationId"
+                            style="line-height: 28px; font-weight: bold">{{l("Apply Same Start and End Duration as Course")}}</label>
+                        </div>
+                        <ng-container>
+                          <div class="clearfix ">
+                            <div class="col-sm-4">
+                              <label for="NoOfDueDays" style="line-height: 28px">{{l("No Of Due Days")}}</label>
+                            </div>
+                            <div class="col-sm-4">
+                              <input class="form-control" name="NoOfDueDays" matInput enterNumber
+                                [(ngModel)]="quiz.settings.noOfDueDays">
+                            </div>
+                          </div>
+                          <div class="clearfix mt-10">
+                            <div class="col-sm-6 datebox">
+                              <div class=" clearfix">
+                                <label for="AvaiableFrom">{{l("Avaiable From")}}</label>
+                              </div>
+                              <mat-form-field>
+                                <input matInput name="StartTime" [owlDateTime]="startTime" placeholder="Start Time"
+                                  [readonly]="quiz.settings.applySameStartEndTimeAsCourse"
+                                  [(ngModel)]="quiz.settings.startTimeUtc">
+                              </mat-form-field>
+                              <span [owlDateTimeTrigger]="startTime"
+                                *ngIf="!quiz.settings.applySameStartEndTimeAsCourse"><i
+                                  class="fa fa-calendar"></i></span>
+                              <owl-date-time #startTime></owl-date-time>
+                            </div>
+                            <div class="col-sm-6 datebox">
+                              <div class=" clearfix">
+                                <label for="Until">{{l("Until")}}</label>
+                              </div>
+                              <mat-form-field>
+                                <input matInput name="EndTime" [owlDateTime]="endTime" placeholder="End Time"
+                                  [readonly]="quiz.settings.applySameStartEndTimeAsCourse"
+                                  [(ngModel)]="quiz.settings.endTimeUtc">
+                              </mat-form-field>
+                              <span [owlDateTimeTrigger]="endTime"
+                                *ngIf="!quiz.settings.applySameStartEndTimeAsCourse"><i
+                                  class="fa fa-calendar"></i></span>
+                              <owl-date-time #endTime></owl-date-time>
+                            </div>
+                          </div>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                  <input id="isAllowNotify" [(ngModel)]="isAllowNotify" name="allowNotify" type="checkbox">
+                  <label for="isAllowNotify">{{l("Notify users that this content has changed")}}</label>
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                  <button [disabled]="!editForm.form.valid" type="submit" (click)="save()"
+                    class="ml-5 btn btn-primary waves-effect waves-float pull-right">
+                    {{l("Save")}}
+                  </button>
+                  <button [disabled]="!editForm.form.valid" type="submit" (click)="saveAndPublish()"
+                    class="ml-5 btn btn-primary waves-effect waves-float pull-right">
+                    {{l("Save & Published")}}
+                  </button>
+                  <button type="submit" (click)="cancel()"
+                    class="btn btn-secondary waves-effect waves-float pull-right">
+                    {{l("Cancel")}}
+                  </button>
+                  <!-- <button type="submit" (click)="show()" class="btn btn-secondary waves-effect waves-float pull-right">
+                    {{l("Show")}}
+                  </button> -->
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- Tab Quiz Questions -->
+        <div role="tabpanel" class="tab-pane fade" id="questions">
+          <div class="wrapper">
+            <div style="margin-bottom: 5px;">
+              <!-- tạm thời ẩn phần search -->
+              <!-- <mat-form-field class="col-sm-6" *ngIf="!addoreditQuestion && !questionPool">
+                <input matInput placeholder="{{l('Text to search')}}" id="searchText" type="text"
+                  [(ngModel)]="searchText" maxlength="128" (keyup.enter)="reloadData()">
+                <i class="icon-15 material-icons" matPrefix>search</i>
+              </mat-form-field> -->
+              <!-- giữ lại giao diện -->
+              <div class="col-md-6"></div> 
+              <div class="col-sm-6" *ngIf="!addoreditQuestion">
+                <div style="margin-bottom: 5px;" class="text-right">
+                  <button (click)="createQuestion()" mat-button class="btn btn-primary outline waves-effect"
+                    style="margin-right: 10px;" *ngIf="!questionPool">
+                    <i class="icon-15 material-icons" matPrefix style="vertical-align: text-bottom;"> add</i>
+                    {{l("New Question")}}
+                  </button>
+                  <button (click)="viewPool()" mat-button class="btn btn-primary outline waves-effect"
+                    *ngIf="quiz.id && !questionPool">
+                    <i class="icon-15 material-icons" matPrefix style="vertical-align: text-bottom;"> add</i>
+                    {{l("Question pool")}}
+                  </button>
+                  <button (click)="cancelPool()" mat-button class="btn btn-primary outline waves-effect"
+                    *ngIf="questionPool">
+                    <i class="icon-15 material-icons" matPrefix style="vertical-align: text-bottom;"> cancel</i>
+                    {{l("Cancel")}}
+                  </button>
+                </div>
+              </div>
+              <div class="col-sm-12 box-layout">
+                <div class="border-layout" *ngIf="!questionPool">
+                  <ng-template #recursiveList let-list>
+                    <mat-card dndPlaceholderRef class="dndPlaceholder">
+                    </mat-card>
+                    <!-- tạm thời ẩn phần phân trang -->
+                    <!-- <mat-expansion-panel *ngFor="let item of list | paginate: { id: 'server', itemsPerPage: pageSize, currentPage: pageNumber, totalItems: totalItems }; let i = index" -->
+                      <mat-expansion-panel [expanded]="true"  *ngFor="let item of list; let i = index"
+                      [ngClass]="i == 0 ? 'layout-padding-header' : 'layout-padding-header border-panel'"
+                      [hideToggle]="true" [expanded]="item.isExpanded" #panelModule [dndDraggable]="item"
+                      dndEffectAllowed="move" [dndType]="'module'" (dndMoved)="onDragged(item, list, 'move')">
+                      <mat-expansion-panel-header class="autoHeight_h row">
+                        <div class="autoHeight_colum1 col-5">
+                          <mat-panel-title >
+                            <mat-icon *ngIf="!panelModule.expanded"><i class="material-icons">arrow_right</i></mat-icon>
+                            <mat-icon *ngIf="panelModule.expanded"><i class="material-icons">arrow_drop_down</i>
+                            </mat-icon>
+                            <div [innerHtml]="item.title"></div>
+                          </mat-panel-title>
+                        </div>
+                        <div class="autoHeight_colum2 col-5">
+                          <mat-panel-description>
+                            <span>{{item.typeName}}</span>&nbsp;&nbsp;
+                            <span *ngIf="quiz.type == 0">{{item.mark}} pts</span>&nbsp;&nbsp;
+                            <span *ngIf="item.type == 3">{{item.nWord}} {{l("NWord")}}</span>&nbsp;&nbsp;
+                            <a (click)="editQuestion(item)" *ngIf="item.id!=null"><i class="fa fa-pencil"
+                                aria-hidden="true"></i>&nbsp;<span></span></a>&nbsp;&nbsp;
+                            <a (click)="removeLink(item)" *ngIf="item.id!=null"><i class="fa fa-times"
+                                aria-hidden="true"></i>&nbsp;<span></span></a>&nbsp;&nbsp;
+                          </mat-panel-description>
+                        </div>
+                      </mat-expansion-panel-header>
+                      <div class="layout-padding">
+                        <div *ngIf="item.isEditing">
+                          <div class="form-group form-float">
+                            <div class="form-line">
+                              <editor [ngModelOptions]="{standalone: true}"
+                                apiKey="240wmmek0oh5vnvsfrqaih1hicr5iqrp21ok77azbyrt0njz" [(ngModel)]="item.title"
+                                [init]="initTinymce"></editor>
+                            </div>
+                          </div>
+                          <div>
+                            <mat-form-field class="form-group form-float ">
+                              <mat-select class="col-md-6" (valueChange)="onQuestionTypeChange($event)"
+                                placeholder="{{l('QuestionType')}}" name="type" [(ngModel)]="question.type">
+                                <mat-option *ngFor="let t of types" [value]="t.id">
+                                  {{t.name}}
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+                          <div *ngIf="item.group == 0" class="form-group form-float">
+                            <div class="form-line">
+                              <mat-form-field>
+                                <input matInput placeholder="{{l('Mark')}}" type="text" [(ngModel)]="item.mark"
+                                  class="validate">
+                              </mat-form-field>
+                            </div>
+                          </div>
+
+                          <div *ngIf="item.type == 3">
+                            <div class="form-group form-float">
+                              <div class="form-line">
+                                <mat-form-field>
+                                  <input matInput placeholder="{{l('NWord')}}" type="text" [(ngModel)]="item.nWord"
+                                    class="validate">
+                                </mat-form-field>
+                              </div>
+                            </div>
+                          </div>
+                          <div *ngIf="item.type != 2">
+                            <div class="row">
+                              <div class="col-lg-12 col-md-12" *ngIf="item.type != 6">
+                                <!-- <mat-form-field>
+                                  <input matInput placeholder="Answer 111" id="Answer" name="Answer" type="text"
+                                    [(ngModel)]="currentAnswer.rAnswer" class="validate">
+                                </mat-form-field> -->
+                                <label for="Answer" style="font-weight: normal">{{l("Answer")}}</label>
+                                <editor [apiKey]="tinymceApiKey" name="Answer" [(ngModel)]="currentAnswer.rAnswer" [init]="initTinymce">
+                                </editor>
+                              </div>
+                              <div *ngIf="item.type == 0 || item.type == 1 || item.type == 3" class="col-lg-2 col-md-2">
+                                <div class="form-group form-float">
+                                  <input id="isCorrect" type="checkbox" name="isCorrect"
+                                    [(ngModel)]="currentAnswer.isCorrect" class="form-control" />
+                                  <label for="isCorrect" class="form-label">IsCorrect</label>
+                                </div>
+                              </div>
+
+                              <div *ngIf="item.type == 6" class="col-lg-3 col-md-3">
+                                <div class="form-group form-float">
+                                  <mat-radio-group class="example-radio-group" [(ngModel)]="trueFalseValue">
+                                    <mat-radio-button class="example-radio-button" [ngStyle]="{'margin-right': '20px'}"
+                                      [value]="true">
+                                      {{l('True')}}</mat-radio-button>
+                                    <mat-radio-button class="example-radio-button" [value]="false">
+                                      {{l('False')}}</mat-radio-button>
+                                  </mat-radio-group>
+                                </div>
+                              </div>
+
+                              <div *ngIf="item.type == 4" class="col-lg-4 col-md-4">
+                                <mat-form-field>
+                                  <input matInput placeholder="Order" id="sequenceOrder" name="sequenceOrder"
+                                    type="text" [(ngModel)]="currentAnswer.sequenceOrder" class="validate">
+                                </mat-form-field>
+                              </div>
+
+                              <div *ngIf="item.type == 5" class="col-lg-4 col-md-4">
+                                <mat-form-field>
+                                  <input matInput placeholder="Match to" id="lAnswer" name="lAnswer" type="text"
+                                    [(ngModel)]="currentAnswer.lAnswer" class="validate">
+                                </mat-form-field>
+                              </div>
+
+                              <div class="col-lg-3 col-md-3 filter" *ngIf="item.type != 6">
+                                <button type="button" (click)="addOrEditAnswer(item)"
+                                  class="btn btn-primary waves-effect"
+                                  [disabled]="currentAnswer.rAnswer==''">{{buttonName}}</button>
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+                        <table *ngIf="item.type != 2 && !(item.type == 6 && item.isEditing)"
+                          class="table table-hover table-striped">
+                          <thead>
+                            <tr>
+                              <th>{{l('Answer')}}</th>
+                              <th *ngIf="item.type == 0 || item.type == 1 || item.type == 6">
+                                <div style="text-align:center">{{l('IsCorrect')}}</div>
+                              </th>
+                              <th *ngIf="item.type == 4">{{l('Order')}}</th>
+                              <th *ngIf="item.type == 5">{{l('Match to')}}</th>
+                              <th *ngIf="item.isEditing">{{l('Actions')}}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let ans of item.answers">
+                              <td [innerHtml]="ans.rAnswer"></td>
+                              <td *ngIf="item.type == 0 || item.type == 1 || item.type == 6 || item.type == 3"
+                                align="center">
+                                <i class="material-icons" *ngIf="ans.isCorrect" style="color:green;">check_box</i>
+                                <i class="material-icons" *ngIf="!ans.isCorrect"
+                                  style="color:red;">indeterminate_check_box</i>
+                              </td>
+                              <td *ngIf="item.type == 4">{{ans.sequenceOrder}}</td>
+                              <td *ngIf="item.type == 5">{{ans.lAnswer}}</td>
+                              <td *ngIf="item.isEditing">
+                                <a href="javascript:void(0);" class="waves-effect waves-block"
+                                  (click)="editAnswer(ans)"><i class="material-icons">edit</i></a>
+                                <a href="javascript:void(0);" class="waves-effect waves-block"
+                                  (click)="deleteAnswer(item, ans)"><i class="material-icons">delete_sweep</i></a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <button *ngIf="item.isEditing" [disabled]="saving" type="button"
+                          class="btn btn-default waves-effect" style="margin-right: 12px"
+                          (click)="cancelEditQuestion(item)">
+                          {{l("Cancel")}}
+                        </button>
+                        <button *ngIf="item.isEditing" [disabled]="saving || !item.title || item.type == null"
+                          type="button" (click)="saveQuestion(item)" class="btn btn-primary outline waves-effect">
+                          {{l("Save")}}
+                        </button>
+                      </div>
+                    </mat-expansion-panel>
+                    <button style="margin: 10px 0;" *ngIf="isBtnSave" mat-flat-button
+                      (click)="SaveIndexQuestion()">Save</button>
+                  </ng-template>
+                  <div class="layout-padding" [dndDropzone]="['module']" (dndDrop)="onDrop($event, questions)">
+                    <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: questions }"></ng-container>
+                  </div>
+                </div>
+                <div class="border-layout" *ngIf="questionPool">
+                  <h2>
+                    {{l('Questions Pool')}}
+                  </h2>
+                  <ng-template #itemList let-list>
+                    <mat-expansion-panel   *ngFor="let item of list; index as i"
+                      [ngClass]="i == 0 ? 'layout-padding-header' : 'layout-padding-header border-panel'"
+                      [hideToggle]="true" [expanded]="item.isExpanded" #poolModule>
+                      <mat-expansion-panel-header style="border-top: solid 1px;">
+                        <mat-panel-title>
+                          <mat-icon *ngIf="!poolModule.expanded"><i class="material-icons">arrow_right</i></mat-icon>
+                          <mat-icon *ngIf="poolModule.expanded"><i class="material-icons">arrow_drop_down</i>
+                          </mat-icon>
+                          <div [innerHtml]="item.title"></div>
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <a (click)="linkQuestion(item)" *ngIf="item.linkable"><i class="fa fa-link"
+                              aria-hidden="true"></i>&nbsp;<span>Link
+                              Question</span></a>&nbsp;&nbsp;
+                          <a (click)="cloneQuestion(item)"><i class="fa fa-clone"
+                              aria-hidden="true"></i>&nbsp;<span>Clone
+                              Question</span></a>&nbsp;&nbsp;
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                    </mat-expansion-panel>
+
+
+
+
+
+
+
+
+
+
+
+                  </ng-template>
+                  <div class="layout-padding">
+                    <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: questions }"></ng-container>
+                    <ng-container *ngTemplateOutlet="itemList; context:{ $implicit: questionspool }"></ng-container>
+                  </div>
+                  <button type="button" (click)="cancelPool()" class="btn btn-primary outline waves-effect pull-right">
+                    {{l("Cancel")}}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ng-template #Quiztemp let-list>
+    <div *ngFor="let item of list">
+      <div class="box-items">
+        <div class="col-sm-10">
+          <div class="clearfix titleHead">{{item.title}}</div>
+          <div class="clearfix ">
+            <div class="subContent" *ngIf="item.point>0">{{item.point}} pts</div>
+          </div>
+        </div>
+        <div class="col-sm-2 dropdown">
+          <section class="setting-option pull-right">
+            <i class="material-icons check_circle" *ngIf="item.status">check_circle</i>
+            <i class="material-icons uncheck_circle" *ngIf="!item.status">block</i>
+            <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"
+              aria-haspopup="true" aria-expanded="false">
+              <i class="material-icons">more_vert</i>
+            </a>
+            <ul class="dropdown-menu pull-right">
+              <li>
+                <a (click)="editQuiz(item)">
+                  <i class="fa fa-pencil mr-10" aria-hidden="true"></i><span>{{'edit' | titlecase}}</span></a>
+              </li>
+              <li>
+                <a href="/app/view-quiz/{{item.id}}/{{courseInstanceId}}" target="_blank">
+                  <i class="fa fa-eye mr-10" aria-hidden="true"></i><span>{{'view' | titlecase}}</span></a>
+              </li>
+              <li>
+                <a (click)="deleteQuiz(item)">
+                  <i class="fa fa-times mr-10" aria-hidden="true"></i><span>{{'delete' | titlecase}}</span></a>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </ng-template>

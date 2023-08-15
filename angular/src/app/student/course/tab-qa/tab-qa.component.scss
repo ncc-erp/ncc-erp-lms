@@ -1,0 +1,96 @@
+.main {
+    border: solid #ddd 1px;
+    border-radius: 3px;
+    padding: 2rem;
+    margin: 2rem 0 2rem 0;
+    box-shadow: 1px 2px #e4e1e1;
+}
+.main-faq {
+    border: solid #ddd 1px;
+    border-radius: 3px;
+    // padding: 2rem;
+    margin: 2rem 0 2rem 0;
+    box-shadow: 1px 2px #e4e1e1;
+}
+
+.checkbox-section {
+    display: flex;
+    align-content: right;
+    align-items: center;
+    height: 60px;
+}
+
+.example-margin {
+    margin: 0 10px;
+}
+
+.back {
+    padding: 2rem 0rem;
+}
+
+.title {
+    // margin-top: 2rem;
+    padding: 0.5rem 2rem;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.content {
+    padding: 0.5rem 8rem 0.5rem 2rem;
+}
+
+.posted {
+    font-size: 1rem;
+    opacity: 0.8;
+    padding: 0.5rem 3rem;
+}
+
+.answer {
+    border-bottom: 1px solid #e4e6e8;
+    padding: 10px 17px;
+}
+
+.example-container {
+    display: flex;
+    flex-direction: column;
+}
+
+// .w3-code {
+//     width: auto;
+//     background-color: #fff;
+//     padding: 8px 12px;
+//     border-left: 4px solid #4CAF50;
+//     word-wrap: break-word;
+// }
+
+.badge-success {
+    color: #fff;
+    background-color: #28a745;
+  }
+
+.badge-warning {
+    color: #fff;
+    background-color: #ffc107;
+  }
+
+.badge-pill {
+    padding-right: .6em;
+    padding-left: .6em;
+    border-radius: 10rem;
+  }
+
+
+.Box-discus {
+  background-color: #fff;
+  border: 1px solid #d1d5da;
+  border-radius: 3px;
+  padding: 0;
+}
+.Box-header {
+  background-color: #eee;
+  border-bottom: 1px solid #d1d5da;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  padding: 5px 2px 5px 0px;
+  margin-bottom: 7px;
+}

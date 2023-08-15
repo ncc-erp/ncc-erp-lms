@@ -1,0 +1,57 @@
+<div class="body">
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs tab-nav-right" role="tablist">
+    <li role="presentation" class="active"><a href="#feature_option" data-toggle="tab">Feature Option</a></li>
+    <li role="presentation"><a href="#course_features" data-toggle="tab">Course Features</a></li>
+  </ul>
+  <div class="tab-content">
+
+    <!-- Tab Feature Option -->
+    <div role="tabpanel" class="tab-pane fade in active" id="feature_option">
+
+      <div class="wrapper">
+        <ng-container *ngFor="let item of courseSettingFeatual">
+          <ng-container *ngIf="item.checkbox; else elseTemplate">
+            <div class="row">
+              <div class="col-sm-10 ">
+                <div class="pull-right">
+                  <section class="setting-option">
+                    <mat-checkbox class="example-margin" color="primary" [(ngModel)]="item.value"></mat-checkbox>
+                  </section>
+                </div>
+                <div class="titleHead" style="margin-bottom: 0.5rem">{{item.name}}</div>
+                <div class="subTitle">{{item.description}}</div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #elseTemplate>
+              <div class="col-sm-10" style="margin-top: -3rem; padding: 0 1rem;">
+                <input type="text" style="text-align: center;" type="number" min="0" max="20" maxlength="2" [(ngModel)]="item.value">
+                <span class="subTitle">&nbsp;{{item.name}}</span>
+              </div>
+              <br />
+          </ng-template>
+          <div class="row"><br /></div>
+        </ng-container>
+
+      </div>
+      <div class="col-sm-10 ">
+        <button type="button" (click)="onSaveSettingFeatualClick()" mat-button class="btn btn-primary outline waves-effect pull-right">
+          {{l("Save")}}
+        </button>
+      </div>
+    </div>
+    <!-- Tab Course Features -->
+    <div role="tabpanel" class="tab-pane fade" id="course_features">
+      <div class="row clearfix">
+        <div class="col-sm-12">
+          Tab Course Features
+          <!-- <mat-spinner></mat-spinner> -->
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

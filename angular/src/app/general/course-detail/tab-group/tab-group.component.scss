@@ -1,0 +1,91 @@
+
+mat-card {
+    transition: transform 200ms, opacity 200ms;
+    padding: 12px 0 8px 12px;
+}
+
+.body.table-responsive {
+    nav {
+        ul {
+            li {
+                padding-top: 10px;
+                list-style: none;
+            }
+        }
+    }
+}
+
+
+.p-2 {
+    padding: 2px;
+}
+
+
+
+  .dndDraggingSource {
+    opacity: .5;
+    transform: scale(.98);
+  }
+
+  .layout-padding.border-layout {
+    border-color: #e9e9e9 !important;
+    border: 0.5px solid;
+  }
+
+  .layout-padding {
+    border-color: #9b9b9b  !important;
+    border: 0.5px dotted;
+    width: 100%;
+    min-height: 60px;
+  }
+
+.panel-body {
+    background-color: #e9e9e9;
+}
+
+.mat-expansion-panel-header-description {
+    flex-grow: 2;
+    position: absolute;
+    right: 0;
+}
+
+.layout-padding-header {
+    background-color: #e9e9e9;
+}
+
+.btn.waves-effect {
+    color: #fff;
+}
+
+.layout-padding {
+    background-color: #e9e9e9;
+}
+
+.wrapper {
+    margin-top: 10px;
+}
+
+.basic-container {
+    padding: 30px;
+}
+
+  .version-info {
+    font-size: 8pt;
+    float: right;
+  }
+
+
+.dndPlaceholder {
+  min-height: 48px;
+  border: 1px dashed green;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+
+.unassigned-students{
+    width: 300px;
+}
+
+.group-students{
+    width: 600px;
+}

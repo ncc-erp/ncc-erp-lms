@@ -1,0 +1,89 @@
+﻿<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>LMS</title>
+    <base href="/">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <meta name="author" content="">
+    <meta name="description" content="">
+    <link rel="icon" type="image/x-icon" href="assets/images/LMS.png" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="theme-red">
+    <app-root></app-root>
+    <script src="https://browser.sentry-cdn.com/5.11.1/bundle.min.js"
+        integrity="sha384-r7/ZcDRYpWjCNXLUKk3iuyyyEcDJ+o+3M5CqXP5GUGODYbolXewNHAZLYSJ3ZHcV"
+        crossorigin="anonymous"></script>
+    <script src="https://browser.sentry-cdn.com/5.11.1/captureconsole.min.js"></script>
+
+
+
+    <script type="text/javascript">
+
+        var environment = ""
+        if (window.location.host == 'http://lms.nccsoft.vn') {
+            environment = "production"
+        }
+        else {
+            environment = "localhost"
+        }
+        function initSentry() {
+            if (typeof Sentry != "undefined") {
+                Sentry.init({
+                    environment: environment,
+                    dsn: "https://e7696bf8e832455fb9b7c4073c5e1b95@o1258271.ingest.sentry.io/6453529",
+                    tracesSampleRate: 1.0,
+                    integrations: [
+                        new Sentry.Integrations.CaptureConsole({
+                            levels: ['error'],
+                        }),
+                    ],
+                });
+            }
+        }
+        function postSentryLog() {
+            if (arguments.length > 0 && typeof Sentry != "undefined" /*&& window.location.hostname.indexOf("localhost") == -1*/) {
+                let errorMessage = arguments[0];
+                let extraData = null;
+                if (arguments.length > 1) {
+                    extraData = {};
+                    for (var i = 1; i < arguments.length; i++) {
+                        extraData["arg" + i] = arguments[i];
+                    }
+                }
+
+                if (errorMessage) {
+                    if (typeof errorMessage == "string" && typeof Sentry.captureMessage == "function") {
+                        Sentry.captureMessage(errorMessage, { extra: extraData });
+                    } else if (typeof Sentry.captureException == "function") {
+                        Sentry.captureException(errorMessage, { extra: extraData });
+                    }
+                }
+            }
+        }
+
+        (function () {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.crossOrigin = "anonymous";
+            if (s.readyState) { //IE
+                script.onreadystatechange = function () {
+                    if (s.readyState == "loaded" || s.readyState == "complete") {
+                        s.onreadystatechange = null;
+                        initSentry();
+                    }
+                };
+            } else { //Others
+                s.onload = initSentry;
+            }
+
+            s.src = 'https://js.sentry-cdn.com/e7696bf8e832455fb9b7c4073c5e1b95.min.js';
+            document.getElementsByTagName("head")[0].appendChild(s);
+        })();
+    </script>
+</body>
+</html>

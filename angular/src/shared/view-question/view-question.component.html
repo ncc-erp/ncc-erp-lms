@@ -1,0 +1,172 @@
+<div class="">
+  <div style="margin-bottom: 15px;">
+    <span class="question-title" appBlockCopyPaste [innerHtml]="question.title">
+    </span>
+  </div>
+  <small *ngIf="quizType == 'quiz' || quizType == 'quiz_final'">{{question.mark}} pts</small>
+</div>
+<div class="row table-responsive">
+  <div class="d-flex question-container" *ngIf="!isFinished && isShowMessage">
+    <strong class="save-lable text-success" *ngIf="question.isSaved">Your answer is saved! 
+    </strong>
+    <strong class="save-lable text-danger" *ngIf="!question.isSaved  && !question.isDisable ">
+       {{question.isAnswerChanged ? 'Your answer has changed!' : 'Your answer is not saved yet! '}}  
+    </strong>
+    <button *ngIf="!question.isSaved  && !question.isDisable " class="btn btn-primary outline"  (click)="saveCurrentAnswer()">Save</button>
+  </div>
+ 
+
+  <div [ngClass]="{'col-lg-12 col-md-12 col-sm-12 col-xs-12': isTeacherView}">
+
+    <!-- MQC -->
+    <div *ngIf="question.type == 0" class="question-container">
+      <div *ngFor="let ans of question.answers" class="form-group form-float">
+        <mat-checkbox  [disabled]="question.isDisable || isFinished==true" [(ngModel)]="ans.isSelected" (ngModelChange)="changeAnswer()">
+          <span appBlockCopyPaste class="answer" [innerHTML]="ans.rAnswer"></span>
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <!-- SQC & TrueFalse-->
+    <div *ngIf="question.type == 1 || question.type == 6 || question.type == 3" class="question-container">
+      <!-- <label>Select one answer: </label> -->
+      <mat-radio-group class="example-radio-group" [(ngModel)]="question.selectedAnswerId" (ngModelChange)="changeAnswer()">
+        <mat-radio-button [disabled]="question.isDisable || isFinished==true" class="example-radio-button"
+          *ngFor="let ans of question.answers" [value]="ans.id">
+          <span appBlockCopyPaste class="answer" [innerHTML]="ans.rAnswer"></span>
+          </mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <!-- Open-end -->
+    <div *ngIf="question.type == 2">
+      <!-- <mat-form-field class="col-sm-12">
+        <textarea matInput [disabled]="question.isDisable" placeholder="type here" [(ngModel)]="question.answerText"
+          #message></textarea>
+        <mat-hint align="end">{{message.value.length}}</mat-hint>
+      </mat-form-field> -->
+      <editor [disabled]="question.isDisable||isFinished==true" *ngIf="!isTeacherView" [apiKey]="tinymceApiKey" name="content" [(ngModel)]="question.answerText" (ngModelChange)="changeAnswer()" [init]="initTinymce">
+      </editor>
+  
+      <div *ngIf="isTeacherView" [ngClass]="question.answerText?'green-border':'red-border'" class="editor-answer" [innerHTML] = "question.answerText?question.answerText:'no answer'">
+      </div>
+    </div>
+
+    <!-- Matching -->
+    <div *ngIf="question.type == 5">
+      <h4>test</h4>
+      <div class="row" style="padding-left: 20px;">
+        <div class="col-sm-6">
+          <div class="row flex-show" *ngFor="let ans of question.answers">
+            <mat-form-field>
+              <mat-select [disabled]="question.isDisable || isFinished" placeholder="{{l('MatchTo')}}" name="MatchTo"
+                [(ngModel)]="ans.matchTo" (ngModelChange)="changeAnswer()">
+                <mat-option *ngFor="let answer of question.lAnswers" [value]="answer">
+                  {{answer}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <span appBlockCopyPaste class="answer m-l-10" [innerHTML]="ans.rAnswer"></span>
+          </div>
+        </div>
+      
+      </div>
+    </div>
+
+    <!-- Ranking - view select-->
+    <div *ngIf="question.type == 4 && question.viewType == 0">
+      <!-- type select -->
+      <div class="row flex-show" style="padding-left: 20px;" *ngFor="let ans of question.answers">
+        <mat-form-field>
+          <mat-select [disabled]="question.isDisable || isFinished==true" placeholder="{{l('--Select--')}}" name="sequenceOrder"
+            [(ngModel)]="ans.selectedSequenceOrder" (ngModelChange)="changeAnswer()">
+            <mat-option appBlockCopyPaste *ngFor="let m of question.sequenceOrders" [value]="m">
+              {{m}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <span class="answer m-l-10" [innerHTML]="ans.rAnswer"></span>
+      </div>
+      <!-- <button type="button" (click)="changeViewType()">change view mode</button> -->
+    </div>
+
+    <!-- Ranking - view drag drop-->
+    <div *ngIf="question.type == 4 && question.viewType == 1">
+      <div class="col-sm-12" style="padding-left: 20px;">
+        <div class="layout-padding border-layout">
+          <div class="layout-padding" [dndDropzone]="['student']" (dndDrop)="onDrop($event, question.answers)">
+            <ng-container *ngTemplateOutlet="listOriginAnswers; context:{ $implicit: question.answers }">
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #listOriginAnswers let-list>
+        <mat-card dndPlaceholderRef class="dndPlaceholder">
+        </mat-card>
+        <mat-card appBlockCopyPaste *ngFor="let item of list" [dndDraggable]="item" dndEffectAllowed="move" [dndType]="'student'"
+          (dndMoved)="onDragged(item, list, 'move')">
+          {{item.rAnswer}}
+        </mat-card>
+      </ng-template>
+      <!-- <button type="button" (click)="changeViewType()">change view mode</button> -->
+    </div>
+
+  </div>
+
+  <div *ngIf="isTeacherView && quizType != 'survey'" class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+    <p *ngIf="isCorrect" style="color: green">Correct</p>
+    <p *ngIf="!isCorrect" style="color: red">Wrong</p>
+    <div *ngIf="!isCorrect" style="color: red">
+      <div *ngIf="question.submitted && option.responseType == 1 && question.type != 2" class="pull-left">
+        {{l('Answers: ')}}
+        <p *ngFor="let item of question.tipAnswers" [innerHTML]="item"></p>
+      </div>
+      <div *ngIf="isAllSubmitted && option.responseType == 0 && question.type != 2" class="pull-left">{{l('Answers: ')}}
+        <p *ngFor="let item of question.tipAnswers" [innerHTML]="item"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <button *ngIf="(!question.isShowedTip && option.responseType == 2) && isFinished" type="button"
+      class="btn btn-primary waves-effect waves-float pull-left" (click)="tips()">
+      {{l("Tips")}}
+    </button>
+    <div *ngIf="question.isShowedTip" class="pull-left">{{l('Hint: ')}}
+      <p *ngFor="let item of question.tipAnswers" [innerHTML]="item"></p>
+    </div>
+
+    <div *ngIf="!isTeacherView">
+      <div *ngIf="question.submitted && option.responseType == 1 && question.type != 2 && question.isDisable" class="pull-left">
+        {{l('Answers: ')}}
+        <p *ngFor="let item of question.tipAnswers" [innerHTML]="item"></p>
+      </div>
+      <div *ngIf="isAllSubmitted && option.responseType == 0 && question.type != 2 && question.isDisable" class="pull-left">{{l('Answers: ')}}
+        <p *ngFor="let item of question.tipAnswers" [innerHTML]="item"></p>
+      </div>
+    </div>
+
+    <!-- teacher submit score for student -->
+    <div *ngIf="isTeacherView && question.type == 2 && quizType != 'survey'">
+      <div class="row clearfix">
+        <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+          <label>{{l('Score')}}</label>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5">
+          <input type="text" class="form-control" [(ngModel)]="question.studentPoint">
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5">
+          <button type="button" class="btn btn-primary waves-effect waves-float"
+            (click)="teacherSubmitPoint()">
+            {{l("Submit")}}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+
+  <!-- <button style="margin-right: 12px" type="button" (click)="show()">show</button> -->

@@ -1,0 +1,118 @@
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card main-content">
+            <div class="body table-responsive">
+                <mat-tab-group>
+                    <mat-tab label="Feature Options">
+                        <ng-template matTabContent>
+                            <app-tab-feature></app-tab-feature>
+                        </ng-template>
+                    </mat-tab>
+
+                    <mat-tab label="Proficiency Category">
+                        <ng-template matTabContent>
+                            <!-- Student Level -->
+                            <div class="pt-15">
+                                <span class="title">{{ l('Student Level') }}</span>
+                                <form [formGroup]="studentLevel">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">{{l('Level')}}</th>
+                                                <th class="text-center">{{l('Name')}}</th>
+                                                <th class="text-center">{{l('Next Level Accomplishment(s)')}} (<i class="fa fa-question" aria-hidden="true" matTooltip="{{l('Number of courses in current level for student to attain next level.')}}" [matTooltipPosition]="'above'"></i>)
+                                                </th>
+                                                <th class="text-center">
+                                                    <button class="btn btn-primary" (click)="addLevel()">{{ l('New') }}</button>
+                                                </th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr formArrayName="levelForm" *ngFor="let item of getFormArray.controls;let i = index;">
+                                                <ng-container [formGroupName]="i">
+                                                    <td>
+                                                        <input type="text" formControlName="id" *ngIf="false">
+                                                        <input type="text" formControlName="isEdit" *ngIf="false">
+                                                        <input type="text" maskInput="integer" maxlength="9" [readOnly]="!onHidden(i)" class="form-control" formControlName="level">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" [readOnly]="!onHidden(i)" class="form-control" formControlName="displayName">
+                                                    </td>
+                                                    <td *ngIf="onHidden(i)">
+                                                        <select class="form-control" formControlName="lowCompareOperation">
+                                                            <option *ngFor="let co of studentCompareOperations" [value]="co.id">{{ co.value }}</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" maskInput="integer" maxlength="9" [readOnly]="!onHidden(i)" class="form-control" formControlName="requiredNumber">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button class="btn btn-primary outline" (click)="onEnableEdit(i)" *ngIf="!onHidden(i)">{{l('Edit')}}</button>
+                                                        <a (click)="onDelete(i)" class="ml-15 i-close" *ngIf="!onHidden(i)"></a>
+                                                        <button class="btn btn-primary outline" [disabled]="!item.valid" (click)="onSave(i)" *ngIf="onHidden(i)">{{l('Save')}}</button>
+                                                        <button class="ml-15 btn btn-secondary" (click)="onCancel(i)" *ngIf="onHidden(i)">Cancel</button>
+                                                    </td>
+                                                </ng-container>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </form>
+                            </div>
+                            <!--End Student Level -->
+                            <!-- Course Level -->
+                            <div class="pt-15">
+                                <span class="title">{{ l('Course Level') }}</span>
+                                <form [formGroup]="courseLevel">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">{{l('Level')}}</th>
+                                                <th class="text-center">{{l('Name')}}</th>
+                                                <th class="text-center">{{l('Required Student Level')}} (<i class="fa fa-question" aria-hidden="true" matTooltip="{{l('Criteria for student to be able to study course of the various level.')}}" [matTooltipPosition]="'above'"></i>)
+                                                </th>
+                                                <th class="text-center">
+                                                    <button class="btn btn-primary" (click)="addCourseLevel()">{{ l('New') }}</button>
+                                                </th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr formArrayName="levelForm" *ngFor="let item of getCourseFormArray.controls;let i = index;">
+                                                <ng-container [formGroupName]="i">
+                                                    <td>
+                                                        <input type="text" formControlName="id" *ngIf="false">
+                                                        <input type="text" formControlName="isEdit" *ngIf="false">
+                                                        <input type="text" maskInput="integer" maxlength="9" [readOnly]="!onHiddenCourse(i)" class="form-control" formControlName="level">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" [readOnly]="!onHiddenCourse(i)" class="form-control" formControlName="displayName">
+                                                    </td>
+                                                    <td *ngIf="onHiddenCourse(i)">
+                                                        <select class="form-control" formControlName="lowCompareOperation">
+                                                            <option *ngFor="let co of compareOperations" [value]="co.id">{{ co.value }}</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" maskInput="integer" maxlength="9" [readOnly]="!onHiddenCourse(i)" class="form-control" formControlName="requiredStudentLevel">
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-primary outline" (click)="onEnableEditCourse(i)" *ngIf="!onHiddenCourse(i)">{{l('Edit')}}</button>
+                                                        <a (click)="onDeleteCourse(i)" class="ml-15 i-close" *ngIf="!onHiddenCourse(i)"></a>
+                                                        <button class="btn btn-primary outline" [disabled]="!item.valid" (click)="onSaveCourse(i)" *ngIf="onHiddenCourse(i)">{{l('Save')}}</button>
+                                                        <button class="ml-15 btn btn-secondary" (click)="onCancelCourse(i)" *ngIf="onHiddenCourse(i)">{{l('Cancel')}}</button>
+                                                    </td>
+                                                </ng-container>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </form>
+                            </div>
+                            <!--End Course Level -->
+                        </ng-template>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+        </div>
+    </div>
+</div>

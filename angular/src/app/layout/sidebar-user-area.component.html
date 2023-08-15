@@ -1,0 +1,22 @@
+<div class="user-info">
+    <div style="position: absolute; top: -43px; left: 5px;">
+        <topbar-languageswitch></topbar-languageswitch>
+    </div>
+    <div class="image">
+        <img src="assets/images/user.png" width="48" height="48" alt="User" />
+    </div>
+    <a href="javascript:void(0)" id="toggle-menu" class="toggle-menu">
+        <i class="fa fa-bars" aria-hidden="true"></i>
+    </a>
+    <div class="info-container">
+        <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{shownLoginName}}</div>
+        <div class="email">{{appSession.user.emailAddress}}</div>
+        <div class="btn-group user-helper-dropdown">
+            <i class="material-icons" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="true">keyboard_arrow_down</i>
+            <ul class="dropdown-menu pull-right">
+                <li><a (click)="logout()"><i class="material-icons">input</i>{{l('Logout')}}</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

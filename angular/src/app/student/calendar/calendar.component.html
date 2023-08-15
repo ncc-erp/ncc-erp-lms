@@ -1,0 +1,41 @@
+<div class="row clearfix">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="card main-content">
+      <div class="body table-responsive student">
+        <div style="width: 100%;" class="fullCalendar" *ngIf="calendarOptions">
+          <ng-fullcalendar #ucCalendar [options]="calendarOptions" [(eventsModel)]="this.calendarOptions.events">
+          </ng-fullcalendar>
+        </div>
+        <div class="list-calendar">
+          <h5>{{ l('CALENDARS') }}</h5>
+          <div class="calendar" *ngFor="let item of courseAccept;let i = index;">
+            <span class="color" [ngStyle]="{'background-color': item.colorCode}"></span>
+            <span>{{ item.name }}</span>
+            <a id="popupColor" class="popupColor" (click)="onShowColor(i,item.colorCode)"><i class="fa fa-ellipsis-v"
+                aria-hidden="true"></i></a>
+            <div id="popover-content-{{ i }}" class="none">
+              <h5>{{l('Select Course Color')}}</h5>
+              <div class="d-inline-block ">
+                <ul class="list-group">
+                  <li *ngFor="let color of listColorSuggest" (click)="setColorValue(color.color)"
+                    [ngStyle]="{'background-color' : color.color}" class="col-sm-3 select-color list-group-item"></li>
+                </ul>
+              </div>
+              <div class="d-inline-block ml-5">
+                <span class="col-sm-2 input-color"
+                  [ngStyle]="{'background-color': colorSelected != null ? colorSelected : '#fff' }"></span>
+                <div class="col-sm-9">
+                  <input [(ngModel)]="colorSelected" name="colorSelected" class="form-control">
+                </div>
+                <div class="select-button d-inline-block pull-right">
+                  <button class="btn" (click)="onCancel(i)">Cancel</button>
+                  <button class="btn btn-primary" (click)="onSave(i,item.courseId)">Apply</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

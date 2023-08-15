@@ -1,0 +1,230 @@
+<div class="wrapper">
+  <div style="margin-bottom: 5px;">
+    <div class="clearfix" *ngIf="AssignmentListPanel as value;">
+        <div class="col-sm-6">
+            <mat-form-field>
+                <input matInput placeholder="{{l('Search for Assignment')}}" id="searchText" type="text" maxlength="128"
+                       [(ngModel)]="searchText">
+                <i class="icon-32 material-icons" matPrefix>search</i>
+            </mat-form-field>
+            <button type="button" (click)="reloadData()" class="btn btn-primary waves-effect mt-10 pull-right">  {{l('Search')}}</button>
+        </div>
+        <div class="col-sm-6">
+            <button type="button" data-toggle="modal" style="font-size: 16px;" class="btn btn-primary waves-effect waves-float pull-right"
+                    (click)="addNewAssignment()">
+                <i class="material-icons">add</i>
+                {{l('Assignment')}}
+            </button>
+        </div>
+      <div class="col-sm-12 box-layout">
+        <div class="border-layout">
+          <b style="margin: 10px; line-height: 34px;">Assignments</b>
+          <!-- <ng-container *ngTemplateOutlet="AssignmentTemplate; context:{ $implicit: assignments}"></ng-container> -->
+          <ng-container *ngFor="let item of assignments">
+            <div class="box-items">
+              <div class="col-sm-10">
+                <div class="clearfix titleHead" style="margin-bottom: 0.5rem">{{item.title}}<span *ngIf="!item.status">&nbsp;{{
+                    '(Draft)'}}</span></div>
+                <div class="clearfix ">
+                  <div class="subTitle" [innerHTML]="item.content"></div>
+                  <div class="subContent" *ngIf="item.point>0">&nbsp;|&nbsp;{{item.point}} pts</div>
+                </div>
+              </div>
+              <div class="col-sm-2 dropdown">
+                <section class="setting-option pull-right">
+                  <i class="material-icons check_circle" *ngIf="item.status">check_circle</i>
+                  <i class="material-icons uncheck_circle" *ngIf="!item.status">block</i>
+                  <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="material-icons">more_vert</i>
+                  </a>
+                  <ul class="dropdown-menu pull-right">
+                    <li>
+                      <a (click)="editAssignment(item)">
+                        <i class="fa fa-pencil mr-10" aria-hidden="true"></i><span>{{'edit page' | titlecase}}</span></a>
+                    </li>
+                    <li>
+                      <a (click)="deleteAssignment(item)">
+                        <i class="fa fa-times mr-10" aria-hidden="true"></i><span>{{'deletepage' | titlecase}}</span></a>
+                    </li>
+                  </ul>
+                </section>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+      </div>
+    </div>
+    <div class="clearfix" *ngIf="!AssignmentListPanel as value;">
+      <div class="card main-content">
+        <div class="header">
+          <h2>
+              {{l('AssignmentDetail')}}
+          </h2>
+          <div class="clearfix mt-10">
+            <a class="waves-effect waves-block" (click)="backToList()">
+              {{l('Back to List')}} </a>
+          </div>
+        </div>
+      </div>
+      <div class="body table-responsive">
+        <div class="wrapper">
+          <div style="margin-bottom: 5px;">
+            <form #editForm="ngForm" autocomplete="off" novalidate>
+              <div class=" clearfix mt-10">
+                <div class="col-sm-12">
+                  <input required name="Title" class="form-control" matInput placeholder="{{l('Title')}}"
+                    [(ngModel)]="assignmentItem.title">
+                </div>
+              </div>
+              <div class=" clearfix">
+                <div class="col-sm-12">
+                  <label for="content">{{l("Assignment Instructions")}}</label>
+                  <editor [apiKey]="tinymceApiKey" name="content" [(ngModel)]="assignmentItem.content"
+                    [init]="initTinymce"></editor>
+                </div>
+              </div>
+              <div class=" clearfix">
+                <div class="col-sm-2">
+                  <label for="Point">{{l("Point")}}</label>
+                </div>
+                <div class="col-sm-10">
+                  <input name="Point" type="number" class="form-control" [(ngModel)]="assignmentItem.settings.point">
+                </div>
+              </div>
+              <div class=" clearfix">
+                <div class="col-sm-2">
+                  <label for="type">{{l("Display Grade as")}}</label>
+                </div>
+                <div class="col-sm-10">
+                  <mat-select class="form-control" required name="displayGrade" [(ngModel)]="assignmentItem.displayGrade">
+                    <mat-option *ngFor="let t of displaygrade" [value]="t.id">
+                      {{t.name}}
+                    </mat-option>
+                  </mat-select>
+                </div>
+              </div>
+              <div class=" clearfix">
+                <div class="col-sm-2">
+                  <label for="type">{{l("Submission Type")}}</label>
+                </div>
+                <div class="col-sm-10">
+                  <mat-select class="form-control" required name="submissionTypes" [(ngModel)]="assignmentItem.submissionType">
+                    <mat-option *ngFor="let t of submissiontypes" [value]="t.id">
+                      {{t.name}}
+                    </mat-option>
+                  </mat-select>
+                </div>
+              </div>
+              <div class="clearfix">
+                <div class="col-sm-2">
+                  <label for="type">{{l("Group Assignment")}}</label>
+                </div>
+                <div class="col-sm-10"> 
+                  <div class="col-sm-12  box-options clearfix" style="margin-top:10px;margin-bottom: 0;padding-top: 15px;">
+                    <input type="checkbox" id="isGroupAssignment" class="form-control" name="GroupAssignment"
+                      [(ngModel)]="assignmentItem.isGroupAssignment" checked (change)="onGroupAssignChanged()">
+                    <label for="isGroupAssignment">{{l("This is group assignment")}}</label>
+                    <div class="col-sm-10" *ngIf="assignmentItem.isGroupAssignment">
+                      <input type="checkbox" id="isAssignIndividualGrade" class="form-control" name="AssignIndividualGrade"
+                        [(ngModel)]="assignmentItem.isAssignIndividualGrade" checked>
+                      <label for="isAssignIndividualGrade">{{l("Assign individual grades")}}</label>
+                    </div>
+                  </div>
+                  </div>
+              </div>
+              
+              <div class=" clearfix">
+                <div class="col-sm-2">
+                  <label>{{l("Assign To")}}</label>
+                </div>
+                <div class="col-sm-10">
+                  <div class="col-sm-12 box-options">
+                    <div class=" clearfix mt-10">
+                      <label for="AssignTo">{{l("Assign")}}</label>
+                    </div>
+                    <div class="clearfix col-sm-10">
+                      <ng-multiselect-dropdown name="AssigntTo" [placeholder]="'Select Groups'" [data]="dropdownListGroups"
+                       [(ngModel)]="selectedGroupItems" [settings]="dropdownSettings" (onSelect)="onItemSelect($event)">
+                      </ng-multiselect-dropdown>
+                    </div>
+                    <div class="clearfix">
+                      <div class="col-sm-4">
+                        <label for="NoOfDueDays" style="line-height: 28px">{{l("No Of Due Days")}}</label>
+                      </div>
+                      <div class="col-sm-4">
+                        <input class="form-control" name="NoOfDueDays" matInput [(ngModel)]="assignmentItem.settings.numberOfDueDays">
+                      </div>
+                    </div>
+                    <div class="clearfix mt-10">
+                      <div class="col-sm-6 datebox">
+                        <div class=" clearfix">
+                          <label for="AvaiableFrom">{{l("Avaiable From")}}</label>
+                        </div>
+                        <mat-form-field>
+                          <input matInput name="StartTime" [owlDateTime]="startTime" placeholder="Start Time"
+                            [(ngModel)]="assignmentItem.settings.startTimeUtc">
+                        </mat-form-field>
+                        <span [owlDateTimeTrigger]="startTime"><i class="fa fa-calendar"></i></span>
+                        <owl-date-time #startTime></owl-date-time>
+                      </div>
+                      <div class="col-sm-6 datebox">
+                        <div class=" clearfix">
+                          <label for="Until">{{l("Until")}}</label>
+                        </div>
+                        <mat-form-field>
+                          <input matInput name="EndTime" [owlDateTime]="endTime" placeholder="End Time" [(ngModel)]="assignmentItem.settings.endTimeUtc">
+                        </mat-form-field>
+                        <span [owlDateTimeTrigger]="endTime"><i class="fa fa-calendar"></i></span>
+                        <owl-date-time #endTime></owl-date-time>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-12" *ngIf="assignmentItem.id">
+                  <form #createForm="ngForm" enctype="multipart/form-data" autocomplete="off" id="frm_upload_attachment" novalidate>
+                    <app-file-attachments [entityId]="assignmentItem.id" [entityType]="'assignment'"></app-file-attachments>
+                  </form>
+              </div>
+              <div class="col-md-12">
+                  <input id="isAllowNotify" [(ngModel)]="isAllowNotify" name="allowNotify" type="checkbox">
+                  <label for="isAllowNotify">{{l("Notify users that this content has changed")}}</label>
+                  <button [disabled]="!editForm.form.valid" type="submit" (click)="save()" class="ml-5 btn btn-primary waves-effect waves-float pull-right">
+                      {{l("Save")}}
+                  </button>
+                  <button [disabled]="!editForm.form.valid" type="submit" (click)="saveAndPublish()" class="ml-5 btn btn-primary waves-effect waves-float pull-right">
+                      {{l("Save & Publish")}}
+                  </button>
+                  <button type="submit" (click)="backToList()" class="btn btn-default waves-effect waves-float pull-right">
+                      {{l("Cancel")}}
+                  </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #AssignmentTemplate let-list>
+  <mat-card *ngFor="let item of list">
+    {{item.title}}
+    <div class="text-right">
+      <!-- <a href="/app/assignment/edit/{{item.id}}" target="_blank">
+        <i class="fa fa-pencil" aria-hidden="true"></i>
+        &nbsp;<span>{{'edit page' | titlecase}}</span>
+      </a>&nbsp;&nbsp; -->
+      <a (click)="editAssignment(item)">
+        <i class="fa fa-pencil" aria-hidden="true"></i>
+        &nbsp;<span>{{'edit page' | titlecase}}</span>
+      </a>&nbsp;&nbsp;
+      <a (click)="deleteAssignment(item)"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;<span>{{'delete
+          page' |
+          titlecase}}</span></a>
+    </div>
+  </mat-card>
+</ng-template>

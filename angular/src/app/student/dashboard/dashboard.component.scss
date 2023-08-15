@@ -1,0 +1,133 @@
+* {
+  //   color: #979797;
+  color: #333;
+}
+
+.student {
+  height: 100vh;
+
+  .menu {
+    transition: all 0.5s;
+    font-family: "Roboto", sans-serif;
+    background: #fdfdfd;
+    width: 300px;
+    overflow: hidden;
+    display: block;
+    height: auto;
+    top: 0;
+    padding: 15px;
+  }
+
+  .content {
+    background-color: #fdfdfd;
+    margin: 0 auto;
+    width: 100%;
+
+    .list-option {
+      display: inline-block;
+      width: 100%;
+
+      .form-search {
+        display: flex;
+        float: right;
+
+        .search {
+          display: flex;
+
+          i.ico-30 {
+            font-size: 30px;
+            margin-top: 13px;
+          }
+
+          input {
+            font-size: 18px;
+            padding: 10px 10px 10px 5px;
+            display: block;
+            width: 350px;
+            border: none;
+            border-bottom: 1px solid #757575;
+
+            &:focus {
+              outline: none;
+            }
+          }
+        }
+
+        .gridview {
+          margin: 15px 0 0 0;
+          font-size: 30px;
+
+          a {
+            margin-left: 15px;
+
+            i {
+              color: #979797;
+            }
+          }
+        }
+      }
+    }
+
+    .list-course {
+      margin-top: 5%;
+      padding-bottom: 15px;
+
+      @media screen and (min-width: 400px) {}
+
+      .items {
+        -webkit-box-shadow: 1px 2px 5px #ccc;
+        box-shadow: 1px 2px 5px #ccc;
+        background-color: #fdfdfd;
+        margin: 10px 10px 0px 50px;
+        padding: 0px;
+        width: 300px;
+        border-bottom: 3px solid #080;
+
+        &:hover {
+          outline: 2px solid #646464;
+        }
+
+        img {
+          width: 100%;
+          height: 142px;
+        }
+
+        .content-items {
+          padding: 15px 0px 0px 12px;
+          height: 250px;
+
+          .course-start-info {
+            position: absolute;
+            bottom: 0;
+
+            .date {
+              font-weight: normal;
+              font-size: 0.9em;
+              line-height: 20px;
+              color: #3d3e3f;
+              margin: 0;
+              clear: both;
+            }
+          }
+        }
+      }
+
+      .paginations {
+        justify-content: center;
+
+        .pageSize {
+          margin: 0 auto !important;
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+
+.mt-30 {
+  margin-top: 30px;
+}
+
+.ft-right {
+  float: right;
+}

@@ -1,0 +1,258 @@
+a:hover { text-decoration: none !important }
+.main {
+  border: solid gray 1px;
+  border-radius: 3px;
+  margin: 1rem 0 2rem 0;
+  box-shadow: 1px 2px #e4e1e1;
+}
+
+.box{
+  border: solid gray 1px;
+  border-radius: 3px;
+  margin: 0.5rem 2rem 0.5rem 4rem;
+  padding: 0 0 0 2rem;
+}
+.discussion{
+  // border: solid gray 1px;
+  border-radius: 3px;
+  margin: 1rem 2rem 1rem 1rem;
+  padding: 0;
+  // font-size: 1.8rem;
+  // font-weight: bold;
+  cursor: pointer;
+}
+
+.courseImage{
+  // border-radius: 5px;
+  width: 140px;
+  height: 80px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.courseImage:hover {
+  opacity: 0.7;
+}
+
+
+
+.checkbox-section {
+  display: flex;
+  align-content: right;
+  align-items: center;
+  height: 60px;
+}
+
+.example-margin {
+  margin: 0 10px;
+}
+
+.back {
+  padding: 2rem 0rem;
+}
+
+.title {
+  // margin-top: 2rem;
+  // padding: 0.2rem 1rem 0 1rem;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #000;
+  opacity: 0.7;
+}
+.title-list {
+  padding: 0.2rem 1rem 0 -1px;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #000;
+  opacity: 0.7;
+}
+.subTitle{
+  font-size: 12px;
+  padding: 6px;
+  color: #000;
+  opacity: 0.7;
+}
+
+.content {
+  padding: 0.5rem 8rem 0.5rem 2rem;
+}
+
+.posted {
+  font-size: 1rem;
+  opacity: 0.8;
+  padding: 0.5rem 1rem;
+}
+.head {
+  font-size: 18px;
+  // border-bottom: 1px solid #e4e6e8;
+  padding: 10px 0 0 0;
+}
+.border{
+  border-bottom: 1px solid #e4e6e8;
+}
+.answer {
+  border-bottom: 1px solid #e4e6e8;
+  padding: 0px 17px;
+}
+
+.example-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.qa-ThreadRow {
+  display: flex;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  flex-shrink: 1;
+  margin-bottom: 10px;
+  border: 1px solid #e8ecf2;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.qa-ThreadRow--image {
+  width: 140px;
+  display: block;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  flex: 0 1 140px;
+  min-width: 140px;
+}
+
+.qa-Flex {
+  flex: 1;
+}
+
+.qa-Classifieds {
+  display: flex;
+  vertical-align: bottom;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  flex-shrink: 1;
+}
+// .qa-Classifieds li {
+//   min-width: 80px;
+//   // color: #2e97de;
+//   font-size: 1.2rem;
+//   margin-top: 1rem;
+// }
+li {
+  list-style: none;
+}
+
+
+.sub{
+  position: relative;
+  padding-top: -1rem;
+  margin-top: -1rem;
+}
+.badge {
+  display: inline-block;
+  padding: .25em .4em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25rem;
+}
+.box-head-ans{
+  background-color: lightgrey;
+  border: 1px solid #e8ecf2;
+}
+.box-content-ans{
+  background-color:white;
+  border: 1px solid #e8ecf2;
+}
+
+
+.badge-success {
+  color: #fff;
+  background-color: #28a745;
+}
+.badge-warning {
+  color: #fff;
+  background-color: #ffc107;
+}
+.badge-pill {
+  padding-right: .6em;
+  padding-left: .6em;
+  border-radius: 10rem;
+}
+
+
+
+:host {
+
+  display: block;
+  box-sizing: border-box;
+}
+
+pre {
+
+  text-align: center;
+  padding: 8px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.mat-list-item {
+
+  border: 1px solid gray;
+  border-radius: 3px;
+  margin: 0.5rem 2rem 0.5rem 4rem;
+  padding: 0 0 0 2rem;
+  height: 47px;
+}
+
+.dndList {
+  padding-top: 0;
+  transition: all 300ms ease;
+  &.dndDragover {
+
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+}
+
+.dndDragging {
+
+  border: 1px solid green;
+}
+
+.dndDraggingSource {
+
+  display: none;
+}
+
+.dndPlaceholder {
+
+  min-height: 50px;
+  border: 1px dashed green;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+// .layout-padding{
+//   padding: 0.5rem 2rem 0.5rem 4rem;
+// }
+
+.Box-discus {
+  background-color: #fff;
+  border: 1px solid #d1d5da;
+  border-radius: 3px;
+  padding: 0;
+}
+.Box-header {
+  background-color: #eee;
+  border-bottom: 1px solid #d1d5da;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  padding: 5px 2px 5px 0px;
+  margin-bottom: 7px;
+}

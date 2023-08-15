@@ -1,0 +1,39 @@
+<div class="wrapper">
+  <div style="margin-top: 15px;" class="text-right">
+    <button (click)="expandAll()" mat-button class="btn btn-primary outline waves-effect" style="margin-right:12px">Expand All</button>
+    <button (click)="collapseAll()" mat-button class="btn btn-primary outline waves-effect" style="margin-right:20px">Collapse All</button>
+  </div>
+  <div class="layout-padding border-layout">
+    <ng-template #recursiveList let-list>
+     
+      <mat-expansion-panel *ngFor="let item of list; let i = index" [ngClass]="i == 0 ? 'layout-padding-header' : 'layout-padding-header border-panel'"
+        [hideToggle]="true" #panelModule [expanded]="item.isExpanded"> 
+
+        <mat-expansion-panel-header (click)="onClick(item)">
+
+          <mat-panel-title>
+            <mat-icon *ngIf="!panelModule.expanded"><i class="material-icons">arrow_right</i></mat-icon>
+            <mat-icon *ngIf="panelModule.expanded"><i class="material-icons">arrow_drop_down</i></mat-icon>
+            <b style="margin-top: 2px;">{{item.name}}</b>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="layout-padding-page">
+          <ng-container *ngTemplateOutlet="listChildren; context:{ $implicit: item.pages }"></ng-container>
+        </div>
+      </mat-expansion-panel>
+    </ng-template>
+    <div class="layout-padding" >
+      <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: modulesPages }"></ng-container>
+    </div>
+  </div>
+</div>
+
+<ng-template #listChildren let-list>
+  <div *ngFor="let item of list" style="border-bottom:1px solid blue;">
+    <h6>{{item.name}}</h6>
+  </div>
+</ng-template>
+
+<!-- <div class="text-right" style="margin: 15px 0 15px 15px;">  
+  <button (click)="getModulesPagesByCourseId()" style="margin-left: 5px;" mat-button class="btn btn-primary waves-effect">Reload</button>
+</div> -->

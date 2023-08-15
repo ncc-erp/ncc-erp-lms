@@ -1,0 +1,31 @@
+<div class="col-sm-12">
+  <div class="col-sm-3">
+    <mat-form-field>
+      <mat-select placeholder="Filter by" id="propertyName" (valueChange)="onPropertyNameChange($event)">
+        <mat-option *ngFor="let filter of inputFilters" [class.selected]="filter.propertyName === selectedPropertyName"
+          [value]="filter.propertyName">{{filter.propertyName}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="col-sm-3">
+    <mat-form-field>
+      <mat-select placeholder="Comparision" id="comparision" (valueChange)="onComparisionChange($event)">
+        <mat-option *ngFor="let item of comparisions" [value]="item.id">{{item.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="col-sm-3">
+    <mat-form-field>
+      <input matInput placeholder="Text filter" id="filterValue" type="text" [(ngModel)]="value" name="value" maxlength="128"
+        class="validate">
+    </mat-form-field>
+  </div>
+  <div class="col-sm-3 filter">
+    <button type="button" (click)="addFilter()" class="btn btn-primary waves-effect" [disabled]="selectedPropertyName=='' || selectedComparision < 0">Add
+      filter</button>
+    <button type="button" class="btn btn-primary waves-effect mt-5" (click)="doFilterData()">Filter data</button>
+  </div>
+
+</div>
