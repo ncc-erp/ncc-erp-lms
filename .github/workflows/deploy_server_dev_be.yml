@@ -38,10 +38,9 @@ jobs:
       
       - name: Backup Log
         run: |
-          cp -r /var/www/app_git/lms/be/App_Data/Logs/* /home/nccsoft/data_git/lms/Logs/
-          rm -rf /var/www/app_git/lms/be_bk/*
+          cp -r /var/www/app_git/lms/be/App_Data/Logs/* /home/nccsoft/data_git/lms/Logs/  
           cp -r /var/www/app_git/lms/be/* /var/www/app_git/lms/be_bk/
-          rm -rf /var/www/app_git/lms/be/*
+          
       - name: Copy New Host
         run: |
           cd aspnet-core/src/RMALMS.Web.Host/bin/Release/netcoreapp2.2/publish/
@@ -49,7 +48,7 @@ jobs:
           rm -rf appsettings.Staging.json
           cp -r * /var/www/app_git/lms/be/
           mkdir -p /var/www/app_git/lms/be/data
-          cp -r /var/www/app_git/lms/be_bk/data/* /var/www/app_git/lms/be/data/
+          cp -r /var/www/app_git/lms/be_bk/wwwroot/data* /var/www/app_git/lms/be/wwwroot/data/
           cd /var/www/app_git/lms/be/
           mkdir -p /var/www/app_git/lms/be/App_Data/Logs/
           cp -r /home/nccsoft/data_git/lms/Logs/* /var/www/app_git/lms/be/App_Data/Logs/
