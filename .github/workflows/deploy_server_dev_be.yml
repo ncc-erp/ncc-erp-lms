@@ -1,0 +1,87 @@
+name: Deploy LMS_BE Dev
+on:
+  push:
+    branches:
+      - dev
+    paths:
+    - 'aspnet-core/**'
+    - '.github/workflows/deploy_server_dev_be.yml'
+
+jobs:
+  build:
+    runs-on: dev
+    name: Build LMS_BE Dev
+    environment: dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build Migrator
+        run: |
+          export PATH=$PATH:/opt/dotnet2/
+          cd aspnet-core/src/RMALMS.Migrator
+          dotnet2 build
+          dotnet2 publish -c Release
+
+      - name: Copy New Migrator
+        run: |
+          cd aspnet-core/src/RMALMS.Migrator/bin/Release/netcoreapp2.2/publish/
+          rm -rf appsettings.json
+          cp -r * /var/www/migrator_git/lms/dev-dotnet-migrator-lms/
+
+      - name: Build Host
+        run: |
+          export PATH=$PATH:/opt/dotnet2/
+          cd aspnet-core
+          dotnet2 build
+          dotnet2 publish -c Release
+      
+      - name: Backup Log
+        run: |
+          cp -r /var/www/app_git/lms/be/App_Data/Logs/* /home/nccsoft/data_git/lms/Logs/
+          rm -rf /var/www/app_git/lms/be_bk/*
+          cp -r /var/www/app_git/lms/be/* /var/www/app_git/lms/be_bk/
+          rm -rf /var/www/app_git/lms/be/*
+      - name: Copy New Host
+        run: |
+          cd aspnet-core/src/RMALMS.Web.Host/bin/Release/netcoreapp2.2/publish/
+          rm -rf appsettings.json
+          rm -rf appsettings.Staging.json
+          cp -r * /var/www/app_git/lms/be/
+          mkdir -p /var/www/app_git/lms/be/data
+          cp -r /var/www/app_git/lms/be_bk/data/* /var/www/app_git/lms/be/data/
+          cd /var/www/app_git/lms/be/
+          mkdir -p /var/www/app_git/lms/be/App_Data/Logs/
+          cp -r /home/nccsoft/data_git/lms/Logs/* /var/www/app_git/lms/be/App_Data/Logs/
+          chmod 777 -R App_Data/
+
+  deploy:
+    runs-on: dev
+    name: Deploy LMS_BE Dev
+    environment: dev
+    needs:
+      - build
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Up Data appsettings.json
+        run: |
+          cd aspnet-core/
+          echo '${{ secrets.APP_SETTING_DEV }}' > appsettings.json
+
+      - name: Migrate Database
+        run: |
+          sudo service erp-lms-git stop
+          export PATH=$PATH:/opt/dotnet2/
+          cd aspnet-core/
+          cp appsettings.json /var/www/migrator_git/lms/be/
+          cd /var/www/migrator_git/lms/dev-dotnet-migrator-lms/
+          dotnet2 RMALMS.Migrator.dll -q
+
+      - name: Restart Server
+        run: |
+          cd aspnet-core/
+          cp appsettings.json /var/www/app_git/lms/be/
+          sudo service erp-lms-git restart
+          sudo service erp-lms-git status
