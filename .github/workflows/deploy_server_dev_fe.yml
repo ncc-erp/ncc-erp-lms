@@ -57,7 +57,7 @@ jobs:
     - name: Remove appconfig
       run: |
         cd angular/dist/assets
-        rm -rf appconfig.production.json
+        rm -rf appconfig.prod.json
         rm -rf /var/www/app_git/lms/fe_bk/*
         cp -rf /var/www/app_git/lms/fe/* /var/www/app_git/lms/fe_bk/
         rm -rf /var/www/app_git/lms/fe/*
@@ -70,10 +70,10 @@ jobs:
     - name: Update Env-Config
       run: |
         cd angular/
-        echo '${{ secrets.APP_CONFIG_DEV }}' > appconfig.production.json
+        echo '${{ secrets.APP_CONFIG_DEV }}' > appconfig.prod.json
       
     - name: Restart Nginx
       run: |
         cd angular/
-        cp appconfig.production.json /var/www/app_git/lms/fe/assets/
+        cp appconfig.prod.json /var/www/app_git/lms/fe/assets/
         sudo service nginx reload
