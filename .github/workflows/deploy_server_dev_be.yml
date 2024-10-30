@@ -74,7 +74,7 @@ jobs:
           sudo service erp-lms-git stop
           export PATH=$PATH:/opt/dotnet2/
           cd aspnet-core/
-          cp appsettings.json /var/www/migrator_git/lms/be/
+          cp appsettings.json /var/www/migrator_git/lms/dev-dotnet-migrator-lms/
           cd /var/www/migrator_git/lms/dev-dotnet-migrator-lms/
           dotnet2 RMALMS.Migrator.dll -q
 
