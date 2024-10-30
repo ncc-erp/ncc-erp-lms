@@ -84,3 +84,4 @@ jobs:
           cp appsettings.json /var/www/app_git/lms/be/
           sudo service erp-lms-git restart
           sudo service erp-lms-git status
+          
