@@ -1,0 +1,65 @@
+[type="checkbox"] + label:before, [type="checkbox"]:not(.filled-in) + label:after {
+    content: '';
+    border-color:#00AEFF;
+    border-radius: 50%;
+}
+[type="checkbox"]:checked + label:before{
+    border-top: 2px solid transparent;
+    border-left: 2px solid transparent;
+    border-radius: 1px;
+}
+.box-options {
+    border: 2px solid #CDCECE;
+    border-radius: 4px;
+    padding: 10px;
+}
+.mt-10{
+    margin-top: 10px;
+}
+input.form-control{
+    border:1px solid #C8C8C8;
+    border-radius: 4px;
+    padding: 0 10px;
+}
+
+.layout-padding.border-layout {
+    border-color: #e9e9e9 !important;
+    border: 0.5px solid;
+  }
+
+  .layout-padding {
+    border-color: #9b9b9b  !important;
+    border: 0.5px dotted;
+    width: 100%;
+    // min-height: 60px;
+  }
+
+.panel-body {
+    background-color: #e9e9e9;
+}
+
+.mat-expansion-panel-header-description {
+    flex-grow: 2;
+    position: absolute;
+    right: 0;
+}
+
+.layout-padding-header {
+    background-color: #e9e9e9;
+}
+
+.btn.waves-effect {
+    color: #fff;
+}
+
+.layout-padding {
+    background-color: #e9e9e9;
+}
+
+.wrapper {
+    margin-top: 10px;
+}
+.datebox .mat-form-field {
+    max-width: 120%;
+}
+

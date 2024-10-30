@@ -1,0 +1,172 @@
+<div *ngIf="!isShowPage" class="wrapper">
+  <div style="margin-bottom: 5px;" class="text-right">
+    <button (click)="createModule()" mat-button class="btn btn-primary outline waves-effect">New Module</button>
+  </div>
+  <div class="layout-padding border-layout">
+    <ng-template #recursiveList let-list>
+      <mat-expansion-panel dndPlaceholderRef class="dndPlaceholder">
+      </mat-expansion-panel>
+
+      <mat-expansion-panel *ngFor="let item of list; let i = index"
+        [ngClass]="i == 0 ? 'layout-padding-header' : 'layout-padding-header border-panel'" [hideToggle]="true"
+        [dndDraggable]="item" dndEffectAllowed="move" [dndType]="'module'" (dndMoved)="onDragged(item, list, 'move')"
+        #panelModule>
+
+        <mat-expansion-panel-header>
+
+          <mat-panel-title>
+            <mat-icon *ngIf="!panelModule.expanded"><i class="material-icons">arrow_right</i></mat-icon>
+            <mat-icon *ngIf="panelModule.expanded"><i class="material-icons">arrow_drop_down</i></mat-icon>
+            <b style="margin-top: 2px;">{{item.name}}</b>
+          </mat-panel-title>
+
+          <mat-panel-description *ngIf="panelModule.expanded">
+            <a (click)="editModule(item.id)"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;<span>{{'edit
+                module' | titlecase}}</span></a>&nbsp;&nbsp;
+            <a (click)="deleteModule(item)"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;<span>{{'delete
+                module' | titlecase}}</span></a>&nbsp;&nbsp;
+            <a (click)="createPage(item.id)"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;<span>{{'new
+                page' | titlecase}}</span></a>
+          </mat-panel-description>
+
+        </mat-expansion-panel-header>
+        <div class="layout-padding" [dndDropzone]="['page']" (dndDrop)="onDrop($event, item.pages)">
+          <ng-container *ngTemplateOutlet="listChildren; context:{ $implicit: item.pages }"></ng-container>
+        </div>
+      </mat-expansion-panel>
+    </ng-template>
+    <div class="layout-padding" [dndDropzone]="['module']" (dndDrop)="onDrop($event, modulesPages)">
+      <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: modulesPages }"></ng-container>
+    </div>
+  </div>
+</div>
+
+<ng-template #listChildren let-list>
+
+  <mat-card dndPlaceholderRef class="dndPlaceholder">
+  </mat-card>
+
+  <mat-card *ngFor="let item of list" [dndDraggable]="item" dndEffectAllowed="move" [dndType]="'page'"
+    (dndMoved)="onDragged(item, list, 'move')">
+    <mat-icon *ngIf="item.handle" mat-list-icon dndHandle>drag_handle
+    </mat-icon>
+    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+      <span>{{item.name}}</span>
+    </div>
+    <div>
+      <a (click)="deletePage(item)" class="pull-right" style="margin-left: 12px"><i class="fa fa-times"
+          aria-hidden="true"></i></a>
+      <a (click)="editPage(item)" class="pull-right"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+    </div>
+    <!-- <div class="text-right">
+      <a (click)="editPage(item)">
+        <i class="fa fa-pencil" aria-hidden="true"></i>
+        &nbsp;
+      </a>&nbsp;&nbsp;
+      <a (click)="deletePage(item)"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;</a>
+    </div> -->
+  </mat-card>
+</ng-template>
+
+<div *ngIf="!isShowPage" class="text-right" style="margin: 15px 0 15px 15px;">
+  <button (click)="saveModulesPages()" mat-button class="btn btn-primary waves-effect">Save</button>
+  <!-- <button (click)="getModulesPagesByCourseId()" style="margin-left: 5px;" mat-button class="btn btn-primary waves-effect">Reload</button> -->
+</div>
+
+
+<!-- create/ edit page -->
+<div *ngIf="isShowPage" class="clearfix">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="card main-content">
+      <div class="header">
+        <h2 *ngIf="page.id === undefined">
+          {{l('New page')}}
+        </h2>
+        <h2 *ngIf="page.id != undefined">
+          {{l('Edit page')}}
+        </h2>
+      </div>
+      <div class="body table-responsive">
+        <form #editForm="ngForm" autocomplete="off" novalidate (ngSubmit)="savePage(page)">
+          <div class="row clearfix">
+            <div class="col-sm-12">
+              <div class="form-group form-float">
+                <!-- <div class="form-line"> -->
+                <mat-form-field class="col-sm-12">
+                  <input required name="Name" required matInput placeholder="{{l('Title')}}" [(ngModel)]="page.name">
+                </mat-form-field>
+                <!-- </div> -->
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group form-float">
+            <input id="noPageContent" type="checkbox" name="noPageContent" [(ngModel)]="isNoPageContent"
+              class="form-control" />
+            <label for="noPageContent" class="form-label">{{l("No page contents")}}</label>
+          </div>
+
+          <div *ngIf="isNoPageContent">
+            <div class="form-group">
+
+              <mat-form-field class="col-sm-12">
+                <!-- <span>{{l("Add")}}</span> -->
+                <mat-select placeholder="{{l('LinkTo')}}" (selectionChange)="onLinkTypeChange()" name="LinkTo"
+                  [(ngModel)]="selectedLinkType">
+                  <mat-option *ngFor="let item of linkTypes" [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                </mat-select>
+                <!-- <span> {{l("to HOMEPAGE")}}</span> -->
+              </mat-form-field>
+            </div>
+
+            <!-- quizzes -->
+            <div class="form-group" *ngIf="selectedLinkType == 'quiz' || selectedLinkType == 'quiz_final'">
+              <div class="col-sm-12">
+                <ng-multiselect-dropdown name="selectQuiz" [placeholder]="'Select quiz'" [data]="quizzes"
+                  [(ngModel)]="selectedLinks" [settings]="dropdownSettings" (onSelect)="onQuizSelect($event)">
+                </ng-multiselect-dropdown>
+              </div>
+            </div>
+
+            <!-- survey -->
+            <div class="form-group" *ngIf="selectedLinkType == 'survey'">
+              <div class="col-sm-12 ">
+                <ng-multiselect-dropdown name="selectQuiz" [placeholder]="'Select survey'" [data]="surveys"
+                  [(ngModel)]="selectedLinks" [settings]="dropdownSettings">
+                </ng-multiselect-dropdown>
+              </div>
+            </div>
+
+            <div class="form-group" *ngIf="selectedLinkType == 'assignment'">
+              <div class="col-sm-12 ">
+                <ng-multiselect-dropdown name="selectAssignment" [placeholder]="'Select assignment'"
+                  [data]="assignments" [(ngModel)]="selectedLinks" [settings]="dropdownSettings"
+                  (onSelect)="onAssignmentSelect($event)">
+                </ng-multiselect-dropdown>
+              </div>
+            </div>
+          </div>
+
+          <div class="row clearfix" *ngIf="!isNoPageContent">
+            <div class="col-sm-12">
+              <editor [apiKey]="tinymceApiKey" name="content" [(ngModel)]="page.content" [init]="initTinymce"></editor>
+            </div>
+          </div>
+
+          <button [disabled]="!editForm.form.valid" type="submit"
+            class="btn btn-primary waves-effect waves-float pull-right" style="margin-top: 200px; font-size:16px">
+            {{l("Save")}}
+          </button>
+
+          <button type="button" (click)="cancel()" style="margin-right:12px; margin-top: 200px; font-size:16px"
+            class="btn btn-primary waves-effect waves-float pull-right">
+            {{l("Cancel")}}
+          </button>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

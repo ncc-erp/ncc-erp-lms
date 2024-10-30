@@ -1,0 +1,152 @@
+<div class="wrapper">
+  <div style="margin-bottom: 5px;">
+    <p>
+      {{l("It's amazing how a simple piece of paper can make someone feel treasured")}}
+    </p>
+  </div>
+  <div class="clearfix">
+
+    <div class="col-sm-12 box-options">
+      <h4>
+        {{l('Attendance Certification Template')}}
+      </h4>
+      <div class="col-sm-12">
+        <button type="button" data-toggle="modal" style="font-size: 16px;"
+          class="btn btn-primary waves-effect waves-float pull-right" [disabled]="adding" (click)="addNewAttendance()">
+          <i class="material-icons">add</i>
+          {{l('Template')}}
+        </button>
+      </div>
+      <div class="col-sm-12">
+        <ng-container *ngTemplateOutlet="CertificationTemplate; context:{ $implicit: attendanceTemplates}">
+        </ng-container>
+      </div>
+    </div>
+    <div class="col-sm-12 box-options">
+      <h4>
+        {{l('Completion Certification Template')}}
+      </h4>
+      <div class="col-sm-12">
+        <button type="button" data-toggle="modal" style="font-size: 16px;"
+          class="btn btn-primary waves-effect waves-float pull-right" [disabled]="adding" (click)="addNewCompletion()">
+          <i class="material-icons">add</i>
+          {{l('Template')}}
+        </button>
+      </div>
+      <div class="col-sm-12">
+        <ng-container *ngTemplateOutlet="CertificationTemplate; context:{ $implicit: completionTemplates}">
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+</div>
+<ng-template #CertificationTemplate let-list>
+  <div *ngFor="let item of list">
+    <div class="box-items" *ngIf="!item.isEdit">
+      <div class="col-sm-9">
+        <div class="clearfix titleHead">{{item.name}}
+        </div>
+      </div>
+      <div class="col-sm-3 dropdown">
+        <section class="setting-option pull-right">
+          <!-- <a target="_blank" href="/app/view-template/{{item.id}}" class="mr-10">
+            <i class="fa fa-eye " aria-hidden="true"></i><span>&nbsp;{{'preview' | titlecase}}</span></a> -->
+          <a (click)="editTemp(item)" class="mr-10">
+            <i class="fa fa-pencil " aria-hidden="true"></i><span>&nbsp;{{'edit' | titlecase}}</span></a>
+          <a (click)="deleteTemp(item)" class="mr-10">
+            <i class="fa fa-times " aria-hidden="true"></i><span>&nbsp;{{'delete' | titlecase}}</span></a>
+        </section>
+      </div>
+    </div>
+    <div class="box-items" *ngIf="item.isEdit">
+      <div class="col-sm-12" *ngIf="item.isView">
+        <div class="clearfix previewzone">
+          <div [innerHTML]="item.content | convertHtml" class="previewcontent"
+            [style.background-image]="'url(' + imgBase64Value + ')'" [style.width]="viewWidth+'mm'"
+            [style.height]="viewHeight+'mm'">
+          </div>
+        </div>
+        <button (click)="viewTemp(item)" class="mr-5 btn btn-default waves-effect waves-float pull-right">
+          {{item.isView? l("Close Preview") : l("PreView")   }}
+        </button>
+      </div>
+      <div class="col-sm-12">
+        <div class="col-sm-2">
+          <label>{{l('Background')}}</label>
+        </div>
+        <div class="col-sm-10">
+          <div class="col-sm-2">
+            <file-upload (outputFileInfo)="getFileInfo($event,item)"
+              [custom]="'btn-customs btn btn-danger outline btn-file'" [fileType]="'image'"
+              (outputImgBase64)="getImgBase64($event)"></file-upload>
+          </div>
+          <div class="col-sm-6">
+            <div class="col-sm-12 imgcontainer" *ngIf="imgBase64Value != null">
+              <ng-container>
+                <img alt=" " [src]="imgBase64Value">
+              </ng-container>
+            </div>
+            <!-- <div class="col-sm-12 imgcontainer" *ngIf="imgBase64Value == null ">
+              <ng-container>
+                <img alt=" " [src]="getImageServerPath(item.background)">
+              </ng-container>
+            </div> -->
+          </div>
+
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="col-sm-2">
+          <label>{{l('Display Name')}}</label>
+        </div>
+        <div class="col-sm-8">
+          <mat-form-field>
+            <input matInput placeholder="{{l('Title')}}" [(ngModel)]="item.name">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="col-sm-2">
+          <label>{{l('Display Type')}}</label>
+        </div>
+        <div class="col-sm-4">
+          <mat-select class="form-control" name="tempType" [(ngModel)]="item.orientation"
+            (valueChange)="onOrientationChange($event)">
+            <mat-option *ngFor="let t of tempType" [value]="t.id">
+              {{t.name}}
+            </mat-option>
+          </mat-select>
+        </div>
+        <div class="col-sm-6">
+          <input type="checkbox" id="IsActiveTemp" class="form-control" name="IsActive"
+            [(ngModel)]="item.isActive" checked>
+          <label for="IsActiveTemp">{{l("Active")}}</label>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="col-sm-2">
+          <label>{{l('Content')}}</label>
+        </div>
+        <div class="col-sm-10">
+          <editor [apiKey]="tinymceApiKey" name="content" [(ngModel)]="item.content"
+            [init]="initTinymce"></editor>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <button (click)="viewTemp(item)" class="mr-5 btn btn-default waves-effect waves-float pull-right">
+          {{item.isView? l("Close Preview") : l("PreView")   }}
+        </button>
+        <button type="submit" (click)="cancelTemplate(item)"
+          class="ml-5 btn btn-default waves-effect waves-float pull-right">
+          {{l("Cancel")}}
+        </button>
+        <button type="submit" [disabled]="saving || !item.name " (click)="saveTemplate(item)"
+          class="mr-5 btn btn-primary waves-effect waves-float pull-right">
+          {{l("Submit")}}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</ng-template>

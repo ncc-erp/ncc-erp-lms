@@ -1,0 +1,19 @@
+{
+    "remoteServiceBaseUrl": "https://localhost:8080",
+    "appBaseUrl": "https://localhost:8081",
+    "localeMappings": [{
+            "from": "pt-BR",
+            "to": "pt"
+        },
+        {
+            "from": "zh-CN",
+            "to": "zh"
+        },
+        {
+            "from": "he-IL",
+            "to": "he"
+        }
+    ],
+    "reCaptchaSiteKey": "reCaptchaSiteKey",
+    "reCaptchaLoginCount": 2
+}

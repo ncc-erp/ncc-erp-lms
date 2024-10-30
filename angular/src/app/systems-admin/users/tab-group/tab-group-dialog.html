@@ -1,0 +1,16 @@
+<form  #createForm="ngForm" autocomplete="off" id="frm_create_group" novalidate>
+  <h2 *ngIf="!isEdit" mat-dialog-title>{{l("CreateNewGroup")}}</h2>
+  <h2 *ngIf="isEdit" mat-dialog-title>{{l("EditGroup")}}</h2>
+  <mat-dialog-content class="mat-typography" style="min-width: 400px">
+    <div class="example-container">
+      <mat-form-field>
+        <input matInput name="name" placeholder="{{l('GroupName')}}" [(ngModel)]="groupName" required maxlength="255">
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close (click)="onNoClick()">{{l('Cancel')}}</button>
+    <button mat-button [mat-dialog-close]="groupName" cdkFocusInitial
+      [disabled]="!createForm.form.valid">{{l('Save')}}</button>
+  </mat-dialog-actions>
+</form>

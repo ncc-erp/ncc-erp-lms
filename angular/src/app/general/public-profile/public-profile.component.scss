@@ -1,0 +1,33 @@
+.icon-20 {
+  font-size: 20px;
+}
+.mt-10 {
+  margin-top: 10px;
+}
+.wrapper {
+  .avatar {
+    position: relative;
+    .icon-50 {
+      font-size: 80px;
+    }
+    .profile-img {
+      width: 100%;
+      height: 150px;
+      background-size: cover;
+      display: block;
+    }
+  }
+  .information {
+    margin-top: 35px;
+
+    p.title {
+      font-size: 25px;
+      margin-bottom: 2rem;
+    }
+    .form-border {
+      display: flex;
+      padding: 15px 0 0 0;
+      border: 1px #c8c8c8 solid;
+    }
+  }
+}

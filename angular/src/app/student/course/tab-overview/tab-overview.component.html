@@ -1,0 +1,213 @@
+<div class="clearfix" style="margin-bottom: 30px">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="main-content">
+      <div class="table-responsive">
+        <!-- left -->
+        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+          <div class="content-center">
+
+            <!-- syllabus -->
+            <div class="border-content">
+              <div id="content" [innerHTML]="courseDetail.course.syllabus"></div>
+              <h3>Awarded By</h3>
+              <img src="../../../assets/images/logo-ncc.png" class="ico10564">
+            </div>
+
+            <!-- instructor -->
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 border-content">
+              <h3>Course Instructor</h3>
+              <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-center group-profile">
+                <img [src]="getImageServerPath(courseDetail.creator?.avatar)"
+                  onerror="this.src = 'assets/images/dot.gif'" class="instructor">
+                <div class="profile text-center">
+                  <a target="_blank"
+                    routerLink="/app/profile/{{courseDetail.creator?.id}}">{{ courseDetail.creator?.fullName }}</a>
+                  <p>{{ courseDetail.creator?.userName }}</p>
+                </div>
+              </div>
+
+              <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-center group-profile"
+                *ngFor="let item of courseDetail.instructors">
+                <img [src]="getImageServerPath(item.avatar)" onerror="this.src = 'assets/images/dot.gif'"
+                  class="instructor">
+                <div class="profile text-center">
+                  <a target="_blank" routerLink="/app/public-profile/{{item.id}}">{{ item.fullName }}</a>
+                  <p>{{ item.userName }}</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- right -->
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+          <!-- language -->
+          <div class="border-content">
+            <div class="lenght border-bottom" *ngIf="courseDetail.length != 0">
+              <span class="title">
+                <i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;
+                Length:
+              </span>
+              <p class="">{{ courseDetail.length }} weeks</p>
+            </div>
+            <div class="lenght border-bottom">
+              <span class="title">
+                <i class="fa fa-university" aria-hidden="true"></i>&nbsp;
+                Institution:
+              </span>
+              <a>{{ courseDetail.course.relatedInformation }}</a>
+            </div>
+            <div class="lenght border-bottom">
+              <span class="title">
+                <i class="fa fa-graduation-cap" aria-hidden="true"></i>&nbsp;
+                Subject:
+              </span>
+              <div class="category">
+                <a *ngFor="let item of courseDetail.categoryName">{{ item | titlecase }}<br></a>
+              </div>
+            </div>
+            <div class="lenght border-bottom">
+              <span class="title">
+                <i class="fa fa-certificate" aria-hidden="true"></i>&nbsp;
+                Level:
+              </span>
+              <p>{{ courseDetail.level }}</p>
+            </div>
+            <div class="lenght border-bottom" *ngIf="courseDetail.courseLanguage != null">
+              <span class="title">
+                <i class="fa fa-comment-o" aria-hidden="true"></i>&nbsp;
+                Language:
+              </span>
+              <p>{{ courseDetail.courseLanguage }}</p>
+            </div>
+            <div class="lenght">
+              <span class="title">
+                <i class="fa fa-file-video-o" aria-hidden="true"></i>&nbsp;
+                Video Transcript:
+              </span>
+              <p>English</p>
+            </div>
+          </div>
+
+          <!-- associated programs -->
+          <!-- <div class="border-content">
+            <div class="lenght">
+              <div class="associated">
+                <h5>Associated Programs:</h5>
+              </div>
+            </div>
+            <div class="d-flex">
+              <span class="program-title">
+                <i class="fa fa-television" aria-hidden="true"></i>
+              </span>
+              <div class="networks">
+                <a href="#">Cyber - Virtual Networks</a>
+                <p href="#">Cyber - Advance Networks</p>
+              </div>
+            </div>
+          </div> -->
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- old -->
+<!-- <div class="content-center">
+  <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 border-content">
+    <div class="content">
+      <div class="description">
+        <div id="content" [innerHTML]="courseDetail.course.syllabus"></div>
+        <h3>Awarded By</h3>
+        <img src="../../../assets/images/logo-ncc.png" class="ico10564">
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+
+  </div>
+  <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 border-content">
+    <div class="lenght border-bottom" *ngIf="courseDetail.length != 0">
+      <span class="title">
+        <i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;
+        Length:
+      </span>
+      <p class="">{{ courseDetail.length }} weeks</p>
+    </div>
+    <div class="lenght border-bottom">
+      <span class="title">
+        <i class="fa fa-university" aria-hidden="true"></i>&nbsp;
+        Institution:
+      </span>
+      <a>{{ courseDetail.course.relatedInformation }}</a>
+    </div>
+    <div class="lenght border-bottom">
+      <span class="title">
+        <i class="fa fa-graduation-cap" aria-hidden="true"></i>&nbsp;
+        Subject:
+      </span>
+      <div class="category">
+        <a *ngFor="let item of courseDetail.categoryName">{{ item | titlecase }}<br></a>
+      </div>
+    </div>
+    <div class="lenght border-bottom">
+      <span class="title">
+        <i class="fa fa-certificate" aria-hidden="true"></i>&nbsp;
+        Level:
+      </span>
+      <p>{{ courseDetail.level }}</p>
+    </div>
+    <div class="lenght border-bottom" *ngIf="courseDetail.courseLanguage != null">
+      <span class="title">
+        <i class="fa fa-comment-o" aria-hidden="true"></i>&nbsp;
+        Language:
+      </span>
+      <p>{{ courseDetail.courseLanguage }}</p>
+    </div>
+    <div class="lenght">
+      <span class="title">
+        <i class="fa fa-file-video-o" aria-hidden="true"></i>&nbsp;
+        Video Transcript:
+      </span>
+      <p>English</p>
+    </div>
+  </div>
+</div>
+
+<div class="content-bottom">
+  <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 border-content">
+    <div class="content">
+      <div class="description">
+        <h3>Course Instructor</h3>
+        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-center group-profile" *ngFor="let item of courseDetail.instructors">
+          <img [src]="getImageServerPath(item.avatar)" onerror="this.src = 'assets/images/dot.gif'" class="instructor">
+          <div class="profile text-center">
+            <a href="#">{{ item.fullName }}</a>
+            <p>{{ item.userName }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+
+  </div>
+  <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 border-content">
+    <div class="lenght">
+      <div class="associated">
+        <h5>Associated Programs:</h5>
+      </div>
+    </div>
+    <div class="d-flex">
+      <span class="program-title">
+        <i class="fa fa-television" aria-hidden="true"></i>
+      </span>
+      <div class="networks">
+        <a href="#">Cyber - Virtual Networks</a>
+        <p href="#">Cyber - Advance Networks</p>
+      </div>
+    </div>
+  </div>
+</div> -->

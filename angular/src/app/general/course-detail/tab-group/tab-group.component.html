@@ -1,0 +1,81 @@
+<div class="wrapper col-sm-12">
+  <div style="margin-bottom: 5px;" class="text-right col-sm-12">
+    <button (click)="createCourseGroup()" mat-button class="btn btn-primary outline waves-effect">New
+      Group</button>
+    <button (click)="saveStudentCourseGroups()" style="margin-left: 5px;" mat-button class="btn btn-primary outline waves-effect">Save</button>
+    <button (click)="reloadGroupStudents()" style="margin-left: 5px;" mat-button class="btn btn-primary outline waves-effect">Reload</button>
+  </div>
+
+  <div class="col-sm-4">
+    <h4>
+      {{l("Unssigned Students")}}
+    </h4>
+    <div class="layout-padding border-layout">
+      <div class="layout-padding" [dndDropzone]="['student']" (dndDrop)="onDrop($event, unAssignedStudents)">
+        <ng-container *ngTemplateOutlet="listUnAssignedStudent; context:{ $implicit: unAssignedStudents }"></ng-container>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-8">
+    <h4>
+      {{l("Groups")}}
+    </h4>
+    <div class="layout-padding border-layout">
+      <ng-template #lstCourseGroups let-list>
+        <!-- <mat-expansion-panel dndPlaceholderRef class="dndPlaceholder">
+                      </mat-expansion-panel> -->
+
+        <mat-expansion-panel *ngFor="let item of list; let i = index" [ngClass]="i == 0 ? 'layout-padding-header' : 'layout-padding-header border-panel'"
+          [hideToggle]="true" #panelModule>
+
+          <mat-expansion-panel-header>
+
+            <mat-panel-title>
+              <mat-icon *ngIf="!panelModule.expanded"><i class="material-icons">arrow_right</i></mat-icon>
+              <mat-icon *ngIf="panelModule.expanded"><i class="material-icons">arrow_drop_down</i></mat-icon>
+              <b style="margin-top: 2px;">{{item.groupName}}</b>
+            </mat-panel-title>
+
+            <mat-panel-description *ngIf="panelModule.expanded">
+              <a (click)="editCourseGroup(item)"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;<span>{{'edit
+                  group' | titlecase}}</span></a>&nbsp;&nbsp;
+              <a (click)="deleteCourseGroup(item)"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;<span>{{'delete
+                  group' | titlecase}}</span></a>&nbsp;&nbsp;
+            </mat-panel-description>
+
+          </mat-expansion-panel-header>
+          <div class="layout-padding" [dndDropzone]="['student']" (dndDrop)="onDrop($event, item.students)">
+            <ng-container *ngTemplateOutlet="listStudent; context:{ $implicit: item.students }"></ng-container>
+          </div>
+        </mat-expansion-panel>
+      </ng-template>
+      <div class="layout-padding" [dndDropzone]="['group']" (dndDrop)="onDrop($event, groupsStudents)">
+        <ng-container *ngTemplateOutlet="lstCourseGroups; context:{ $implicit: groupsStudents }"></ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #listStudent let-list>
+
+  <mat-card dndPlaceholderRef class="dndPlaceholder">
+  </mat-card>
+
+  <mat-card *ngFor="let item of list" [dndDraggable]="item" dndEffectAllowed="move" [dndType]="'student'" (dndMoved)="onDragged(item, list, 'move')">
+    <mat-icon *ngIf="item.handle" mat-list-icon dndHandle>drag_handle
+    </mat-icon>
+    {{item.studentName}} <span style="color: green">{{item.status == 4 ? ' (completed)' : ''}}</span> <span style="color: red">{{item.enrollCount > 0 ? ' (re-enroll ' + item.enrollCount + ')' : ''}}</span>
+  </mat-card>
+</ng-template>
+
+<ng-template #listUnAssignedStudent let-list>
+
+  <mat-card dndPlaceholderRef class="dndPlaceholder">
+  </mat-card>
+
+  <mat-card *ngFor="let item of list" [dndDraggable]="item" dndEffectAllowed="move" [dndType]="'student'" (dndMoved)="onDragged(item, list, 'move')">
+    <mat-icon *ngIf="item.handle" mat-list-icon dndHandle>drag_handle
+    </mat-icon>
+    {{item.studentName}} <span style="color: green">{{item.status == 4 ? ' (completed)' : ''}}</span> <span style="color: red">{{item.enrollCount > 0 ? ' (re-enroll ' + item.enrollCount + ')' : ''}}</span>
+  </mat-card>
+</ng-template>

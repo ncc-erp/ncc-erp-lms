@@ -1,0 +1,175 @@
+<div class="row clearfix">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="card main-content">
+      <mat-tab-group disabled="true">
+        <mat-tab label="Report" dynamicHeight=true>
+          <ng-template matTabContent>
+            <div class="main">
+              <div class=box>
+
+                <div class="row">
+                  <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+                    <div class="row">
+                      <div class="col-sm-2 col-md-2" style="padding-top: 1.5rem;">
+                        <span>User</span>
+                      </div>
+                      <div class="col-sm-10 col-md-10">
+                        <mat-form-field style="width: 100%">
+                          <mat-select [(value)]="paging.UserId" (selectionChange)="onButtonSearchOrFilter_click()">
+                            <mat-option *ngFor="let user of users" [value]="user.userId">
+                              {{user.userId}} - {{user.fullName}}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+
+                      </div>
+                      <div class="col-sm-2 col-md-2" style="padding-top: 1.5rem;">
+                        Date range
+                      </div>
+                      <div class="col-sm-5 col-md-5">
+                        <mat-form-field style="width: 100%">
+                          <input matInput [matDatepicker]="pickerFrom" (dateChange)="onButtonSearchOrFilter_click()"
+                            readonly [(ngModel)]="paging.FromDate" placeholder="mm/dd/yyyy">
+                          <mat-datepicker-toggle matSuffix [for]="pickerFrom" title="Chose Date">
+                          </mat-datepicker-toggle>
+                          <mat-datepicker #pickerFrom>
+                          </mat-datepicker>
+                        </mat-form-field>
+                      </div>
+
+                      <div class="col-sm-5 col-md-5">
+                        <mat-form-field style="width: 100%">
+                          <input matInput [matDatepicker]="pickerTo" (dateChange)="onButtonSearchOrFilter_click()"
+                            readonly [(ngModel)]="paging.ToDate" placeholder="mm/dd/yyyy">
+                          <mat-datepicker-toggle matSuffix [for]="pickerTo" title="Chose Date"></mat-datepicker-toggle>
+                          <mat-datepicker #pickerTo></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class=box>
+                <div class="row">
+                  <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+
+                    <div style="float: left; padding: 1rem 1rem 1rem 0rem" *ngFor="let button of buttons">
+                      <button (click)="onButtonGroup_click(button.index)" mat-raised-button
+                        [color]="button.index === tabIndex? 'primary': ''">{{button.name}}</button>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+              <div class=box>
+                <!-- For Tab -->
+                <ng-container *ngFor="let button of buttons ; let i = index">
+                  <div *ngIf="button.index === tabIndex">
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-bottom: 1rem;">
+                        <div class="pull-right">
+                          <i class="fa fa-search" aria-hidden="true"></i>&nbsp;Search:&nbsp;
+                          <mat-form-field class="example-full-width">
+                            <a *ngIf="paging.SearchText" title="Clear search" class="pull-right"
+                              (click)="paging.SearchText = '';  onButtonSearchOrFilter_click()">x</a>
+                            <input matInput placeholder="Enter to search" style="width: 90%"
+                              [(ngModel)]="paging.SearchText"
+                              (keyup.esc)="paging.SearchText = ''; onButtonSearchOrFilter_click()"
+                              (keyup.enter)=" onButtonSearchOrFilter_click()">
+                          </mat-form-field>
+                        </div> Show: &nbsp;
+                        <select title="Users" matNativeControl style="width: 5rem;"
+                          (change)=" onButtonSearchOrFilter_click()" [(ngModel)]="button.itemPerPage">
+                          <option *ngFor="let item of itemPerPageOption" [value]="item.id">
+                            {{item.value}}</option>
+                        </select>
+                        &nbsp;entries
+                        <button mat-raised-button title="Export Excel" style="margin-left: 2rem;"
+                          (click)="onExportExcel(button)"><i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                          {{l("Excel")}}</button>
+                        &nbsp;<button mat-raised-button title="Export PDF" (click)="onExportPDF(button)"><i
+                            class="fa fa-file-pdf-o" aria-hidden="true"></i> {{l("PDF")}}</button>
+
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <!-- {{button.name}} -->
+                        <div class="table-responsive">
+                          <table class="table table-bordered table-hover">
+                            <thead>
+                              <tr>
+                                <th title="UserId" style="width: 3rem; padding: 10px">ID</th>
+                                <th style="cursor: pointer;" title="Sort by name" (click)=" onButtonSort_click(button)">
+                                  User Name &nbsp;
+                                  <i *ngIf="paging.SortDirection === 0" class="fa fa-sort-alpha-asc"
+                                    aria-hidden="true"></i>
+                                  <i *ngIf="paging.SortDirection === 1" class="fa fa-sort-alpha-desc"
+                                    aria-hidden="true"></i>
+                                </th>
+                                <th style="min-width: 10rem;">Login DateTime</th>
+                                <th *ngIf="button.isShowCourseName" style="min-width: 20rem;">Course Name</th>
+                                <th style="min-width: 20rem;">Actions</th>
+                                <th *ngIf="button.isShowIpAddress">IP Address </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <!-- For Parent -->
+                              <ng-container
+                                *ngFor="let user of button.data | paginate: { id: 'server', itemsPerPage: paging.MaxResultCount, currentPage: button.currentPage, totalItems: button.totalPage } ; let i_0 = index">
+                                <ng-container *ngIf="user.users?.length > 0">
+
+                                  <!-- For Child -->
+                                  <tr
+                                    *ngFor="let item of user.users | paginate: { itemsPerPage: subItemsPerPage, currentPage: user.currentPage, id:user.userName }; let i_1 = index">
+                                    <td>
+                                      <!-- {{i_0 +1}}.{{ user.currentPage? (((user.currentPage-1)* paging.MaxResultCount) + i_1+1): (i_1+1)}} -->
+                                      {{user.userId}}
+                                    </td>
+                                    <td>{{user.userName}}&nbsp;<span *ngIf="i_1===0" title="Total Items"
+                                        style="font-size: 10pt; color: blue;">({{user.countLogin}})</span>
+                                    </td>
+                                    <td>
+                                      {{item.creationTime | dateLocal}}
+                                    </td>
+                                    <td *ngIf="button.isShowCourseName">{{item.courseName}}</td>
+                                    <td style="word-wrap: break-word; max-width: 50rem; ">{{item.action}}</td>
+                                    <td *ngIf="button.isShowIpAddress">{{item.ipAddress}}</td>
+                                  </tr>
+                                  <!-- For Child /-->
+                                  <!-- Paging Child -->
+                                  <ng-container *ngIf="showSubPaging">
+                                    <tr *ngIf="user.countLogin > button.itemPerPage">
+                                      <td colspan="4">
+                                        <pagination-controls (pageChange)="user.currentPage = $event"
+                                          id={{user.userName}}>
+                                        </pagination-controls>
+                                      </td>
+                                    </tr>
+                                  </ng-container>
+                                  <!-- Paging Child /-->
+                                </ng-container>
+                              </ng-container>
+                              <!-- For Parent /-->
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Paging Parent -->
+                    <div class="pull-right" *ngIf="button.totalPage > paging.MaxResultCount">
+                      <pagination-controls (pageChange)="getDataPage($event)" id="server"></pagination-controls>
+                    </div>
+                    <!-- Paging Parent /-->
+
+                  </div>
+                </ng-container>
+                <!-- For Tab /-->
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+</div>

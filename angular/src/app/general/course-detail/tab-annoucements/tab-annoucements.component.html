@@ -1,0 +1,106 @@
+<div class="wrapper">
+  <div style="margin-bottom: 5px;">
+    <div class="clearfix" *ngIf="AnnouListPanel as value;">
+      <div class="col-sm-12">
+        <div class="header">
+          <h2>
+            {{l(' Annoucements')}}
+          </h2>
+        </div>
+        <div class="col-sm-6">
+          <mat-form-field>
+            <input matInput placeholder="{{l('Search for Annoucements')}}" id="searchText" type="text" maxlength="128"
+              [(ngModel)]="searchText">
+            <i class="icon-15 material-icons" matPrefix>search</i>
+          </mat-form-field>
+          <button type="button" (click)="reloadData()" style="margin-top: 10px;"
+            class="btn btn-primary waves-effect mt-10 pull-right">Search</button>
+        </div>
+        <div class="col-sm-6">
+          <button type="button" data-toggle="modal"
+            class="btn btn-primary btn-circle waves-effect waves-circle waves-float pull-right"
+            (click)="newAnnoucement()">
+            <i class="material-icons">add</i>
+          </button>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="border-layout">
+          <table class="table table-hover table-striped">
+            <tbody>
+              <tr
+                *ngFor="let item of annoucementList | paginate: { id: 'serverAnou', itemsPerPage: pageSize, currentPage: pageNumber, totalItems: totalItems } ">
+                <td>
+                  <div class="clearfix"> <img [src]="getImageServerPath(item.imageCover)" height="48" width="48"
+                      onerror="this.src = 'assets/images/dot.gif'">
+                    {{item.userName}}</div>
+                  <div class="clearfix mt-10" [innerHTML]="item.title"></div>
+                  <div class="clearfix" [innerHTML]="item.content"></div>
+                </td>
+                <td style="width:30%;">
+                  <button type="button" data-toggle="modal" class="btn btn-default pull-right" (click)="delete(item)">
+                    <i class="material-icons">delete_sweep</i>
+                    {{l('Delete')}}
+                  </button>
+                  <button type="button" data-toggle="modal" class="btn btn-default mr-10 pull-right"
+                    (click)="editAnnoucement(item)">
+                    <i class="material-icons">create</i>
+                    {{l('Edit')}}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- ******************************************************** -->
+          <div class="text-align: center;" *ngIf="totalItems > pageSize">
+            <pagination-controls (pageChange)="getDataPage($event)" id="serverAnou"></pagination-controls>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="clearfix" *ngIf="!AnnouListPanel as value;">
+      <div class="card main-content">
+        <div class="header">
+          <h2>
+            {{annoucement.id != null ? l(' Edit Annoucement') : l(' Add Annoucement')}}
+          </h2>
+          <div class="clearfix mt-10" *ngIf="courseInstanceId != null  as value;">
+            <a class="waves-effect waves-block" (click)="changePanel()">
+              {{l('Back to Annoucements')}} </a>
+          </div>
+        </div>
+        <div class="body table-responsive">
+          <div class="wrapper">
+            <div style="margin-bottom: 5px;">
+              <form #editForm="ngForm" autocomplete="off" novalidate (ngSubmit)="saveAnnoucement()">
+                <div class=" clearfix mt-10">
+                  <div class="col-sm-12">
+                    <input required name="Title" class="form-control" placeholder="{{l('Title')}}"
+                      [(ngModel)]="annoucement.title">
+                  </div>
+                </div>
+                <div class=" clearfix mt-10">
+                  <div class="col-sm-12">
+                    <label>{{l("Content")}}</label>
+                  </div>
+                  <div class="col-sm-12">
+                    <editor [apiKey]="tinymceApiKey" name="content"
+                      [(ngModel)]="annoucement.content" [init]="initTinymce"></editor>
+                  </div>
+                </div>
+                <div class="col-md-12 mt-10">
+                  <button [disabled]="!editForm.form.valid" type="submit"
+                    class="btn btn-primary outline waves-effect waves-float pull-right">
+                    {{l("Save Annoucement")}}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

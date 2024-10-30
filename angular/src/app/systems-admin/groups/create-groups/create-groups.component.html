@@ -1,0 +1,74 @@
+﻿<div bsModal #createGroupsModal="bs-modal" class="modal fade" (onShown)="onShown()" tabindex="-1" role="dialog" aria-labelledby="createGroupsModal" aria-hidden="true" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog">
+
+        <div #modalContent class="modal-content">
+
+            <form *ngIf="active" #createGroupsForm="ngForm" autocomplete="off" id="frm_create_group" novalidate (ngSubmit)="save()">
+                <div class="modal-header">
+                    <button type="button" class="close" (click)="close()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <span>{{l("CreateNewGroup")}}</span>
+                    </h4>
+                </div>
+                <div class="modal-body">
+
+                    <ul class="nav nav-tabs tab-nav-right" role="tablist">
+                        <li role="presentation" class="active"><a href="#group-details" data-toggle="tab">Group Details</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane animated fadeIn active" id="group-details">
+
+                            <div class="row clearfix" style="margin-top:10px;">
+                                <div class="col-sm-12">
+                                    <div class="form-group form-float">
+                                        <div class="form-line">
+                                            <input id="groupName" type="text" name="groupName" [(ngModel)]="group.name" required maxlength="32" minlength="2" class="validate form-control">
+                                            <label for="groupName" class="form-label">{{l("GroupName")}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <div class="form-group form-float">
+                                        <div class="form-line">
+                                            <textarea id="description" type="text" name="description" [(ngModel)]="group.description" required maxlength="32" class="validate form-control"></textarea>
+                                            <label for="description" class="form-label">{{l("Description")}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-6">
+                                    <mat-form-field>
+                                        <mat-select placeholder="{{l('ParentGroup')}}" name="parentId" [(ngModel)]="group.parentId">
+                                            <mat-option [value]="">{{l('ParentGroup')}}</mat-option>
+                                            <mat-option *ngFor="let group of lstGroups" [value]="group.id">
+                                            {{group.name}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button [disabled]="saving" type="button" class="btn btn-default waves-effect" (click)="close()">
+                        {{l("Cancel")}}
+                    </button>
+                    <button [disabled]="!createGroupsForm.form.valid || saving" type="submit" class="btn btn-primary outline waves-effect">
+                        {{l("Save")}}
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

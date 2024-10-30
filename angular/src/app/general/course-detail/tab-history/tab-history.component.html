@@ -1,0 +1,30 @@
+<div class="wrapper">
+  <div style="margin-bottom: 5px;">
+    <div class="col-sm-12">
+      <div class="border-layout">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th width="20%">{{l('Start Date')}}</th>
+              <th width="20%">{{l('End Date')}}</th>
+              <th width="20%">{{l('Creator')}}</th>
+              <th width="20%">{{l('Link')}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let item of courseInstances  ">
+              <td>{{item.startTime}}</td>
+              <td>{{item.endTime}}</td>
+              <td>{{item.createrName}}</td>
+              <td>
+                <a href="javascript:void(0);" class="waves-effect "  href="/app/course/{{item.id}}">
+                  <i class="fa fa-link"></i>{{l('View')}}</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

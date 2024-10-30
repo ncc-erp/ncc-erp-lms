@@ -1,0 +1,126 @@
+<div class="wrapper">
+  <div style="margin-bottom: 20px;">
+    <div class="col-md-12">
+      <button *ngIf="!isEdit" style="margin-top: 10px" class="btn btn-primary outline" (click)="isEdit = true">{{ l('Edit Profile') }}</button>
+      <div class="avatar" style="margin-top: 15px">
+        <i class="icon-50 fa fa-user-circle-o" *ngIf="user.avatar == null" aria-hidden="true"></i>
+        <img class="profile-img" *ngIf="user.avatar != null" onerror="this.src = 'assets/images/dot.gif'"  [src]="getImageServerPath(user.avatar)">
+        <file-upload *ngIf="isEdit" [page]="'profile'" [fileType]="'image'" (outputFileInfo)="getFile($event)">
+        </file-upload>
+        <input type="text" formControlName="avatar" name="avatar" *ngIf="false">
+      </div>
+      <div class="col-sm-9 information">
+        <ng-container *ngIf="!isEdit">
+          <p class="title">{{(user.title != null ? user.title + '&nbsp;' : '') + user.name}}</p>
+          <p class="mt-10">{{l('Basic Information')}}</p>
+          <div class="form-border" *ngIf="user.name != null">
+            <label class="col-sm-5">{{l('Full Name')}}</label>
+            <p class="col-sm-7">{{ user.name + '&nbsp;' + user.surname }}</p>
+          </div>
+          <div class="form-border" *ngIf="user.displayName != null">
+            <label class="col-sm-5">Display Name</label>
+            <p class="col-sm-7">{{ user.displayName }}</p>
+          </div>
+          <div class="form-border b-t-none " *ngIf="user.emailAddress != null">
+            <label class="col-sm-5">{{l('Email Address')}}</label>
+            <p class="col-sm-7">{{ user.emailAddress }}</p>
+          </div>
+          <div class="form-border b-t-none " *ngIf="user.status != null && isGranted('Pages.Certification')">
+            <label class="col-sm-5">{{l('Level')}}</label>
+            <p class="col-sm-7">{{ user.status.displayName }}</p>
+          </div>
+          <ng-container *ngIf="isGranted('Pages.Certification')">
+            <!-- <div class="form-border b-t-none " *ngIf="user.studentId != null">
+              <label class="col-sm-5">{{ l('Student ID') }}</label>
+              <p class="col-sm-7">{{ user.studentId }}</p>
+            </div> -->
+            <div class="form-border b-t-none " *ngIf="user.proficiency != null">
+              <label class="col-sm-5">{{ l('Proficiency') }}</label>
+              <a class="col-sm-7">{{ user.proficiency }}</a>
+            </div>
+          </ng-container>
+
+          <div class="form-border b-t-none ">
+            <label class="col-sm-5">{{ l('Password') }}</label>
+            <a class="col-sm-7" (click)="onChangePassword_click()">Change Password</a>
+          </div>
+          <p class="mt-10" *ngIf="(user.biography | json) != ('' | json)">{{l('Biography')}}</p>
+          <div class="form-border" *ngIf="(user.biography | json) != ('' | json)">
+            <p class="col-sm-12">{{ user.biography }}</p>
+          </div>
+          <div style="margin-left: -14px" class="col-sm-12 mt-10" *ngIf="(user.userLinks| json) != ([] | json)">
+            <p>Links</p>
+            <a [href]="link.link" target="blank" class="d-block"
+              *ngFor="let link of user.userLinks">{{ link.title }}</a>
+          </div>
+          <div class="mt-10" *ngIf="(user.archievements | json) != ([] | json)">
+            <p>{{ l('Achievement') }}</p>
+            <div class="achievement d-flex" *ngFor="let item of user.archievements">
+              <p class="col-sm-1">{{ item.name }}</p>
+              <p>{{ item.quantity }}</p>
+            </div>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="isEdit">
+          <form [formGroup]="profileForm" enctype="multipart/form-data" (ngSubmit)="onSave()">
+            <p class="mt-10">{{ l('Basic Information') }}</p>
+            <div>
+              <label class="col-sm-4">{{ l('First Name') }}</label>
+              <input class="col-sm-8" type="text" formControlName="name" name="name">
+            </div>
+            <div>
+              <label class="col-sm-4">{{ l('Last Name') }}</label>
+              <input class="col-sm-8" type="text" formControlName="surname" name="surname">
+            </div>
+            <div>
+              <label class="col-sm-4">{{ l('Title') }}</label>
+              <input class="col-sm-8" type="text" formControlName="title" name="title">
+            </div>
+            <div>
+              <label class="col-sm-4">{{ l('Display Name') }}</label>
+              <input class="col-sm-8" type="text" formControlName="displayName" name="displayName">
+            </div>
+            <div>
+              <label class="col-sm-4">{{ l('Email Address') }}</label>
+              <input class="col-sm-8" type="text" formControlName="emailAddress" name="emailAddress">
+            </div>
+            <p class="mt-10">{{ l('Biography') }}</p>
+            <div>
+              <textarea class="col-sm-8" rows="3" style="width: 100%;" type="text" formControlName="biography"
+                name="biography"></textarea>
+            </div>
+            <div style="margin-left: -14px" class="col-sm-12 mt-10">
+              <p>{{ l('Links') }}</p>{{getFormArray.controls?.length}}
+              <label class="col-sm-3 text-center">{{ l('Title') }}</label>
+              <label class="col-sm-offset-4">URL</label>
+            </div>
+            <div class="col-sm-12" formArrayName="userLinks" *ngFor="let item of getFormArray.controls;let i = index;">
+              <ng-container [formGroupName]="i">
+                <div class="col-sm-3">
+                  <input type="text" class="form-control" name="title" formControlName="title">
+                </div>
+                <i class="col-sm-1 text-center fa fa-long-arrow-right icon-20" aria-hidden="true"></i>
+                <div class="col-sm-7">
+                  <input type="text" formControlName="id" *ngIf="false">
+                  <input type="text" class="form-control" formControlName="link">
+                </div>
+                <a (click)="removeLink(i)">
+                  <i class="fa fa-times icon-20" aria-hidden="true"></i>
+                </a>
+              </ng-container>
+            </div>
+            <button class="btn btn-add-link" type="button" (click)="addLink()">{{ l('Add New Link') }}</button>
+            <div class="text-right">
+              <button type="submit" data-toggle="modal" style="width: 80px;height: 35px;"
+                [disabled]="!profileForm.valid" class="ml-5 btn btn-green waves-effect waves-float pull-right">{{
+                l('Save') }}</button>
+              <button type="button" style="width: 80px;height: 35px; color: #fff" (click)="onCancel()"
+                class="btn btn-secondary waves-effect waves-float pull-right">
+                {{ l('Cancel') }}</button>
+            </div>
+          </form>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

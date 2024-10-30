@@ -1,0 +1,46 @@
+<div bsModal #editModal="bs-modal" class="modal fade" (onShown)="onShown()" tabindex="-1" role="dialog" aria-labelledby="editModal"
+    aria-hidden="true" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog">
+
+        <div #modalContent class="modal-content">
+
+            <form *ngIf="active" #editForm="ngForm" autocomplete="off" id="frm_edit_category" novalidate (ngSubmit)="save()">
+                <div class="modal-header">
+                    <button type="button" class="close" (click)="close()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <span>{{l("EditCategory")}}</span>
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group form-float">
+                        <div class="form-line">
+                            <input id="categoryName" type="text" name="CategoryName" [(ngModel)]="category.name"
+                                required maxlength="64" minlength="2" class="validate form-control">
+                            <label for="categoryName" class="form-label">{{l("CategoryName")}}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-float">
+                        <div class="form-line">
+                            <textarea id="description" type="text" name="description" [(ngModel)]="category.description"
+                                maxlength="255" class="validate form-control"></textarea>
+                            <label for="description" class="form-label">{{l("Description")}}</label>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button [disabled]="saving" type="button" class="btn btn-default waves-effect" (click)="close()">
+                        {{l("Cancel")}}
+                    </button>
+                    <button [disabled]="!editForm.form.valid || saving" type="submit" class="btn btn-primary outline waves-effect">
+                        {{l("Save")}}
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

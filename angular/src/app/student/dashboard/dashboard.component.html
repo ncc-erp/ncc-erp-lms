@@ -1,0 +1,83 @@
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card main-content">
+            <div class="header">
+                <h2>
+                    {{l('Dashboard')}}
+                </h2>
+            </div>
+            <div class="body table-responsive student">
+                <div class="menu">
+                    <div class="mt-30">
+                        <h4>{{ 'Availability'}}</h4>
+                        <hr />
+                        <p>
+                            <span>{{ l('Current') }}</span>
+                            <span class="ft-right">{{ statictis.totalCurrent }}</span>
+                        </p>
+                        <p>
+                            <span>{{ l('Starting Soon') }}</span>
+                            <span class="ft-right">{{ statictis.totalStartSoon }}</span>
+                        </p>
+                        <p>
+                            <span>{{ l('Upcomming') }}</span>
+                            <span class="ft-right">{{ statictis.totalUpComming }}</span>
+                        </p>
+                        <p>
+                            <span>{{ l('Archived/Expired') }}</span>
+                            <span class="ft-right">{{ statictis.totalExpired }}</span>
+                        </p>
+                    </div>
+                    <div class="mt-30" *ngIf="statictis.statictisCourseLevels != null">
+                        <h4>{{ l('Level')}}</h4>
+                        <hr />
+                        <p *ngFor="let item of statictis.statictisCourseLevels">
+                            <span>{{ l(item.levelName) }}</span>
+                            <span class="ft-right">{{ item.total }}</span>
+                        </p>
+                    </div>
+                    <div class="mt-30" *ngIf="statictis.statictisCourseCategory != null">
+                        <h4>{{ l('Caterogies')}}</h4>
+                        <hr />
+                        <p *ngFor="let item of statictis.statictisCourseCategory">
+                            <span>{{ l(item.categoryName) }}</span>
+                            <span class="ft-right">{{ item.total }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="content">
+                    <div class="list-option">
+                        <div class="form-search">
+                            <div class="search">
+                                <i class="ico-30 fa fa-search" aria-hidden="true"></i>
+                                <input type="text" id="search" placeholder="Search...">
+                            </div>
+                            <div class="gridview">
+                                <a (click)="onViewItems()">
+                                    <i class="fa fa-th" aria-hidden="true"></i>
+                                </a>
+                                <a (click)="onViewList()">
+                                    <i class="fa fa-th-list" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-course">
+                        <div class="container-fluid">
+                            <app-view-course-item *ngFor="let item of (course| paginate: {id: 'server', itemsPerPage: pageSize, currentPage: pageNumber, totalItems: totalItems});let i = index;" [soure]="'student'"
+                                [item]="item"></app-view-course-item>
+                        </div>
+                        <div class="paginations">
+                            <div class="pageSize" *ngIf="totalItems > pageSize">
+                              <abp-pagination-controls (pageChange)="getDataPage($event)" id="server">
+                              </abp-pagination-controls>
+                            </div>
+                          </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

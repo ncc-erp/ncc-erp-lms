@@ -1,0 +1,53 @@
+<div class="wrapper">
+  <div style="margin: 5px 0;">
+    <div class="clearfix">
+      <div class="col-sm-6 pull-right">
+        <mat-form-field class="pull-right">
+          <input matInput placeholder="{{l('Search')}}" id="searchText" type="text" maxlength="128">
+          <i class="icon-15 material-icons" matPrefix>search</i>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="clearfix" *ngIf="isViewPDF">
+      <div class="col-sm-6 pull-right">
+        <button type="button" data-toggle="modal" style="font-size: 16px;"
+          class="btn btn-default waves-effect waves-float pull-right " (click)="CancelPreview()">
+          {{l('Cancel')}}
+        </button>
+        <button type="button" data-toggle="modal" style="font-size: 16px;"
+          class="btn btn-primary waves-effect waves-float pull-right mr-10" [disabled]="printing" (click)="printPDF()">
+          {{l('Print')}}
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-12" *ngIf="isViewPDF">
+    <div class="clearfix previewzone" id="content" #content>
+      <div [innerHTML]="preview.content | convertHtml" class="previewcontent" [style.background-image]="'url(' + preview.imgBase64Value + ')'"
+        [style.width]="preview.viewWidth+'mm'" [style.height]="preview.viewHeight+'mm'">
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-12 box-layout" *ngIf="!isViewPDF">
+    <div class="border-layout">
+      <ng-container *ngFor="let item of certifications">
+        <div class="clearfix box-items">
+          <a (click)="viewPDF(item)">
+          <div class="col-sm-2" style="width: 166px">
+            <img [src]="getImageServerPath(item.imageCover)" width="100%">
+          </div>
+          </a>
+          <div class="col-sm-8">
+            <a (click)="viewPDF(item)"><label class="title-top">{{item.title}}</label></a>
+            <label class="title-bot">Status: {{item.status}} </label><br/>
+            <label class="title-bot">Completed: {{item.completedDate | dateLocal}} </label>
+            <a (click)="printItem(item)"><br/>
+                <i class="fa fa-download mr-10" aria-hidden="true"></i><span>{{'Download' | titlecase}}</span></a>
+          </div>
+
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+</div>

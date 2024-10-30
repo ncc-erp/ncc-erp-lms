@@ -1,0 +1,107 @@
+<div class="clearfix">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="">
+      <div class="">
+
+        <!-- quizzes info-->
+        <div class="row clearfix">
+          <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+            <label for="student_name">Quiz Info</label>
+          </div>
+          <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7"
+            style="border: solid 1px; border-radius: 10px; padding-top: 14px">
+
+            <!-- quiz Name -->
+            <div class="row clearfix">
+              <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                <label for="student_name">Quiz Name</label>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-7 form-control-label">
+                <input readonly type="text" class="form-control" [(ngModel)]="quiz.name">
+              </div>
+            </div>
+
+            <!-- quiz Score -->
+            <div class="row clearfix" *ngIf="quiz.quizType === 0">
+              <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                <label for="student_name">Quiz Score</label>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-7 form-control-label">
+                <input readonly type="text" class="form-control" [(ngModel)]="quiz.quizScore">
+              </div>
+            </div>
+
+            <!-- Score keep type-->
+            <div class="row clearfix" *ngIf="testAttempts.length > 1">
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <label>Keep</label>
+                <b>
+                <label *ngIf="this.quiz.scoreToKeepType != 1" style="color: blue">&nbsp; highest &nbsp;</label>
+                <label *ngIf="this.quiz.scoreToKeepType == 1" style="color: green">&nbsp;  avarage &nbsp; </label>
+                </b>
+                <label>score</label>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+
+
+        <!-- student test attempts-->
+        <div class="row clearfix">
+          <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+            <label for="student_name">Test Attempts</label>
+          </div>
+          <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7" style="border: solid 1px; border-radius: 10px">
+
+
+            <div class="row clearfix">
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-7 form-control-label" style="text-align: center">
+                <label>Time</label>
+              </div>
+              <div *ngIf="quiz.quizType === 0" class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label" style="text-align: center">
+                <label>Score</label>
+              </div>
+              <div *ngIf="quiz.quizType === 0" class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label" style="text-align: center">
+                <label>Max score</label>
+              </div>
+            </div>
+
+            <div class="row clearfix" *ngFor="let item of testAttempts">
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-7 form-control-label">
+                <input disabled type="text" class="form-control" value="{{item.lastModificationTime | dateLocal}}">
+              </div>
+              <div *ngIf="quiz.quizType === 0" class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                <input readonly type="text" class="form-control" [(ngModel)]="item.score">
+              </div>
+               <div *ngIf="quiz.quizType === 0" class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                <input readonly type="text" class="form-control" [(ngModel)]="item.maxScore">
+              </div>
+              <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label" style="text-align: left">
+                <button type="button" (click)="viewTestAttempt(item)"
+                  [ngClass]="item.isViewing ? 'btn bg-orange waves-effect' : 'btn btn-primary btn-sm waves-effect'">{{item.isViewing ? 'Viewing' : 'View'}}</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- current test attempt -->
+        <div class="row" *ngIf="isViewingQuestions">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <input id="showOpenEndQuestionsOnly" type="checkbox" name="showOpenEndQuestionsOnly"
+              [(ngModel)]="isShowOpenEndQuestionsOnly" (change)="onShowOpenEndQuestionsChange()" class="form-control" />
+            <label for="showOpenEndQuestionsOnly" class="form-label">{{l("Show Open-end questions only")}}</label>
+          </div>
+
+          <div *ngFor="let item of questions">
+            <app-view-question [quizType]="quizType" [question]="item" [testAttemptId]="currentAttempt.id" [option]="option"
+              [isAllSubmitted]="true" [isTeacherView]="true" (testAttemptChange)="onTestAttemptChangeScore($event)"></app-view-question>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

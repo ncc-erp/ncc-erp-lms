@@ -1,0 +1,135 @@
+<div class="row" [ngClass]="expand == true ? 'background-full' : 'background-quizz'">
+  <div class=" col-lg-3 col-md-3 col-sm-3 col-xs-3 list-section" *ngIf="!expand">
+    <h3 class="text-left"> <img
+      src="assets/images/1597128213463.png"
+      alt="Logo"
+      class=""
+      style="opacity: 0.8; width: 35px; height: 35px; margin-right: 10px;"
+    />Course Content</h3>
+    <div class="input-group">
+      <input name="textSearch" type="text" class="pl-20 form-control search-course" placeholder="Search for..." [(ngModel)]="textSearch"
+        (keyup.enter)="searchModulesPages()">
+      <span class="input-group-btn">
+        <button mat-flat-button class="btn-search" (click)="searchModulesPages()">
+          <i class="fa fa-search"></i>
+        </button>
+      </span>
+    </div>
+    <!-- Left pannel -->
+    <div class="panel-group" class = "box-quizz">
+      <div class="panel panel-default raised-quizz" *ngFor="let module of modulesPages; let i = index">
+        <div class="panel-heading quizz-heading" data-toggle="collapse" [attr.href]="'#c'+module.id" [ngClass]="module.id== ModuleId?'pick-header':''">
+          <div class="title">
+            <span class="section">Section: {{ i }}</span>
+            <span class="pages">{{module.completedPage}}/{{ module.totalPage }}</span>
+          </div>
+        </div>
+        <div class="panel-body" data-toggle="collapse" [attr.href]="'#c'+module.id">
+          <h4 class="title-quizz">{{ module.name }}</h4>
+        </div>
+        <div id="{{ 'c' + module.id }}" class="panel-collapse collapse in" >
+          <div class="panel-body select-question"  *ngFor="let page of module.pages" (click)="getCurrentPage(page.id, module)" >
+            <div class="col-sm-12" style="display:flex; margin-left : 20px; cursor: pointer;">
+              <mat-icon class="mat-18" style="color: brown;">description</mat-icon>
+              <p class="p-l-15" style="font-size : 20px" [ngClass]="page.name == currentPage.name ? 'picked-question':''">{{ page.name }}</p>
+              <label class="checkbox">
+                <input [checked]="page.progress == 1" type="checkbox" [disabled]="true">
+                <span class="checkmark"></span>
+              </label>
+            </div>
+            <div class="col-sm-11 clearfix pull-right">
+              <div class="col-sm-12" *ngFor="let file of page.files;">
+                <a (click)="downloadAttachment(file.filePath)" title="{{l('Download')}}"> <i
+                    class="fa fa-file"></i>{{file.fileName}}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- right pannel -->
+  <div class=" main-content background-quizz" [ngClass]="expand == true ? 'col-lg-12 col-md-12 col-sm-12 col-xs-12' : 'col-lg-9 col-md-9 col-sm-9 col-xs-9'" (window:resize)="onResize($event)">
+    <div class="tools">
+      <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 header-left">
+        <h1 *ngIf = "checkEndPage === false && _studentProgressService.showMess == true" class="goodLuck">Good Luck!</h1>
+        <div *ngIf = "checkEndPage === true" class="congratulation">
+          <div class="cardcontainer">
+            <mat-icon class="mat-18" style="color: #46A72D; font-size : 60px; font-weight: 900">done</mat-icon>
+          </div>
+          <h1>You have finished all the tests!</h1>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 header-right">
+        <button mat-flat-button color="warn" class="btn-back">
+          <mat-icon class="mat-18">arrow_back</mat-icon>
+          <a href="/app/student/course/{{courseInstanceId}}" class="link-back" (click)="logStudentBackToCourse()">Back to Course</a>
+        </button>
+      </div>
+    </div>
+
+    <!-- show page -->
+    <div *ngIf="showType == 'page'">
+      <div class="clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <div class="card main-content">
+            <div class="body table-responsive">
+              <h2>{{currentPage.name}}</h2>
+              <div class="col-sm-12 container content" [innerHTML]="sanitizer.bypassSecurityTrustHtml(currentPage.content)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end show page -->
+
+    <!-- show Quiz -->
+    <div *ngIf="showType == 'quiz' || showType == 'quiz_final' || showType == 'survey'">
+      <app-quiz [quizType]="showType" [courseInstanceId]="courseInstanceId" [quizSettingId]="quizSettingId"
+        (status)="onQuizStatusChange($event)" [pageId]="pageId"></app-quiz>
+    </div>
+    <!-- end show Quiz -->
+
+    <!-- show Assignment -->
+    <div *ngIf="showType == 'assignment'">
+      <app-student-assignment [assignmentSettingId]="assignmentSettingId"></app-student-assignment>
+    </div>
+    <!-- end show Assignment -->
+
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 footer-quizz-box">
+      <ng-container *ngIf="pageId">
+        <button mat-flat-button *ngIf="!currentPage.bookmarked" (click)="bookmark()" class="btn-info btn-bookmark">
+          <mat-icon>bookmark_border</mat-icon>
+          <span>{{l('Bookmark this page')}}</span>
+        </button>
+        <button mat-flat-button *ngIf="currentPage.bookmarked" (click)="unBookmark()" class="btn-info btn-bookmark">
+          <mat-icon>bookmark</mat-icon>
+          <span class="btn-bookmark">{{l('Unbookmark this page')}}</span>
+        </button>
+      </ng-container>
+      <div class="footer-quizz-box">
+        <div>
+          <button mat-flat-button *ngIf = "checkEndPage === false"  class="pull-right btn-continue" (click)="nextPage()">
+            Continue
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+        <a class="pull-right" (click)="expand = !expand">
+          <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+        </a>
+      </div>
+      <!-- <button *ngIf = "checkEndPage === true"  class="btn btn-primary  pull-right" style="margin-right: 20px">
+        <a href="/app/student/course/{{courseInstanceId}}" style="color: white;font-size: 15px;">Complete</a>
+      </button> -->
+    <!-- </ng-container>
+    <a class="pull-right">
+      <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+    </a> -->
+
+    <!-- <a *ngIf = "checkEndPage === false"  class="btn btn-danger pull-right" style="margin-right: 20px;" (click)="nextPage()">Continue ></a> -->
+    <!-- <button *ngIf = "checkEndPage === true"  class="btn btn-primary  pull-right" style="margin-right: 20px">
+      <a href="/app/student/course/{{courseInstanceId}}" style="color: white;font-size: 15px;">Complete</a>
+    </button> -->
+  </div>
+</div>

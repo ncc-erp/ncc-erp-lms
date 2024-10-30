@@ -1,0 +1,13 @@
+<!-- <div *ngIf="!isStarted">
+  <div [innerHtml]="quizOption.content"></div>
+  <button type="button" class="btn btn-primary waves-effect waves-float" (click)="startDoQuiz()">
+    {{l("Submit")}}
+  </button>  
+</div> -->
+
+<!-- <div *ngIf="isStarted">
+ 
+</div> -->
+<div *ngFor="let item of questions">
+  <app-view-question [question]="item" [testAttemptId]="testAttemptId" [option]="quizOption"></app-view-question>
+</div>

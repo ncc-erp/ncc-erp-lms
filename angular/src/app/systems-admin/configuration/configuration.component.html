@@ -1,0 +1,44 @@
+<div class="row clearfix">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="card main-content">
+      <div class="header">
+        <h2>
+          {{l('System Configuration')}}
+        </h2>
+      </div>
+      <div class="body table-responsive">
+        <form #editForm="ngForm" autocomplete="off" novalidate (ngSubmit)="save()">
+          <div class="row clearfix">
+            <div class="col-sm-12">
+              <div class="form-group form-float">
+                <!-- <div class="form-line"> -->
+                <mat-form-field class="col-sm-12">
+                  <input required name="Location" required matInput placeholder="{{l('Direction Location')}}"
+                    [(ngModel)]="config.location">
+                </mat-form-field>
+                <!-- </div> -->
+              </div>
+            </div>
+          </div>
+
+          <div class="row clearfix">
+            <div class="col-sm-12">
+              <div class="form-group form-float">
+                <!-- <div class="form-line"> -->
+                <mat-form-field class="col-sm-12">
+                  <input required name="scormLocation" required matInput placeholder="{{l('SCORM Location path')}}"
+                    [(ngModel)]="config.scormLocation">
+                </mat-form-field>
+                <!-- </div> -->
+              </div>
+            </div>
+          </div>
+          <button [disabled]="!editForm.form.valid" type="submit"
+            class="btn btn-primary outline waves-effect waves-float pull-right">
+            {{l("Save")}}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

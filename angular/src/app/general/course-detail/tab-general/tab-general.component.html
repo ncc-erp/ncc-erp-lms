@@ -1,0 +1,326 @@
+<div class="body">
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs tab-nav-right" role="tablist">
+    <li role="presentation" class="active"><a href="#course-detail" data-toggle="tab">Course Detail</a></li>
+    <li role="presentation"><a href="#instructor" data-toggle="tab">Instructor</a></li>
+    <li role="presentation"><a href="#syllabus" data-toggle="tab">Syllabus</a></li>
+    <li role="presentation"><a href="#certification" data-toggle="tab">Certification Template</a></li>
+  </ul>
+  <div class="tab-content">
+    <!-- Tab Course Detail -->
+    <div role="tabpanel" class="tab-pane fade in active" id="course-detail">
+
+      <div class="wrapper">
+        <div style="margin-bottom: 5px;">
+          <div class="form-group clearfix">
+            <div class="col-sm-2">
+              <label>{{l('Image')}}</label>
+            </div>
+            <div class="col-sm-3">
+              <ng-container *ngIf="imgBase64Value != null">
+                <img style="width: 100%;max-height: 250px" alt=" " [src]="imgBase64Value"
+                  onerror="this.src = 'assets/images/dot.gif'">
+              </ng-container>
+              <ng-container *ngIf="imgBase64Value == null">
+                <!-- <div class="col-md-3 card" style="height: 200px; width: 150px;"> -->
+                <img style="width: 100%;max-height: 250px" alt=" " [src]="getImageServerPath(course.imageCover)"
+                  onerror="this.src = 'assets/images/dot.gif'">
+                <!-- </div> -->
+              </ng-container>
+            </div>
+            <div class="col-sm-3">
+              <file-upload (outputFileInfo)="getFileInfo($event)"
+                [custom]="'btn-customs btn btn-danger outline btn-file'" [fileType]="'image'"
+                (outputImgBase64)="getImgBase64($event)"></file-upload>
+            </div>
+
+          </div>
+
+          <div class="form-group clearfix">
+            <div class="col-sm-2">
+              <label>{{l('Name')}}</label>
+            </div>
+            <mat-form-field class="col-sm-8 ">
+              <input matInput placeholder="{{l('CourseName')}}" [(ngModel)]="course.name">
+            </mat-form-field>
+          </div>
+
+          <div class="form-group clearfix">
+            <div class="col-sm-2">
+              <label>{{l('Course Code')}}</label>
+            </div>
+            <mat-form-field class="col-sm-8">
+              <input matInput placeholder="{{l('CourseCode')}}" readonly="readonly" [(ngModel)]="course.identifier">
+            </mat-form-field>
+          </div>
+
+          <div class="form-group clearfix">
+            <div class="col-sm-2">
+              <label>{{l('Description')}}</label>
+            </div>
+            <mat-form-field class="col-sm-8">
+              <textarea matInput placeholder="{{l('Description')}}" [(ngModel)]="course.description"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group clearfix">
+            <div class="col-sm-2">
+              <label>{{l('Related to')}}</label>
+            </div>
+            <mat-form-field class="col-sm-3">
+              <input matInput placeholder="{{l('RelatedTo')}}" [(ngModel)]="course.relatedInformation">
+            </mat-form-field>
+            <div class="col-sm-7">
+              <div class="col-sm-5">
+                <file-upload (outputFileInfo)="getRelatedFileInfo($event)"
+                  [custom]="'btn-customs btn btn-danger outline btn-file'" [fileType]="'image'"
+                  (outputImgBase64)="getRelatedImgBase64($event)"></file-upload>
+              </div>
+              <div class="col-sm-7">
+                <ng-container *ngIf="relatedImgBase64Value != null">
+                  <img style="max-width: 250px;max-height: 150px" alt=" " [src]="relatedImgBase64Value"
+                    onerror="this.src='/assets/images/dot.gif'">
+                </ng-container>
+                <ng-container *ngIf="relatedImgBase64Value == null">
+                  <img style="max-width: 250px;max-height: 150px" alt=" "
+                    [src]="getImageServerPath(course.relatedImage)" onerror="this.src='/assets/images/dot.gif'">
+                </ng-container>
+              </div>
+            </div>
+          </div>
+
+          <div class="row form-group cleafix">
+            <div class="col-sm-12">
+              <div class="col-sm-2">
+                <label>{{l('Start')}}</label>
+              </div>
+              <div class="col-sm-8">
+                <mat-form-field>
+                  <input matInput [owlDateTime]="startTime" placeholder="Start Time" #dateTime="ngModel"
+                    [(ngModel)]="courseSetting.startTime">
+                </mat-form-field>
+                <span [owlDateTimeTrigger]="startTime"><i class="fa fa-calendar"></i></span>
+                <owl-date-time #startTime></owl-date-time>
+              </div>
+            </div>
+            <div class="col-sm-12">
+              <div class="col-sm-2">
+                <label>{{l('End')}}</label>
+              </div>
+              <div class="col-sm-8">
+                <mat-form-field>
+                  <input matInput [owlDateTime]="endTime" placeholder="End Time" #dateTime="ngModel"
+                    [(ngModel)]="courseSetting.endTime">
+                </mat-form-field>
+                <span [owlDateTimeTrigger]="endTime"><i class="fa fa-calendar"></i></span>
+                <owl-date-time #endTime></owl-date-time>
+              </div>
+            </div>
+          </div>
+          <div class="clearfix">
+            <div class="col-sm-10 pull-right">
+              <!-- <div class="form-group form-float">
+                <input id="allowSkip1" type="checkbox" name="allowSkip1"
+                  [(ngModel)]="course.studentCanOnlyParticipiateCourseBetweenTheseDate" checked class="form-control" />
+                <label for="allowSkip1"
+                  class="form-label">{{l("StudentCanOnlyParticipiateCourseBetweenTheseDate")}}</label>
+              </div> -->
+
+              <div class="form-group form-float">
+                <input id="allowSkip2" type="checkbox" name="allowSkip2"
+                  [(ngModel)]="course.restrictStudentFromViewThisCourseAfterEndDate" checked class="form-control" />
+                <label for="allowSkip2"
+                  class="form-label">{{l("RestrictStudentFromViewThisCourseAfterEndDate")}}</label>
+              </div>
+
+              <div class="form-group form-float">
+                <input id="allowSkip3" type="checkbox" name="allowSkip3"
+                  [(ngModel)]="course.restrictStudentsFromViewingThisCourseBeforeEndDate" checked
+                  class="form-control" />
+                <label for="allowSkip3"                  
+                  class="form-label">{{l("Restrict students from viewing this course before start date")}}</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group cleafix">
+            <div class="col-sm-2">
+              <label>{{l('Language')}}</label>
+            </div>
+            <mat-form-field class="col-sm-10">
+              <mat-select placeholder="{{l('Language')}}" name="languageId" [(ngModel)]="course.languageId">
+                <mat-option *ngFor="let item of languages" [value]="item.id">
+                  {{item.displayName}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- <div class="form-group">
+            <label class="col-sm-2 control-label">{{ l('Language') }}</label>
+            <select class="readonly-select col-sm-7" [(ngModel)]="course.languageId" name="languageId">
+              <option *ngFor="let item of languages" [value]="item.id">{{ item.displayName }}</option>
+            </select>
+
+          </div> -->
+
+          <div class="form-group  clearfix">
+            <div class="col-sm-2">
+              <label>{{l('Grading Scheme')}}</label>
+            </div>
+            <div class="col-sm-10">
+              <input id="allowSkip4" type="checkbox" name="allowSkip4"
+                [(ngModel)]="courseSetting.enableCourseGradingScheme" class="form-control" />
+              <label for="allowSkip4" class="form-label">{{l("EnableCourseGradingScheme")}}</label>
+              <div class="clearfix" *ngIf="courseSetting.enableCourseGradingScheme">
+                <mat-form-field class="col-sm-12">
+                  <mat-select name="gradeScheme" [(ngModel)]="courseSetting.gradeSchemeId">
+                    <mat-option *ngFor="let item of gradeSchemes" [value]="item.id">
+                      {{item.title}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group cleafix">
+            <div class="col-sm-2">
+              <label>{{l('Level')}}</label>
+            </div>
+            <mat-form-field class="col-sm-10">
+              <mat-select placeholder="{{l('Level')}}" name="levelId" [(ngModel)]="course.levelId">
+                <mat-option *ngFor="let level of levels" [value]="level.id">
+                  {{level.displayName}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group cleafix">
+            <div class="col-sm-2">
+              <label>{{l('Type')}}</label>
+            </div>
+            <mat-form-field class="col-sm-10">
+              <mat-select placeholder="{{l('Type')}}" name="Type" [(ngModel)]="course.type">
+                <mat-option *ngFor="let item of types" [value]="item.id">
+                  {{item.displayName}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group clearfix">
+            <div class="col-sm-2">
+              <label>{{l('Allow Skip')}}</label>
+            </div>
+            <div class="col-sm-10">
+              <input id="allowSkip" type="checkbox" name="allowSkip" [(ngModel)]="courseSetting.allowSkip"
+                class="form-control" />
+              <label for="allowSkip" class="form-label">{{l("")}}</label>
+            </div>
+          </div>
+
+          <!-- <div class="row"> -->
+          <!-- <div class="col-sm-6"> -->
+          <!-- <div class="form-group">
+                <mat-form-field class="col-sm-12">
+                  <input matInput placeholder="Passing Mark" [(ngModel)]="courseSetting.passingMark">
+                </mat-form-field>
+              </div> -->
+          <!-- </div> -->
+          <!-- <div class="col-sm-6"> -->
+          <!-- <div class="form-group">
+                <mat-form-field class="col-sm-12">
+                  <input matInput placeholder="Total Quiz" [(ngModel)]="courseSetting.totalQuiz">
+                </mat-form-field>
+              </div> -->
+          <!-- </div> -->
+          <!-- </div> -->
+
+          <div class="form-group cleafix">
+            <div class="col-sm-2">
+              <label>{{l('State')}}</label>
+            </div>
+            <mat-form-field class="col-sm-10">
+              <mat-select placeholder="{{l('State')}}" name="state" [(ngModel)]="course.state"
+                (selectionChange)="onCourseStateChange()">
+                <mat-option *ngFor="let state of courseStates" [value]="state.id">
+                  {{state.name}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+        </div>
+      </div>
+      <div class="form-group cleafix">
+        <button type="button" mat-button (click)="saveCourse()"
+          class="ml-5 btn btn-primary outline waves-effect pull-right">
+          {{l("Save")}}
+        </button>
+        <a mat-button routerLink="/app/browsing/1/{{courseInstanceId}}" class="btn btn-danger outline waves-effect pull-right">
+          {{l("Preview")}}
+        </a>
+      </div>
+    </div>
+    <!-- Tab Instructor -->
+    <div role="tabpanel" class="tab-pane fade" id="instructor">
+      <div class="wrapper">
+        <div style="margin-bottom: 5px;">
+          <div class="select-users">
+            <div class="col-sm-12 ">
+              <ng-multiselect-dropdown name="selectedItems" [placeholder]="'Select users'" [data]="dropdownList"
+                [(ngModel)]="selectedItems" [settings]="dropdownSettings">
+              </ng-multiselect-dropdown>
+            </div>
+          </div>
+
+        </div>
+        <button type="button" (click)="saveUserExtraRole()" mat-button
+          class="btn btn-primary outline waves-effect pull-right">
+          {{l("Save")}}
+        </button>
+      </div>
+
+
+    </div>
+    <!-- Tab Syllabus -->
+    <div role="tabpanel" class="tab-pane fade" id="syllabus">
+
+
+      <div class="row clearfix">
+        <div class="col-sm-12">
+          <ng-container *ngIf="!course.isEdit; else elseEditSyllabus">
+            <span [innerHTML]="course.syllabus"></span>
+          </ng-container>
+          <ng-template #elseEditSyllabus>
+            <editor [apiKey]="tinymceApiKey" name="content"
+              [(ngModel)]="course.syllabus" [init]="initTinymce"></editor>
+          </ng-template>
+        </div>
+
+        <div class="col-sm-12" *ngIf="!course.isEdit">
+          <button type="button" (click)="course.isEdit= true; course.oldSyllabus = course.syllabus;" mat-button
+            class="btn btn-primary outline waves-effect pull-right">
+            {{l("Edit")}}
+          </button>
+        </div>
+        <div class="col-sm-12" *ngIf="course.isEdit">
+          <button type="button" (click)="onSaveSyllabusClick(course);course.isEdit=false" mat-button
+            class="btn btn-primary outline waves-effect pull-right">
+            {{l("Save")}}
+          </button>
+          <div class="pull-right my-1">&nbsp;</div>
+          <button type="button" (click)="course.syllabus = course['oldSyllabus'];course.isEdit=false" mat-button
+            class="btn btn-danger outline waves-effect pull-right">
+            {{l("Cancel")}}
+          </button>
+        </div>
+      </div>
+
+    </div>
+    <div role="tabpanel" class="tab-pane fade" id="certification">
+      <app-general-certification-template [courseId]="courseId"></app-general-certification-template>
+    </div>
+
+  </div>

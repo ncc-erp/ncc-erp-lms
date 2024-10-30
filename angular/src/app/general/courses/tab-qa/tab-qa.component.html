@@ -1,0 +1,54 @@
+<ng-container *ngIf="!isShowFaqDetail">
+  <div style="padding: 0 5rem">
+    <ng-container *ngFor="let state of faqStates">
+      <div class="head">
+        {{state.value}}
+      </div>
+      <ng-container *ngFor="let item of state.items">
+        <div class="main">
+          <div class="row">
+            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-2 courseImage">
+              <img (click)="onGetDetailFAQ(item)" class="courseImage" title="View Detail"
+                [src]="getImageServerPath(item.imageCover)" onerror="this.src='/assets/images/dot.gif'" />
+            </div>
+            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-10">
+              <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 title-list" style="min-height: 40px;">
+                  <a class="title-list" style="padding:2rem 0 0 2rem;"
+                    (click)="onGetDetailFAQ(item)">{{ item.name }}</a>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                  <ul class="qa-Classifieds">
+                    <li style="min-width: 120px; margin-top: 1rem;">{{ l("Start") }}:<span
+                        class="subTitle">{{ item.startTime | dateLocal: 'd MMM y'}}</span></li>
+                    <li style="min-width: 120px; margin-top: 1rem;">{{ l("End") }}:<span
+                        class="subTitle">{{ item.endTime | dateLocal: 'd MMM y'}}</span></li>
+                    <li style="min-width: 80px;margin-top: 1rem;">{{ l("FAQ") }}:<span
+                        class="subTitle">{{ item.totalFAQ }}</span></li>
+                    <li style="min-width: 85px;margin-top: 1rem;">{{ l("Questions") }}:<span
+                        class="subTitle">{{ item.totalQuestion }}</span> </li>
+                    <li *ngIf="item.isReadedQuestion" style="min-width: 40px;"><span
+                        class="sub badge badge-pill badge-success">New</span></li>
+                    <li style="min-width: 85px;margin-top: 1rem; padding-left: 20px;">{{ l("Response") }}:<span
+                        class="subTitle">{{ item.totalResponse }}</span> </li>
+                    <li *ngIf="item.isReadedResponse" style="min-width: 20px;"><span
+                        class="sub badge badge-pill badge-success">New</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <div class="border"> </div>
+    </ng-container>
+  </div>
+
+</ng-container>
+<ng-container *ngIf="isShowFaqDetail">
+  <app-admin-tab-qa-detail (isShowTabFAQList)="reload($event)" [faqQuestion]="faqQuestion">
+  </app-admin-tab-qa-detail>
+</ng-container>
+

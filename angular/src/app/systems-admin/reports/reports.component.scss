@@ -1,0 +1,16 @@
+.main{
+  padding: 1rem 5rem;
+}
+.box{
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid gainsboro;
+}
+
+.example-month-picker .mat-calendar-period-button {
+  pointer-events: none;
+}
+
+.example-month-picker .mat-calendar-arrow {
+  display: none;
+}

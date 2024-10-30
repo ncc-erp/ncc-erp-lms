@@ -1,0 +1,307 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+.main-content {
+  .tools {
+    margin-bottom: 25px;
+    a {
+      display: inline-block;
+      margin: 25px;
+      color: #5d626a;
+    }
+  }
+}
+
+.list-section {
+  background-image: url(../../../bsb-theme/images/bg-quizz.jpg);
+  background-repeat: no-repeat;
+  box-shadow: 2px 2px 3px #d1d1d1;
+  min-height: 900px;
+  h3 {
+     margin-bottom: 31px;
+     color: brown;
+  }
+  .input-group-btn {
+    .btn-search {
+      background-color: brown !important;
+      color: #fff;
+      height: 34px;
+      min-width: 50px;
+      border-radius: 0px 5px 5px 0px;
+      padding: 0px;
+    }
+  }
+  .panel-group {
+    cursor: pointer;
+    box-shadow: 1px 2px #e4e1e1;
+    .panel-heading {
+      background-color: #fff;
+      border: none ;
+    }
+    .panel-body {
+      padding: 8px;
+
+      p {
+        font-size: 17px;
+      }
+      i {
+        font-size: 17px;
+      }
+      .fa-file{
+      color: #337ab7;
+      margin-right: 5px;
+      }
+    }
+    .title {
+      padding: 8px;
+      .pages {
+        float: right;
+        padding-right: 13px;
+      }
+    }
+  }
+}
+.flex-end {
+  justify-content: flex-end;
+}
+.checkbox {
+  position: absolute;
+  right: 25px;
+  display: block;
+  margin: 0;
+}
+.checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+// change color background
+.background-quizz{
+  background-color: #F4F5F9 !important;
+}
+
+.background-full{
+  background-color: #F4F5F9 !important;
+  height: 100vh;
+}
+
+.header-right{
+  height: 85px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.header-left{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 20px;
+}
+
+.btn-back{
+  height: 50px;
+  width: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  margin-right: 10px;
+  border-radius: 3px;
+  background-color: #e62c2c;
+  &:hover{
+    background-color: #FB483A;
+  }
+}
+
+.link-back{
+  color: #ffff !important;
+  font-size: 17px;
+  margin: 0 !important;
+}
+
+// Bao khối câu hỏi
+.box-quizz{
+  box-shadow: none !important;
+}
+// Nổi khối lên
+.raised-quizz{
+  border: 2px solid #cacacacb;
+  border-radius: 10px;
+}
+
+.btn-bookmark{
+  margin-left: 7px;
+  border-radius: 3px;
+  mat-icon{
+    padding-bottom: 8px;
+    padding-right: 3px;
+  }
+}
+
+.cardcontainer{
+  padding:10px;
+  transition: all .5s;
+  overflow: hidden;
+}
+
+.footer-quizz-box{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-continue{
+  background-color: #e62c2c;
+  margin-right: 20px;
+  color : #ffff;
+  padding-right : 5px;
+  border-radius: 3px;
+}
+
+.select-question:hover{
+  background-color: #ebebebcb;
+}
+
+.quizz-heading{
+  border-radius: 8px 8px 0px 0px;
+  // margin-top: -1px;
+  border-bottom: 1px solid #cacacacb;
+}
+
+.title-quizz{
+  text-shadow: 0px 0px 4px #ebebeb;
+  font-size : 23px;
+}
+
+.section{
+  font-family: 'Fredoka One', cursive;
+  font-size: 15px;
+}
+
+.title{
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.picked-question{
+  font-weight: 900;
+  color: #3b86ff;
+}
+
+::ng-deep .card {
+    border-radius: 10px;
+    border: 1px solid #af23235d;
+    box-shadow: 0px 2px 8px 0px #5858585b !important;
+    margin-top: 27px;
+}
+
+::ng-deep .question-list{
+  border: 1px solid #9e362f !important;
+}
+
+::ng-deep label{
+  font-size: 18px !important;
+}
+
+@keyframes zoominoutsinglefeatured {
+  0% {
+      transform: scale(1,1);
+  }
+  50% {
+      transform: scale(1.2,1.2);
+  }
+  100% {
+      transform: scale(1,1);
+  }
+}
+
+.cardcontainer mat-icon {
+  animation: zoominoutsinglefeatured 1s infinite;
+  width: max-content;
+  margin-bottom: 20px;
+}
+
+.congratulation, .goodLuck{
+  color: #e42a2a;
+  display: flex;
+  align-items: center;
+}
+
+.input-group{
+  padding-top: 40px;
+}
+
+.search-course{
+  border: 1px solid #a52a2a;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  display: block;
+  height: 25px;
+  width: 25px;
+  border: 2px solid #3b86ff;
+  border-radius: 20px;
+}
+
+/* On mouse-over, add a grey background color */
+.checkbox:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+// .checkbox input:checked ~ .checkmark {
+//   background-color: #fff;
+// }
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox .checkmark:after {
+  left: 8px;
+  top: 5px;
+  width: 8px;
+  height: 12px;
+  border: solid #3b86ff;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.button-footer {
+  float: right;
+  padding: 10px 0 5px 0;
+  button {
+    margin-right: 15px;
+  }
+  a {
+    i {
+      font-size: 17px;
+    }
+  }
+}
+.pick-header{
+  margin-top: -1px;
+  background-color: #a52a2a;
+  color: #ffff;
+}
+
+.content img{
+  max-width: 100%;
+}
+

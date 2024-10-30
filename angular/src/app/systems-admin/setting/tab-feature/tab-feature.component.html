@@ -1,0 +1,147 @@
+{{l('')}}
+<div style="margin-top: 15px;">
+  <div class="col-sm-12 option">
+    <b>{{l('Student - Default view')}}</b>
+    <p class="title">
+      {{l('The first page when clicking on the Home tab, or when logging in to the system. (courses will be
+        default if dashboard and calendar been hidden)')}}
+    </p>
+    <div class="content">
+      <div class="col-lg-4 col-md-4 col-sm-4 checkbox-group">
+        <label class="checkbox">
+          <input type="radio" name="studentView" [(ngModel)]="settingDto.navigator.studentDefaultViewName" [value]="0"
+            (change)="onChangeStudentDefaultView(settingDto.navigator.studentDefaultViewName)">
+          <span class="checkmark"></span>
+        </label>
+        <label class="main">{{ l('Dashboard') }}</label>
+      </div>
+      <div class="col-lg-4 col-md-4 col-sm-4 checkbox-group">
+        <label class="checkbox">
+          <input type="radio" name="studentView" [(ngModel)]="settingDto.navigator.studentDefaultViewName" [value]="1"
+            (change)="onChangeStudentDefaultView(settingDto.navigator.studentDefaultViewName)">
+          <span class="checkmark"></span>
+        </label>
+        <label class="main">{{ l('Courses') }}</label>
+      </div>
+      <div class="col-lg-4 col-md-4 col-sm-4 checkbox-group">
+        <label class="checkbox">
+          <input type="radio" name="studentView" [(ngModel)]="settingDto.navigator.studentDefaultViewName" [value]="2"
+            (change)="onChangeStudentDefaultView(settingDto.navigator.studentDefaultViewName)">
+          <span class="checkmark"></span>
+        </label>
+        <label class="main">{{l('Calendar')}}</label>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-12 option">
+    <b>{{l('Dashboard - Default view')}}</b>
+    <p class="title">{{l('The default layout view on dashboard.')}}</p>
+    <div class="content">
+      <div class="col-lg-4 col-md-4 col-sm-4 checkbox-group">
+        <label class="checkbox">
+          <input type="radio" name="dashboardView" [(ngModel)]="settingDto.navigator.dashboardDefaultViewName"
+            [value]="0" (change)="onChangeDashboardDefaultView(settingDto.navigator.dashboardDefaultViewName)">
+          <span class="checkmark"></span>
+        </label>
+        <label class="main">{{l('Card View')}}</label>
+      </div>
+      <div class="col-lg-4 col-md-4 col-sm-4 checkbox-group">
+        <label class="checkbox">
+          <input type="radio" name="dashboardView" [(ngModel)]="settingDto.navigator.dashboardDefaultViewName"
+            [value]="1" (change)="onChangeDashboardDefaultView(settingDto.navigator.dashboardDefaultViewName)">
+          <span class="checkmark"></span>
+        </label>
+        <label class="main">{{l('List View')}}</label>
+      </div>
+      <div class="col-lg-4 col-md-4 col-sm-4"></div>
+    </div>
+  </div>
+  <div class="col-sm-12 option">
+    <b>{{l('Navigator view control (hide or show)')}}</b>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{{l('Views')}}</th>
+            <th>{{l('Student')}}</th>
+            <th>{{l('Admin')}}</th>
+            <th>{{l('Instructor')}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of lstNavigator">
+            <ng-container
+              *ngIf="item.displayPName != 'Pages.Tenants' && item.displayPName != 'Pages.Users' && item.displayPName != 'Pages.Course'">
+              <td class="text-left">{{l(item.displayPName)}}</td>
+
+              <!-- student -->
+              <td class="text-left">
+                <label class="checkbox">
+                  <input type="checkbox" name="student" [(ngModel)]="item.student"
+                    (change)="onPermissionChange(item.permissionName,studentRoleId,item.student)"
+                    [checked]="item.student == true">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+
+              <!-- admin -->
+              <td class="text-left">
+                <label class="checkbox">
+                  <input type="checkbox" name="admin" [(ngModel)]="item.admin"
+                    (change)="onPermissionChange(item.permissionName,adminRoleId,item.admin)"
+                    [checked]="item.admin == true">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+
+              <!-- instructor -->
+              <td class="text-left">
+                <label class="checkbox">
+                  <input type="checkbox" name="instructor" [(ngModel)]="item.instructor"
+                    (change)="onPermissionChange(item.permissionName,instructorRoleId,item.instructor)"
+                    [checked]="item.instructor == true">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-sm-12 option">
+    <b>{{l('Reports (for Instructor)')}}</b>
+    <p class="title">{{l('Select the available report(s) for Instructor.')}}</p>
+    <div class="content">
+      <div class="col-lg-3 col-md-3 col-sm-3 checkbox-group" *ngFor="let report of lstReports">
+        <label class="checkbox">
+          <input type="checkbox" name="report" [(ngModel)]="report.isGranted" [checked]="report.isGranted"
+            (change)="onChangeReports(report.permissonId,report.isGranted)">
+          <span class="checkmark"></span>
+        </label>
+        <label class="main">{{l(report.displayPName)}}</label><sub>{{ report.sub }}</sub>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-12 option">
+    <b>{{ l('Student - Course enrollment requires approval from the admin/Instructor')}} </b>
+    <p class="title">{{l('Approval is required for student(s) to register the course online. The course will be reflected on
+      waiting
+      list (under course > people > everyone) pending Admin(s) or Instructor(s) approval.')}}
+    </p>
+    <label class="checkbox-square">
+      <input type="checkbox" name="student" [(ngModel)]="settingDto.navigator.studentCourseEnrollment"
+        (change)="onChangeStudentCourseEnrollment(settingDto.navigator.studentCourseEnrollment)">
+      <span class="checkmark-square"></span>
+    </label>
+  </div>
+  <div class="col-sm-12 option">
+    <b>{{ l('Student - Proficiency level required') }}</b>
+    <p class="title">{{ l('Apply the proficiency level restriction for students and courses') }}</p>
+    <label class="checkbox-square">
+      <input type="checkbox" name="studentProficiency" [(ngModel)]="settingDto.navigator.studentProficiency"
+        (change)="onChangeStudentProficiency(settingDto.navigator.studentProficiency)">
+      <span class="checkmark-square"></span>
+    </label>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+<div bsModal #createModal="bs-modal" class="modal fade" (onShown)="onShown()" tabindex="-1" role="dialog"
+    aria-labelledby="createModal" aria-hidden="true" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog">
+
+        <div #modalContent class="modal-content">
+
+            <form *ngIf="active" #createForm="ngForm" enctype="multipart/form-data" autocomplete="off"
+                id="frm_create_course" novalidate (ngSubmit)="save()">
+                <div class="modal-header">
+                    <button type="button" class="close" (click)="close()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <span>{{l("Create New Course")}}</span>
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <ng-container *ngIf="imgBase64Value != null">
+                            <img class="col-md-6" width="300px" height="200px" alt=" " [src]="imgBase64Value"
+                                onerror="this.src = 'assets/images/dot.gif'">
+                        </ng-container>
+                        <ng-container *ngIf="imgBase64Value == null">
+                            <div class="col-md-6 card" style="height: 200px; width: 300px;">
+
+                            </div>
+                        </ng-container>
+                        <div class="form-group">
+                            <file-upload (outputFileInfo)="getFileInfo($event)"
+                                [custom]="'mt-15 col-md-2 btn-customs btn btn-danger outline btn-file'"
+                                [fileType]="'image'" (outputImgBase64)="getImgBase64($event)">
+                            </file-upload>
+                        </div>
+                    </div>
+                    <div class="form-group form-float" style="margin-top: 1rem;">
+                        <div class="form-line">
+                            <mat-form-field>
+                                <mat-select placeholder="{{l('Sourse')}}" (selectionChange)="onSelectSCORMChange()"
+                                    name="sourse" [(ngModel)]="course.sourse">
+                                    <mat-option *ngFor="let item of courseSourses" [value]="item.id">
+                                        {{item.name}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <div *ngIf="course.sourse == 1" class="form-group form-float">
+                        <div class="form-line">
+                            <label>{{course.fileSCORM ? course.fileSCORM.name : l('No file Selected')}}</label>
+                            <file-upload (outputFileInfo)="getFileInfoSCORM($event)" [isLoading]="isLoadingFileUpload"
+                                [custom]="'btn-customs btn btn-default outline btn-file'" fileType=".zip"
+                                [title]="'Select file'"></file-upload>
+                            <span *ngIf="isFileUploadNotSupport" class="text-danger" style="padding-left: 4rem;">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                {{l('The file is not supported!')}}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-float" style="margin-top:16px;">
+                        <div class="form-line">
+                            <input id="courseName" #courseName type="text" name="CourseName" [(ngModel)]="course.name" required
+                                maxlength="64" minlength="2" class="validate form-control">
+                            <label for="courseName" class="form-label">{{l("CourseName")}}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-float">
+                        <div class="form-line">
+                            <textarea id="description" type="text" name="Description" [(ngModel)]="course.description"
+                                maxlength="255" class="validate form-control"></textarea>
+                            <label for="description" class="form-label">{{l("Description")}}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-float">
+                        <div class="form-line">
+                            <mat-form-field>
+                                <mat-select placeholder="{{l('Level')}}" name="StatusId" [(ngModel)]="course.levelId">
+                                    <mat-option *ngFor="let item of levels" [value]="item.id">
+                                        {{item.displayName}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-float">
+                        <div class="form-line">
+                            <mat-form-field>
+                                <mat-select placeholder="{{l('Type')}}" name="Type" [(ngModel)]="course.type">
+                                    <mat-option *ngFor="let item of types" [value]="item.id">
+                                        {{item.displayName}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button [disabled]="saving" type="button" class="btn btn-default waves-effect" (click)="close()">
+                        {{l("Cancel")}}
+                    </button>
+                    <button [disabled]="!createForm.form.valid || saving" type="submit"
+                        class="btn btn-primary waves-effect">
+                        {{l("Save")}}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
