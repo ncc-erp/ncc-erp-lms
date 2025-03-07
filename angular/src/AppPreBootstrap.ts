@@ -1,7 +1,7 @@
-import * as moment from 'moment';
-import { AppConsts } from '@shared/AppConsts';
+import { CompilerOptions, NgModuleRef, Type } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { Type, CompilerOptions, NgModuleRef } from '@angular/core';
+import { AppConsts } from '@shared/AppConsts';
+import * as moment from 'moment';
 import { environment } from './environments/environment';
 
 export class AppPreBootstrap {
@@ -25,6 +25,9 @@ export class AppPreBootstrap {
             }
         }).done(result => {
             AppConsts.appBaseUrl = result.appBaseUrl;
+            AppConsts.mezonClientId = result.mezonClientId;
+            AppConsts.mezonAuthServerUrl = result.mezonAuthServerUrl;
+            AppConsts.redirectUri = result.redirectUri;
             AppConsts.remoteServiceBaseUrl = result.remoteServiceBaseUrl;
             AppConsts.localeMappings = result.localeMappings;
             if (result.reCaptchaSiteKey) {

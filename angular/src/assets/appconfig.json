@@ -1,6 +1,9 @@
 {
-    "remoteServiceBaseUrl": "https://localhost:8080",
-    "appBaseUrl": "https://localhost:8081",
+    "remoteServiceBaseUrl": "http://localhost:21021",
+    "appBaseUrl": "http://localhost:4200",
+    "mezonClientId": "1840672135115182080",
+    "mezonAuthServerUrl": "https://oauth2.mezon.ai",
+    "redirectUri": "http://localhost:4200/account/login/callback",
     "localeMappings": [{
             "from": "pt-BR",
             "to": "pt"

@@ -1,0 +1,23 @@
+﻿<div *ngIf="!isAuthenFailed" class="auth-container">
+  <div class="logo-container">
+    <img class="logo" src="/assets/images/ncc-logo.png" alt="logo-ncc" />
+  </div>
+  <div class="title-container">
+    <h3>Authenticating...</h3>
+    <p>You will be redirected to the application shortly</p>
+  </div>
+  <div class="loading">
+    <span class="dot"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+  </div>
+</div>
+<div *ngIf="isAuthenFailed" class="auth-container">
+  <div class="logo-container">
+    <img class="logo" src="/assets/images/ncc-logo.png" alt="logo-ncc" />
+  </div>
+  <div class="title-container">
+    <h3>Authentication failed</h3>
+    <p>You will be returned to login page after {{COUNTDOWN_TIME}}s</p>
+  </div>
+</div>

@@ -1,8 +1,9 @@
 ﻿import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AccountComponent } from './account.component';
+import { CallbackComponent } from './callback/callback.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-import { AccountComponent } from './account.component';
 
 @NgModule({
     imports: [
@@ -12,9 +13,11 @@ import { AccountComponent } from './account.component';
                 component: AccountComponent,
                 children: [
                     { path: 'login', component: LoginComponent },
-                    { path: 'register', component: RegisterComponent }
+                    { path: 'register', component: RegisterComponent },
+                    
                 ]
-            }
+            },
+            {path: 'login/callback', component: CallbackComponent}
         ])
     ],
     exports: [

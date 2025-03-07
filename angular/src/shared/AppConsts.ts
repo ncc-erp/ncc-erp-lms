@@ -1,9 +1,10 @@
 export class AppConsts {
-
     static remoteServiceBaseUrl: string;
     static appBaseUrl: string;
+    static mezonClientId: string;
+    static mezonAuthServerUrl: string;
+    static redirectUri: string;
     static appBaseHref: string; // returns angular's base-href parameter value if used during the publish
-
     static localeMappings: any = [];
 
     static readonly userManagement = {

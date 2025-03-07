@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonpModule } from '@angular/http';
-import { HttpClientModule, HttpResponse } from '@angular/common/http';
 
 import { ModalModule } from 'ngx-bootstrap';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -12,19 +12,16 @@ import { AppComponent } from './app.component';
 
 import { AbpModule } from '@abp/abp.module';
 
+import { RightSideBarComponent } from '@app/layout/right-sidebar.component';
+import { SideBarFooterComponent } from '@app/layout/sidebar-footer.component';
+import { SideBarNavComponent } from '@app/layout/sidebar-nav.component';
+import { SideBarUserAreaComponent } from '@app/layout/sidebar-user-area.component';
+import { TopBarLanguageSwitchComponent } from '@app/layout/topbar-languageswitch.component';
+import { TopBarComponent } from '@app/layout/topbar.component';
 import { ServiceProxyModule } from '@shared/service-proxies/service-proxy.module';
 import { SharedModule } from '@shared/shared.module';
-import { TopBarComponent } from '@app/layout/topbar.component';
-import { TopBarLanguageSwitchComponent } from '@app/layout/topbar-languageswitch.component';
-import { SideBarUserAreaComponent } from '@app/layout/sidebar-user-area.component';
-import { SideBarNavComponent } from '@app/layout/sidebar-nav.component';
-import { SideBarFooterComponent } from '@app/layout/sidebar-footer.component';
-import { RightSideBarComponent } from '@app/layout/right-sidebar.component';
+import { GoogleLoginProvider, SocialAuthServiceConfig, SocialLoginModule } from 'angularx-social-login';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { SocialLoginModule, SocialAuthServiceConfig } from 'angularx-social-login';
-import {
-    GoogleLoginProvider
-} from 'angularx-social-login';
 
 @NgModule({
     declarations: [
@@ -54,7 +51,7 @@ import {
         {
             provide: 'SocialAuthServiceConfig',
             useValue: {
-                autoLogin: true,
+                autoLogin: false,
                 providers: [
                     {
                         id: GoogleLoginProvider.PROVIDER_ID,

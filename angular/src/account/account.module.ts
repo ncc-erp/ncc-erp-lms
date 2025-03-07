@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JsonpModule } from '@angular/http';
-import { HttpClientModule } from '@angular/common/http';
 
 import { ModalModule } from 'ngx-bootstrap';
 
@@ -15,16 +15,17 @@ import { ServiceProxyModule } from '@shared/service-proxies/service-proxy.module
 import { SharedModule } from '@shared/shared.module';
 
 import { AccountComponent } from './account.component';
-import { TenantChangeComponent } from './tenant/tenant-change.component';
-import { TenantChangeModalComponent } from './tenant/tenant-change-modal.component';
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
 import { AccountLanguagesComponent } from './layout/account-languages.component';
+import { LoginComponent } from './login/login.component';
 import { LoginService } from './login/login.service';
+import { RegisterComponent } from './register/register.component';
+import { TenantChangeModalComponent } from './tenant/tenant-change-modal.component';
+import { TenantChangeComponent } from './tenant/tenant-change.component';
 
-import { NgxCaptchaModule } from 'ngx-captcha'; // npm i ngx-captcha
-import { ReCaptcha2Component } from './login/re-captcha2.component';
 import { GoogleLoginProvider, SocialAuthServiceConfig, SocialLoginModule } from 'angularx-social-login';
+import { NgxCaptchaModule } from 'ngx-captcha'; // npm i ngx-captcha
+import { CallbackComponent } from './callback/callback.component';
+import { ReCaptcha2Component } from './login/re-captcha2.component';
 
 @NgModule({
     imports: [
@@ -47,6 +48,7 @@ import { GoogleLoginProvider, SocialAuthServiceConfig, SocialLoginModule } from 
         TenantChangeModalComponent,
         LoginComponent,
         RegisterComponent,
+        CallbackComponent,
         AccountLanguagesComponent,
         ReCaptcha2Component
     ],
@@ -55,7 +57,7 @@ import { GoogleLoginProvider, SocialAuthServiceConfig, SocialLoginModule } from 
         {
             provide: 'SocialAuthServiceConfig',
             useValue: {
-                autoLogin: true,
+                autoLogin: false,
                 providers: [
                     {
                         id: GoogleLoginProvider.PROVIDER_ID,
