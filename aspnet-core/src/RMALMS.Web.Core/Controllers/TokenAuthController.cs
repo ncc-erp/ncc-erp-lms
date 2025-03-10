@@ -69,6 +69,25 @@ namespace RMALMS.Controllers
                 UserId = loginResult.User.Id
             };
         }
+
+        [HttpPost]
+        public async Task<AuthenticateResultModel> MezonAuthenticate([FromBody] MezonAuthDto model)
+        {
+            var loginResult = await GetLoginResultMezonAsync(
+                model.AuthCode,
+                model.RedirectUri
+            );
+
+            var accessToken = CreateAccessToken(CreateJwtClaims(loginResult.Identity));
+            return new AuthenticateResultModel
+            {
+                AccessToken = accessToken,
+                EncryptedAccessToken = GetEncrpyedAccessToken(accessToken),
+                ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds,
+                UserId = loginResult.User.Id
+            };
+        }
+        
         [HttpPost]
         public async Task<AuthenticateResultModel> GoogleAuthenticate([FromBody] TokenDto model)
         {
@@ -99,6 +118,20 @@ namespace RMALMS.Controllers
                     throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(loginResult.Result, null, tenancyName);
             }
         }
+
+        private async Task<AbpLoginResult<Tenant, User>> GetLoginResultMezonAsync(string authCode, string redirectUri, string tenancyName = null)
+        {
+            var loginResult = await _logInManager.LoginMezonAsnyc(authCode, redirectUri);
+
+            switch (loginResult.Result)
+            {
+                case AbpLoginResultType.Success:
+                    return loginResult;
+                default:
+                    throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(loginResult.Result, null, null);
+            }
+        }
+
         [HttpGet]
         public List<ExternalLoginProviderInfoModel> GetExternalAuthenticationProviders()
         {
@@ -226,7 +259,6 @@ namespace RMALMS.Controllers
         private string CreateAccessToken(IEnumerable<Claim> claims, TimeSpan? expiration = null)
         {
             var now = DateTime.UtcNow;
-
             var jwtSecurityToken = new JwtSecurityToken(
                 issuer: _configuration.Issuer,
                 audience: _configuration.Audience,

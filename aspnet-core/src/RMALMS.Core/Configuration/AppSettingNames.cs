@@ -21,6 +21,9 @@
         public const string UserPersonalInfoViewByPublic = "User.PersonalInfoViewByPublic";
         public const string UserPersonalLinksViewByPublic = "User.PersonalLinkViewByPublic";
         public const string ClientAppId = "App.ClientAppId";
+        public const string MezonClientId = "App.MezonClientId";
+        public const string MezonClientSecret = "App.MezonClientSecret";
+        public const string MezonAuthServer = "App.MezonAuthServer";
         //Setting hệ thống
         public const string TimeScanFinishCourse = "TimeScanFinishCourse";
     }

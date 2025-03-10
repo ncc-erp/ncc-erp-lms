@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { TokenAuthServiceProxy, AuthenticateModel, AuthenticateResultModel, ExternalLoginProviderInfoModel, ExternalAuthenticateModel, ExternalAuthenticateResultModel } from '@shared/service-proxies/service-proxies';
-import { UrlHelper } from '@shared/helpers/UrlHelper';
 import { AppConsts } from '@shared/AppConsts';
+import { UrlHelper } from '@shared/helpers/UrlHelper';
+import { AuthenticateModel, AuthenticateResultModel, TokenAuthServiceProxy } from '@shared/service-proxies/service-proxies';
 
-import { MessageService } from '@abp/message/message.service';
-import { LogService } from '@abp/log/log.service';
 import { TokenService } from '@abp/auth/token.service';
+import { LogService } from '@abp/log/log.service';
+import { MessageService } from '@abp/message/message.service';
 import { UtilsService } from '@abp/utils/utils.service';
-import { finalize } from 'rxjs/operators';
+import { PermissonConstants } from '@app/models/constant';
+import { GoogleLoginService } from '@app/services/google-login-service/google-login.service';
 import { AppSessionService } from '@shared/session/app-session.service';
 import { PermissionCheckerService } from 'abp-ng2-module/dist/src/auth/permission-checker.service';
 import { AppPreBootstrap } from 'AppPreBootstrap';
-import { PermissonConstants } from '@app/models/constant';
-import { GoogleLoginService } from '@app/services/google-login-service/google-login.service';
+import { catchError, finalize } from 'rxjs/operators';
 
 @Injectable()
 export class LoginService {
@@ -49,6 +49,24 @@ export class LoginService {
                 this.processAuthenticateResult(result, tenancyName, redirectUrl);
             });
     }
+
+    authenticateMezon(authCode: string, redirectUri: string,
+        errorHandller?: (error?: any) => any
+    ): void {
+        errorHandller = errorHandller || ((error: any) => {console.log(error) })
+        this._tokenAuthService
+            .mezonAuthenticate({ authCode, redirectUri })
+            .pipe(
+                finalize(() => { }),
+                catchError((error) => {
+                    return errorHandller(error);
+                })
+            )
+            .subscribe((result: AuthenticateResultModel) => {
+                this.processAuthenticateResult(result, '', '')
+            })
+    }
+
     authenticateGoogle(googleToken: string, tenancyName: string, redirectUrl: string, finallyCallback?: () => void): void {
         finallyCallback = finallyCallback || (() => { });
 

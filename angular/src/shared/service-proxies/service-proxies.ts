@@ -7,13 +7,13 @@
 //----------------------
 // ReSharper disable InconsistentNaming
 
-import { mergeMap as _observableMergeMap, catchError as _observableCatch } from 'rxjs/operators';
-import { Observable, from as _observableFrom, throwError as _observableThrow, of as _observableOf } from 'rxjs';
-import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse, HttpResponseBase } from '@angular/common/http';
+import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
+import { Observable, of as _observableOf, throwError as _observableThrow } from 'rxjs';
+import { catchError as _observableCatch, mergeMap as _observableMergeMap } from 'rxjs/operators';
 
+import { ResponseModel, ResponseResultModel } from '@app/models/response.model';
 import * as moment from 'moment';
-import { ResponseResultModel, ResponseModel } from '@app/models/response.model';
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
@@ -1081,6 +1081,34 @@ export class TokenAuthServiceProxy {
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
                 "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
+            return this.processAuthenticate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAuthenticate(<any>response_);
+                } catch (e) {
+                    return <Observable<AuthenticateResultModel>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<AuthenticateResultModel>><any>_observableThrow(response_);
+        }));
+    }
+
+    mezonAuthenticate(authDto: IMezonAuthModel): Observable<AuthenticateResultModel> {
+        let url_ = this.baseUrl + "/api/TokenAuth/MezonAuthenticate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(authDto);
+        let options_: any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
             })
         };
 
@@ -2933,6 +2961,11 @@ export class PagedResultDtoOfTenantDto implements IPagedResultDtoOfTenantDto {
 export interface IPagedResultDtoOfTenantDto {
     totalCount: number | undefined;
     items: TenantDto[] | undefined;
+}
+
+export interface IMezonAuthModel {
+    authCode: string;
+    redirectUri: string;
 }
 
 export class AuthenticateModel implements IAuthenticateModel {

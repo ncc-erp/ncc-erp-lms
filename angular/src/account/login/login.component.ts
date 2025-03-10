@@ -1,14 +1,14 @@
-﻿import { Component, Injector, ElementRef, ViewChild, OnInit } from '@angular/core';
+﻿import { AbpSessionService } from '@abp/session/abp-session.service';
+import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppComponentBase } from '@shared/app-component-base';
-import { LoginService } from './login.service';
-import { accountModuleAnimation } from '@shared/animations/routerTransition';
-import { AbpSessionService } from '@abp/session/abp-session.service';
 import { BaseService } from '@app/services/base-service/base.service';
-import { IsTenantAvailableInput, IsTenantAvailableOutput } from '@shared/service-proxies/service-proxies';
+import { accountModuleAnimation } from '@shared/animations/routerTransition';
+import { AppComponentBase } from '@shared/app-component-base';
+import { AppConsts } from '@shared/AppConsts';
 import { AppTenantAvailabilityState } from '@shared/AppEnums';
-import { ReCaptcha2Component } from './re-captcha2.component';
-import { GoogleLoginProvider, SocialAuthService, SocialUser } from 'angularx-social-login';
+import { IsTenantAvailableInput, IsTenantAvailableOutput } from '@shared/service-proxies/service-proxies';
+import { SocialAuthService, SocialUser } from 'angularx-social-login';
+import { LoginService } from './login.service';
 
 @Component({
     templateUrl: './login.component.html',
@@ -20,7 +20,6 @@ import { GoogleLoginProvider, SocialAuthService, SocialUser } from 'angularx-soc
 export class LoginComponent extends AppComponentBase {
 
     @ViewChild('cardBody') cardBody: ElementRef;
-    @ViewChild(ReCaptcha2Component) childReCaptcha: ReCaptcha2Component;
 
     submitting: boolean = false;
     versionText: string;
@@ -52,16 +51,15 @@ export class LoginComponent extends AppComponentBase {
 
     ngOnInit(): void {
         this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
-        this.showCaptcha = this.loginService.checkReCaptcha();
         if (this.appSession.tenant) {
             this.tenancyName = this.appSession.tenant.tenancyName;
             this.name = this.appSession.tenant.name;
         }
         this.authService.authState.subscribe((user) => {
             this.authService.authState.subscribe((user) => {
-                if (user) {
-                    this.loginService.authenticateGoogle(user.idToken, this.tenancyName, this.returnUrl);
-                }
+                // if (user) {
+                //     this.loginService.authenticateGoogle(user.idToken, this.tenancyName, this.returnUrl);
+                // }
             }, err => this.authService.signOut());
         })
     }
@@ -118,8 +116,22 @@ export class LoginComponent extends AppComponentBase {
             );
         }
     }
-    signInWithGoogle() {
-        this.authService.signIn(GoogleLoginProvider.PROVIDER_ID);
+    // @ts-ignore
+    signInWithMezon() {
+        const authServerUrl = AppConsts.mezonAuthServerUrl;
+        const state = Date.now().toString()
+        const scope = 'openid offline';
+        const responseType = 'code';
+        const searchParams = new URLSearchParams()
+
+        searchParams.set('client_id', AppConsts.mezonClientId)
+        searchParams.set('redirect_uri', AppConsts.redirectUri)
+        searchParams.set('response_type', responseType)
+        searchParams.set('scope', scope)
+        searchParams.set('state', state)
+
+        const url = `${authServerUrl}/oauth2/auth?${searchParams.toString()}`
+        window.location.href = url;
     }
 
 }
