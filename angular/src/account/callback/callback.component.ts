@@ -19,6 +19,7 @@ export class CallbackComponent extends AppComponentBase {
     user: SocialUser;
     loggedIn: boolean;
     returnUrl: string;
+    tenancyName: string;
     isAuthenFailed: boolean = false;
     COUNTDOWN_TIME = 10 // 10 seconds
     authCode: string;
@@ -37,6 +38,7 @@ export class CallbackComponent extends AppComponentBase {
     ngOnInit(): void {
         this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
         this.authCode = this.route.snapshot.queryParams['code'] || '';
+        this.tenancyName = localStorage.getItem('tenancyName') ? localStorage.getItem('tenancyName') : 'NCC';
         this.mezonAuthenticate(this.authCode);
     }
 
@@ -46,7 +48,7 @@ export class CallbackComponent extends AppComponentBase {
             this._router.navigate(['/account/login']);
             return;
         }
-        this.loginService.authenticateMezon(authCode, redirectUri, (error) => {
+        this.loginService.authenticateMezon(authCode, redirectUri, this.tenancyName, (error) => {
             console.log("Error: ", error);
             this.isAuthenFailed = true;
             const intervalId = setInterval(() => {

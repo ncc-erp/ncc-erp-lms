@@ -50,12 +50,12 @@ export class LoginService {
             });
     }
 
-    authenticateMezon(authCode: string, redirectUri: string,
+    authenticateMezon(authCode: string, redirectUri: string, tenancyName: string,
         errorHandller?: (error?: any) => any
     ): void {
         errorHandller = errorHandller || ((error: any) => {console.log(error) })
         this._tokenAuthService
-            .mezonAuthenticate({ authCode, redirectUri })
+            .mezonAuthenticate({ authCode, redirectUri, tenancyName })
             .pipe(
                 finalize(() => { }),
                 catchError((error) => {
@@ -63,7 +63,7 @@ export class LoginService {
                 })
             )
             .subscribe((result: AuthenticateResultModel) => {
-                this.processAuthenticateResult(result, '', '')
+                this.processAuthenticateResult(result, tenancyName, '')
             })
     }
 

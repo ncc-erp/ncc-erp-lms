@@ -14,6 +14,7 @@ using Abp.Zero.Configuration;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RestSharp;
 using RMALMS.Authentication.Tokens;
@@ -27,6 +28,7 @@ namespace RMALMS.Authorization
     public class LogInManager : AbpLogInManager<Tenant, Role, User>
     {
         private readonly IConfiguration _configration;
+        private readonly ILogger _logger;
         public LogInManager(
             UserManager userManager,
             IMultiTenancyConfig multiTenancyConfig,
@@ -34,6 +36,7 @@ namespace RMALMS.Authorization
             IUnitOfWorkManager unitOfWorkManager,
             ISettingManager settingManager,
             IConfiguration configuration,
+            ILogger<LogInManager> logger,
             IRepository<UserLoginAttempt, long> userLoginAttemptRepository,
             IUserManagementConfig userManagementConfig,
             IIocResolver iocResolver,
@@ -54,6 +57,7 @@ namespace RMALMS.Authorization
                   claimsPrincipalFactory)
         {
             _configration = configuration;
+            _logger = logger;
         }
         [UnitOfWork]
         public async Task<AbpLoginResult<Tenant, User>> LoginAsyncNoPass(string token, string tenancyName = null, bool shouldLockout = true)
@@ -65,15 +69,15 @@ namespace RMALMS.Authorization
         }
 
         [UnitOfWork]
-        public async Task<AbpLoginResult<Tenant, User>> LoginMezonAsnyc(string authCode, string redirectUri, bool shouldLockout = true)
+        public async Task<AbpLoginResult<Tenant, User>> LoginMezonAsnyc(string authCode, string redirectUri, string tenancyName = null)
         {
-            var result = await AuthMezonServerAsync(authCode, redirectUri, shouldLockout);
+            var result = await AuthMezonServerAsync(authCode, redirectUri, tenancyName);
             var user = result.User;
             await SaveLoginAttempt(result, null, user == null ? null : user.EmailAddress);
             return result;
         }
 
-        private async Task<AbpLoginResult<Tenant, User>> AuthMezonServerAsync(string authCode, string redirectUri, bool shouldLockout = true)
+        private async Task<AbpLoginResult<Tenant, User>> AuthMezonServerAsync(string authCode, string redirectUri, string tenancyName = null)
         {
             if (authCode.IsNullOrEmpty() || redirectUri.IsNullOrEmpty())
             {
@@ -84,22 +88,19 @@ namespace RMALMS.Authorization
                 var clientId = _configration["Authentication:Mezon:ClientId"] ?? throw new ArgumentNullException("Invalid ClientId");
                 var clientSecret = _configration["Authentication:Mezon:ClientSecret"] ?? throw new ArgumentNullException("Invalid ClientSecret");
                 var authServerUrl = _configration["Authentication:Mezon:AuthServerUrl"] ?? throw new ArgumentNullException("Invalid AuthServer");
-                Console.WriteLine("AuthServerUrl: " + authServerUrl);
-                Console.WriteLine("ClientId: " + clientId);
-                Console.WriteLine("ClientSecret: " + clientSecret);
+                _logger.LogWarning($"Authenticating with Mezon server: {authServerUrl}, clientId: {clientId}, redirectUri: {redirectUri}");
                 var restClient = new RestClient(authServerUrl);
-
                 // Validate auth code
                 var authRequest = new RestRequest("/oauth2/token", Method.POST);
                 authRequest.AlwaysMultipartFormData = true;
                 authRequest.AddHeader("Content-Type", "multipart/form-data");
-                
+
                 authRequest.AddParameter("grant_type", "authorization_code");
                 authRequest.AddParameter("client_id", clientId);
                 authRequest.AddParameter("code", authCode);
                 authRequest.AddParameter("client_secret", clientSecret);
                 authRequest.AddParameter("redirect_uri", redirectUri);
-                
+
                 var response = await restClient.ExecuteTaskAsync(authRequest);
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -119,22 +120,43 @@ namespace RMALMS.Authorization
                 {
                     throw new UserFriendlyException("Authenticattion failed - Can't get user info from Mezon server");
                 }
-                var userData = JsonConvert.DeserializeObject<MezonUser>(userResponse.Content);
-                var user = await UserManager.FindByNameOrEmailAsync(userData.sub);
-                if (user == null)
-                {
-                    throw new UserFriendlyException("Authenticattion failed - Account does not exist");
-                }
-                if (await UserManager.IsLockedOutAsync(user))
-                {
-                    return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut);
-                }
 
-                await UserManager.ResetAccessFailedCountAsync(user);
-                return await CreateLoginResultAsync(user);
+                var userData = JsonConvert.DeserializeObject<MezonUser>(userResponse.Content);
+                _logger.LogWarning($"Try to login with user email: {userData.sub}");
+                Tenant tenant = null;
+                //Get and check tenant
+                if (!MultiTenancyConfig.IsEnabled)
+                {
+                    tenant = await GetDefaultTenantAsync();
+                }
+                else if (!string.IsNullOrWhiteSpace(tenancyName))
+                {
+                    tenant = await TenantRepository.FirstOrDefaultAsync(t => t.TenancyName == tenancyName);
+                    if (tenant == null)
+                    {
+                        return new AbpLoginResult<Tenant, User>(AbpLoginResultType.InvalidTenancyName);
+                    }
+
+                    if (!tenant.IsActive)
+                    {
+                        return new AbpLoginResult<Tenant, User>(AbpLoginResultType.TenantIsNotActive, tenant);
+                    }
+                }
+                var tenantId = tenant == null ? (int?)null : tenant.Id;
+                await UserManager.InitializeOptionsAsync(tenantId);
+
+                var user = await UserManager.FindByNameOrEmailAsync(tenantId, userData.sub);
+                if (user == null)
+                    throw new UserFriendlyException(string.Format("Login Fail - Account does not exist"));
+
+                if (await UserManager.IsLockedOutAsync(user))
+                    return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut, tenant, user);
+
+                return await CreateLoginResultAsync(user, tenant);
             }
-            catch (Exception e) {
-                Console.WriteLine(e.Message);
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Authenticattion failed - Can't authenticate with Mezon server");
                 return new AbpLoginResult<Tenant, User>(AbpLoginResultType.UnknownExternalLogin, null);
             }
         }

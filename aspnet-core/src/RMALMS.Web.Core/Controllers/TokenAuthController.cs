@@ -75,7 +75,8 @@ namespace RMALMS.Controllers
         {
             var loginResult = await GetLoginResultMezonAsync(
                 model.AuthCode,
-                model.RedirectUri
+                model.RedirectUri,
+                model.TenancyName
             );
 
             var accessToken = CreateAccessToken(CreateJwtClaims(loginResult.Identity));
@@ -121,7 +122,7 @@ namespace RMALMS.Controllers
 
         private async Task<AbpLoginResult<Tenant, User>> GetLoginResultMezonAsync(string authCode, string redirectUri, string tenancyName = null)
         {
-            var loginResult = await _logInManager.LoginMezonAsnyc(authCode, redirectUri);
+            var loginResult = await _logInManager.LoginMezonAsnyc(authCode, redirectUri, tenancyName);
 
             switch (loginResult.Result)
             {
