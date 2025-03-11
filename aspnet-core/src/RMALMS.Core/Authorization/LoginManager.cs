@@ -73,7 +73,7 @@ namespace RMALMS.Authorization
         {
             var result = await AuthMezonServerAsync(authCode, redirectUri, tenancyName);
             var user = result.User;
-            await SaveLoginAttempt(result, null, user == null ? null : user.EmailAddress);
+            await SaveLoginAttempt(result, tenancyName, user == null ? null : user.EmailAddress);
             return result;
         }
 
@@ -123,36 +123,45 @@ namespace RMALMS.Authorization
 
                 var userData = JsonConvert.DeserializeObject<MezonUser>(userResponse.Content);
                 _logger.LogWarning($"Try to login with user email: {userData.sub}");
+
                 Tenant tenant = null;
+
                 //Get and check tenant
-                if (!MultiTenancyConfig.IsEnabled)
+                using (UnitOfWorkManager.Current.SetTenantId(null))
                 {
-                    tenant = await GetDefaultTenantAsync();
-                }
-                else if (!string.IsNullOrWhiteSpace(tenancyName))
-                {
-                    tenant = await TenantRepository.FirstOrDefaultAsync(t => t.TenancyName == tenancyName);
-                    if (tenant == null)
+                    if (!MultiTenancyConfig.IsEnabled)
                     {
-                        return new AbpLoginResult<Tenant, User>(AbpLoginResultType.InvalidTenancyName);
+                        tenant = await GetDefaultTenantAsync();
                     }
 
-                    if (!tenant.IsActive)
+                    else if (!string.IsNullOrWhiteSpace(tenancyName))
                     {
-                        return new AbpLoginResult<Tenant, User>(AbpLoginResultType.TenantIsNotActive, tenant);
+                        tenant = await TenantRepository.FirstOrDefaultAsync(t => t.TenancyName == tenancyName);
+                        if (tenant == null)
+                        {
+                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.InvalidTenancyName);
+                        }
+
+                        if (!tenant.IsActive)
+                        {
+                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.TenantIsNotActive, tenant);
+                        }
+                    }
+                    var tenantId = tenant == null ? (int?)null : tenant.Id;
+                    using (UnitOfWorkManager.Current.SetTenantId(tenantId))
+                    {
+                        await UserManager.InitializeOptionsAsync(tenantId);
+                        var user = await UserManager.FindByNameOrEmailAsync(tenantId, userData.sub);
+                        if (user == null)
+                            throw new UserFriendlyException(string.Format("Login Fail - Account does not exist"));
+
+                        var isLockOut = await UserManager.IsLockedOutAsync(user);
+                        if (isLockOut)
+                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut, tenant, user);
+                        var logỉnResult = await CreateLoginResultAsync(user, tenant);
+                        return logỉnResult;
                     }
                 }
-                var tenantId = tenant == null ? (int?)null : tenant.Id;
-                await UserManager.InitializeOptionsAsync(tenantId);
-
-                var user = await UserManager.FindByNameOrEmailAsync(tenantId, userData.sub);
-                if (user == null)
-                    throw new UserFriendlyException(string.Format("Login Fail - Account does not exist"));
-
-                if (await UserManager.IsLockedOutAsync(user))
-                    return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut, tenant, user);
-
-                return await CreateLoginResultAsync(user, tenant);
             }
             catch (Exception e)
             {

@@ -22,7 +22,7 @@ import { RegisterComponent } from './register/register.component';
 import { TenantChangeModalComponent } from './tenant/tenant-change-modal.component';
 import { TenantChangeComponent } from './tenant/tenant-change.component';
 
-import { GoogleLoginProvider, SocialAuthServiceConfig, SocialLoginModule } from 'angularx-social-login';
+import { SocialAuthServiceConfig, SocialLoginModule } from 'angularx-social-login';
 import { NgxCaptchaModule } from 'ngx-captcha'; // npm i ngx-captcha
 import { CallbackComponent } from './callback/callback.component';
 import { ReCaptcha2Component } from './login/re-captcha2.component';
@@ -58,13 +58,7 @@ import { ReCaptcha2Component } from './login/re-captcha2.component';
             provide: 'SocialAuthServiceConfig',
             useValue: {
                 autoLogin: false,
-                providers: [
-                    {
-                        id: GoogleLoginProvider.PROVIDER_ID,
-                        provider: new GoogleLoginProvider('313933079512-lmpvf98bmvgidrv3m65624is4q700v17.apps.googleusercontent.com'
-                        ),
-                    },
-                ],
+                providers: [],
             } as SocialAuthServiceConfig,
         }
     ]
