@@ -2966,6 +2966,7 @@ export interface IPagedResultDtoOfTenantDto {
 export interface IMezonAuthModel {
     authCode: string;
     redirectUri: string;
+    tenancyName: string;
 }
 
 export class AuthenticateModel implements IAuthenticateModel {
