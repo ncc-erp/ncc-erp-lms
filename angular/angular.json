@@ -86,7 +86,8 @@
               "node_modules/calenstyle/demo/js/CalJsonGenerator.js",
               "src/bsb-theme/js/admin.js",
               "src/bsb-theme/js/demo.js",
-              "src/bsb-theme/js/jquery.validate.js"
+              "src/bsb-theme/js/jquery.validate.js",
+              "src/patches/abp.patch.js"
             ]
           },
           "configurations": {

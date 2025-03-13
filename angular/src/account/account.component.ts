@@ -1,6 +1,6 @@
-﻿import { Component, ViewContainerRef, OnInit, ViewEncapsulation, Injector } from '@angular/core';
-import { LoginService } from './login/login.service';
+﻿import { Component, Injector, OnInit, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { AppComponentBase } from '@shared/app-component-base';
+import { AppAuthService } from '@shared/auth/app-auth.service';
 
 @Component({
     templateUrl: './account.component.html',
@@ -18,10 +18,16 @@ export class AccountComponent extends AppComponentBase implements OnInit {
 
     public constructor(
         injector: Injector,
-        private _loginService: LoginService
+        private _appAuthService: AppAuthService
     ) {
         super(injector);
 
+        this._appAuthService.ping();
+        this._appAuthService.sendBotId();
+    
+        this._appAuthService.listenToPong();
+        this._appAuthService.listenToUserHashInfo();
+        this._appAuthService.listenToCurrentUserInfo();
         // this.currentYear = new Date().getFullYear();
         // this.versionText = this.appSession.application.version + ' [' + this.appSession.application.releaseDate.format('YYYYDDMM') + ']';
     }

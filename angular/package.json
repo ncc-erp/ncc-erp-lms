@@ -6,6 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4200",
+    "dev": "ng serve --port 4200 --host=0.0.0.0 --disable-host-check",
     "hmr": "ng serve --port 4200 --hmr",
     "test": "ng test",
     "pree2e": "webdriver-manager update --standalone false --gecko false",

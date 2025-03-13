@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppConsts } from '@shared/AppConsts';
 import { UrlHelper } from '@shared/helpers/UrlHelper';
-import { AuthenticateModel, AuthenticateResultModel, TokenAuthServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AuthenticateModel, AuthenticateResultModel, IHashMezonAuthModel, TokenAuthServiceProxy } from '@shared/service-proxies/service-proxies';
 
 import { TokenService } from '@abp/auth/token.service';
 import { LogService } from '@abp/log/log.service';
@@ -50,10 +50,24 @@ export class LoginService {
             });
     }
 
+    authenticateMezonHash(authDto: IHashMezonAuthModel, errorHandller?: (error?: any) => any): void {
+        this._tokenAuthService
+            .mezonHashAuthenticate(authDto)
+            .pipe(
+                finalize(() => { }),
+                catchError((error) => {
+                    return errorHandller(error);
+                })
+            )
+            .subscribe((result: AuthenticateResultModel) => {
+                this.processAuthenticateResult(result, authDto.tenancyName, '');
+            })
+    }
+
     authenticateMezon(authCode: string, redirectUri: string, tenancyName: string,
         errorHandller?: (error?: any) => any
     ): void {
-        errorHandller = errorHandller || ((error: any) => {console.log(error) })
+        errorHandller = errorHandller || ((error: any) => { console.log(error) })
         this._tokenAuthService
             .mezonAuthenticate({ authCode, redirectUri, tenancyName })
             .pipe(

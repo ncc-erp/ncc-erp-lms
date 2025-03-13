@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Abp.Authorization;
 using Abp.Authorization.Users;
@@ -18,11 +20,13 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RestSharp;
 using RMALMS.Authentication.Tokens;
+using RMALMS.Authorization.Dto;
 using RMALMS.Authorization.Roles;
 using RMALMS.Authorization.Users;
 using RMALMS.Configuration;
 using RMALMS.Core.Authorization.Users;
 using RMALMS.MultiTenancy;
+
 namespace RMALMS.Authorization
 {
     public class LogInManager : AbpLogInManager<Tenant, Role, User>
@@ -69,6 +73,14 @@ namespace RMALMS.Authorization
         }
 
         [UnitOfWork]
+        public async Task<AbpLoginResult<Tenant, User>> LoginHashMezonAsnyc(MezonHashAuthDto hashAuthDto)
+        {
+            var result = await AuthMezonHashAsync(hashAuthDto);
+            var user = result.User;
+            await SaveLoginAttempt(result, hashAuthDto.TenancyName, user == null ? null : user.EmailAddress);
+            return result;
+        }
+        [UnitOfWork]
         public async Task<AbpLoginResult<Tenant, User>> LoginMezonAsnyc(string authCode, string redirectUri, string tenancyName = null)
         {
             var result = await AuthMezonServerAsync(authCode, redirectUri, tenancyName);
@@ -77,6 +89,77 @@ namespace RMALMS.Authorization
             return result;
         }
 
+        private async Task<AbpLoginResult<Tenant, User>> AuthMezonHashAsync(MezonHashAuthDto hashAuthDto)
+        {
+            if (hashAuthDto.HashKey.IsNullOrEmpty() || hashAuthDto.UserId.IsNullOrEmpty())
+            {
+                throw new ArgumentNullException(nameof(hashAuthDto.HashKey));
+            }
+            try
+            {
+                var appToken = _configration["Authentication:Mezon:AppToken"] ?? throw new ArgumentNullException("Invalid AppToken");
+                var dataKeys = new Dictionary<string, string>
+                {
+                    { "userid", hashAuthDto.UserId },
+                    { "username", hashAuthDto.UserName }
+                };
+
+                var hashParams = string.Join("\n", dataKeys.Select(x => $"{x.Key}={x.Value}"));
+                byte[] secretKey = Hasher.HMAC_SHA256(Encoding.UTF8.GetBytes(appToken), Encoding.UTF8.GetBytes("WebAppData"));
+                var hashedData = Hasher.HEX(Hasher.HMAC_SHA256(secretKey, Encoding.UTF8.GetBytes(hashParams)));
+
+                if (hashAuthDto.HashKey.Equals(hashedData) == false)
+                {
+                    throw new UserFriendlyException("Authenticattion failed - Invalid hash key");
+                }
+
+                _logger.LogWarning($"Try to login with user email: {hashAuthDto.UserEmail}");
+
+                Tenant tenant = null;
+
+                //Get and check tenant
+                using (UnitOfWorkManager.Current.SetTenantId(null))
+                {
+                    if (!MultiTenancyConfig.IsEnabled)
+                    {
+                        tenant = await GetDefaultTenantAsync();
+                    }
+
+                    else if (!string.IsNullOrWhiteSpace(hashAuthDto.TenancyName))
+                    {
+                        tenant = await TenantRepository.FirstOrDefaultAsync(t => t.TenancyName == hashAuthDto.TenancyName);
+                        if (tenant == null)
+                        {
+                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.InvalidTenancyName);
+                        }
+
+                        if (!tenant.IsActive)
+                        {
+                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.TenantIsNotActive, tenant);
+                        }
+                    }
+                    var tenantId = tenant == null ? (int?)null : tenant.Id;
+                    using (UnitOfWorkManager.Current.SetTenantId(tenantId))
+                    {
+                        await UserManager.InitializeOptionsAsync(tenantId);
+                        var user = await UserManager.FindByNameOrEmailAsync(tenantId, hashAuthDto.UserEmail);
+                        if (user == null)
+                            throw new UserFriendlyException(string.Format("Login Fail - Account does not exist"));
+
+                        var isLockOut = await UserManager.IsLockedOutAsync(user);
+                        if (isLockOut)
+                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut, tenant, user);
+                        var logỉnResult = await CreateLoginResultAsync(user, tenant);
+                        return logỉnResult;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Authenticattion failed - Can't authenticate with Mezon server");
+                return new AbpLoginResult<Tenant, User>(AbpLoginResultType.UnknownExternalLogin, null);
+            }
+        }
         private async Task<AbpLoginResult<Tenant, User>> AuthMezonServerAsync(string authCode, string redirectUri, string tenancyName = null)
         {
             if (authCode.IsNullOrEmpty() || redirectUri.IsNullOrEmpty())

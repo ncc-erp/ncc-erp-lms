@@ -1098,6 +1098,35 @@ export class TokenAuthServiceProxy {
         }));
     }
 
+    mezonHashAuthenticate(authDto: IHashMezonAuthModel): Observable<AuthenticateResultModel> {
+        let url_ = this.baseUrl + "/api/TokenAuth/HashAuthenticate";
+        url_ = url_.replace(/[?&]$/, "");
+    
+        const content_ = JSON.stringify(authDto);
+        let options_: any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+    
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
+            return this.processAuthenticate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAuthenticate(<any>response_);
+                } catch (e) {
+                    return <Observable<AuthenticateResultModel>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<AuthenticateResultModel>><any>_observableThrow(response_);
+        }));
+
+    }
+
     mezonAuthenticate(authDto: IMezonAuthModel): Observable<AuthenticateResultModel> {
         let url_ = this.baseUrl + "/api/TokenAuth/MezonAuthenticate";
         url_ = url_.replace(/[?&]$/, "");
@@ -2968,7 +2997,15 @@ export interface IMezonAuthModel {
     redirectUri: string;
     tenancyName: string;
 }
-
+export interface IHashMezonAuthModel {
+    hashKey: string;
+    userId: string;
+    userName: string;
+    userEmail: string;
+    avatar: string;
+    name: string;
+    tenancyName: string;
+}
 export class AuthenticateModel implements IAuthenticateModel {
     userNameOrEmailAddress: string;
     password: string;
