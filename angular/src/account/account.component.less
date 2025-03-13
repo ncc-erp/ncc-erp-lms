@@ -30,7 +30,19 @@
     .login-form {
         width: 100%;
         display: flex;
+        justify-content: center;
     }
+}
+
+@keyframes loading {
+  0% { transform: scale(1) }
+  75% { transform: scale(.2) }
+}
+
+@keyframes loading-2 {
+  0% { top: 0; }
+  75% { top: -.5em; }
+  100% { top: 0; }
 }
 @media screen and (-webkit-min-device-pixel-ratio:0) { 
     .login-page {

@@ -26,6 +26,7 @@ export class AppPreBootstrap {
         }).done(result => {
             AppConsts.appBaseUrl = result.appBaseUrl;
             AppConsts.mezonClientId = result.mezonClientId;
+            AppConsts.mezonAppId = result.mezonAppId;
             AppConsts.mezonAuthServerUrl = result.mezonAuthServerUrl;
             AppConsts.redirectUri = result.redirectUri;
             AppConsts.remoteServiceBaseUrl = result.remoteServiceBaseUrl;

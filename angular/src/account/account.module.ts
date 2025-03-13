@@ -22,6 +22,7 @@ import { RegisterComponent } from './register/register.component';
 import { TenantChangeModalComponent } from './tenant/tenant-change-modal.component';
 import { TenantChangeComponent } from './tenant/tenant-change.component';
 
+import { AppAuthService } from '@shared/auth/app-auth.service';
 import { SocialAuthServiceConfig, SocialLoginModule } from 'angularx-social-login';
 import { NgxCaptchaModule } from 'ngx-captcha'; // npm i ngx-captcha
 import { CallbackComponent } from './callback/callback.component';
@@ -54,6 +55,7 @@ import { ReCaptcha2Component } from './login/re-captcha2.component';
     ],
     providers: [
         LoginService,
+        AppAuthService,
         {
             provide: 'SocialAuthServiceConfig',
             useValue: {

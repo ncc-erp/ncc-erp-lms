@@ -6,8 +6,10 @@ import { accountModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/app-component-base';
 import { AppConsts } from '@shared/AppConsts';
 import { AppTenantAvailabilityState } from '@shared/AppEnums';
-import { IsTenantAvailableInput, IsTenantAvailableOutput } from '@shared/service-proxies/service-proxies';
+import { AppAuthService } from '@shared/auth/app-auth.service';
+import { IHashMezonAuthModel, IsTenantAvailableInput, IsTenantAvailableOutput } from '@shared/service-proxies/service-proxies';
 import { SocialAuthService, SocialUser } from 'angularx-social-login';
+import { IMezonUser, IUserHashInfo } from 'types/userTypes';
 import { LoginService } from './login.service';
 
 @Component({
@@ -27,8 +29,13 @@ export class LoginComponent extends AppComponentBase {
     tenancyName: string;
     name: string;
     user: SocialUser;
+    hashUser: IUserHashInfo;
+    mezonUser: IMezonUser;
     loggedIn: boolean;
     returnUrl: string;
+    isMezonApp: boolean = false;
+    isAuthenFailed: boolean = false;
+    isAuthenticating: boolean = false;
 
     captchaSuccess: boolean = false;
     showCaptcha: boolean = false;
@@ -40,6 +47,7 @@ export class LoginComponent extends AppComponentBase {
         private _sessionService: AbpSessionService,
         private baseService: BaseService,
         private authService: SocialAuthService,
+        private _appAuthService: AppAuthService,
         private route: ActivatedRoute,
     ) {
         super(injector);
@@ -48,8 +56,22 @@ export class LoginComponent extends AppComponentBase {
 
         this.tenancyName = localStorage.getItem('tenancyName') ? localStorage.getItem('tenancyName') : 'NCC';
     }
-
     ngOnInit(): void {
+
+        // Subscribe to Observables for updates
+        this._appAuthService.isInMezon$.subscribe((status) => {
+            this.isMezonApp = status;
+        });
+
+        this._appAuthService.currentUserInfo$.subscribe((userData) => {
+            this.mezonUser = userData;
+        });
+
+        this._appAuthService.userHashInfo$.subscribe((userHashData) => {
+            this.hashUser = userHashData;
+            this.loginWithHash(this.hashUser, this.mezonUser);
+        });
+
         this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
         if (this.appSession.tenant) {
             this.tenancyName = this.appSession.tenant.tenancyName;
@@ -79,7 +101,6 @@ export class LoginComponent extends AppComponentBase {
 
         return true;
     }
-
 
 
     login(): void {
@@ -116,8 +137,34 @@ export class LoginComponent extends AppComponentBase {
             );
         }
     }
+
+    loginWithHash(hashUser: IUserHashInfo, mezonUser: IMezonUser){
+        if (hashUser && mezonUser) {
+            this.isAuthenticating = true;
+            const hashData: IHashMezonAuthModel = {
+                hashKey: hashUser.hash,
+                userId: hashUser.user_id,
+                userName: mezonUser.user.username,
+                userEmail: mezonUser.email,
+                name: mezonUser.user.display_name,
+                avatar: mezonUser.user.avatar_url,
+                tenancyName: this.tenancyName
+            }
+            this.loginService.authenticateMezonHash(hashData,(error) => {
+                console.log("Error: ", error);
+                this.isAuthenFailed = true;
+            });
+        }
+    }
+
+    retryHashLogin(){
+        this.isAuthenticating = false;
+        this.isAuthenFailed = false;
+        this.loginWithHash(this.hashUser, this.mezonUser);
+    }
+    
     // @ts-ignore
-    signInWithMezon() {
+    loginWithMezon() {
         const authServerUrl = AppConsts.mezonAuthServerUrl;
         const state = Date.now().toString()
         const scope = 'openid offline';

@@ -17,6 +17,7 @@ using RMALMS.Authorization;
 using RMALMS.Authorization.Users;
 using RMALMS.Models.TokenAuth;
 using RMALMS.MultiTenancy;
+using RMALMS.Authorization.Dto;
 using RMALMS.Controllers.Dto;
 
 namespace RMALMS.Controllers
@@ -61,6 +62,23 @@ namespace RMALMS.Controllers
 
             var accessToken = CreateAccessToken(CreateJwtClaims(loginResult.Identity));
 
+            return new AuthenticateResultModel
+            {
+                AccessToken = accessToken,
+                EncryptedAccessToken = GetEncrpyedAccessToken(accessToken),
+                ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds,
+                UserId = loginResult.User.Id
+            };
+        }
+
+        [HttpPost]
+        public async Task<AuthenticateResultModel> HashAuthenticate([FromBody] MezonHashAuthDto model)
+        {
+            var loginResult = await GetLoginResultMezonHashAsync(
+               model
+            );
+
+            var accessToken = CreateAccessToken(CreateJwtClaims(loginResult.Identity));
             return new AuthenticateResultModel
             {
                 AccessToken = accessToken,
@@ -120,6 +138,18 @@ namespace RMALMS.Controllers
             }
         }
 
+        private async Task<AbpLoginResult<Tenant, User>> GetLoginResultMezonHashAsync(MezonHashAuthDto authDto)
+        {
+            var loginResult = await _logInManager.LoginHashMezonAsnyc(authDto);
+
+            switch (loginResult.Result)
+            {
+                case AbpLoginResultType.Success:
+                    return loginResult;
+                default:
+                    throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(loginResult.Result, null, authDto.TenancyName);
+            }
+        }
         private async Task<AbpLoginResult<Tenant, User>> GetLoginResultMezonAsync(string authCode, string redirectUri, string tenancyName = null)
         {
             var loginResult = await _logInManager.LoginMezonAsnyc(authCode, redirectUri, tenancyName);
@@ -129,7 +159,7 @@ namespace RMALMS.Controllers
                 case AbpLoginResultType.Success:
                     return loginResult;
                 default:
-                    throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(loginResult.Result, null, null);
+                    throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(loginResult.Result, null, tenancyName);
             }
         }
 

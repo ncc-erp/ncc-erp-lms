@@ -1,9 +1,5 @@
-﻿import { Component, OnInit } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { LoadingBarService } from '@ngx-loading-bar/core';
-import { PermissionCheckerService } from 'abp-ng2-module/dist/src/auth/permission-checker.service';
-import { PermissonConstants } from '@app/models/constant';
-import { Router } from '@angular/router';
-import { AppSessionService } from '@shared/session/app-session.service';
 @Component({
   selector: 'app-root',
   template: `
