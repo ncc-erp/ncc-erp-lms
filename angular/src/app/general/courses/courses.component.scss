@@ -1,3 +1,10 @@
+.courses-table {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  gap: 16px;
+  place-self: start;
+}
 table {
     width: 100%;
   }

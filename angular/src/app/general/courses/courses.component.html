@@ -23,9 +23,8 @@
                 {{l('Published')}}
               </h2>
             </div>
-            <div class="body table-responsive">
+            <div class="body table-responsive d-flex gap-2 courses-table">
               <app-view-course-item *ngFor="let course of publishedCourses" [item]="course"></app-view-course-item>
-
             </div>
 
             <!-- draft -->
@@ -34,7 +33,7 @@
                 {{l('Draft')}}
               </h2>
             </div>
-            <div class="body table-responsive">
+            <div class="body table-responsive courses-table d-flex">
               <app-view-course-item *ngFor="let course of draftCourses" [item]="course" (republishResult)="onDeletedCourse($event)" ></app-view-course-item>
             </div>
           </ng-template>
