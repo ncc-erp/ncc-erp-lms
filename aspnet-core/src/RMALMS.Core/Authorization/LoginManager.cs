@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Abp.Authorization;
 using Abp.Authorization.Users;
 using Abp.Configuration;
@@ -14,6 +17,7 @@ using Abp.Extensions;
 using Abp.UI;
 using Abp.Zero.Configuration;
 using Google.Apis.Auth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -91,68 +95,29 @@ namespace RMALMS.Authorization
 
         private async Task<AbpLoginResult<Tenant, User>> AuthMezonHashAsync(MezonHashAuthDto hashAuthDto)
         {
-            if (hashAuthDto.HashKey.IsNullOrEmpty() || hashAuthDto.UserId.IsNullOrEmpty())
+            if (hashAuthDto.HashData.IsNullOrEmpty())
             {
-                throw new ArgumentNullException(nameof(hashAuthDto.HashKey));
+                throw new ArgumentNullException(nameof(hashAuthDto.HashData));
             }
             try
             {
                 var appToken = _configration["Authentication:Mezon:AppToken"] ?? throw new ArgumentNullException("Invalid AppToken");
-                var dataKeys = new Dictionary<string, string>
-                {
-                    { "userid", hashAuthDto.UserId },
-                    { "username", hashAuthDto.UserName }
-                };
+                var rawHashData = hashAuthDto.HashData.DecodeBase64();
 
-                var hashParams = string.Join("\n", dataKeys.Select(x => $"{x.Key}={x.Value}"));
+                var hashData = HashParamsParser(rawHashData);
+                var hashParams = new BaseHashData { query_id = hashData.query_id, user = hashData.user, auth_date = hashData.auth_date, signature = hashData.signature };
+                var mezonUser = JsonConvert.DeserializeObject<MezonUser>(hashParams.user);
+
                 byte[] secretKey = Hasher.HMAC_SHA256(Encoding.UTF8.GetBytes(appToken), Encoding.UTF8.GetBytes("WebAppData"));
-                var hashedData = Hasher.HEX(Hasher.HMAC_SHA256(secretKey, Encoding.UTF8.GetBytes(hashParams)));
-
-                if (hashAuthDto.HashKey.Equals(hashedData) == false)
-                {
+                var hashedData = Hasher.HEX(Hasher.HMAC_SHA256(secretKey, Encoding.UTF8.GetBytes(HashParamsStringify(hashParams))));
+            
+                if (hashData.hash.Equals(hashedData) == false)
                     throw new UserFriendlyException("Authenticattion failed - Invalid hash key");
-                }
 
-                _logger.LogWarning($"Try to login with user email: {hashAuthDto.UserEmail}");
-
-                Tenant tenant = null;
-
-                //Get and check tenant
-                using (UnitOfWorkManager.Current.SetTenantId(null))
-                {
-                    if (!MultiTenancyConfig.IsEnabled)
-                    {
-                        tenant = await GetDefaultTenantAsync();
-                    }
-
-                    else if (!string.IsNullOrWhiteSpace(hashAuthDto.TenancyName))
-                    {
-                        tenant = await TenantRepository.FirstOrDefaultAsync(t => t.TenancyName == hashAuthDto.TenancyName);
-                        if (tenant == null)
-                        {
-                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.InvalidTenancyName);
-                        }
-
-                        if (!tenant.IsActive)
-                        {
-                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.TenantIsNotActive, tenant);
-                        }
-                    }
-                    var tenantId = tenant == null ? (int?)null : tenant.Id;
-                    using (UnitOfWorkManager.Current.SetTenantId(tenantId))
-                    {
-                        await UserManager.InitializeOptionsAsync(tenantId);
-                        var user = await UserManager.FindByNameOrEmailAsync(tenantId, hashAuthDto.UserEmail);
-                        if (user == null)
-                            throw new UserFriendlyException(string.Format("Login Fail - Account does not exist"));
-
-                        var isLockOut = await UserManager.IsLockedOutAsync(user);
-                        if (isLockOut)
-                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut, tenant, user);
-                        var logỉnResult = await CreateLoginResultAsync(user, tenant);
-                        return logỉnResult;
-                    }
-                }
+                _logger.LogWarning($"Try to login with user email: {mezonUser.mezon_id}");
+                
+                var loginResult = await HandleAuthWithEmail(mezonUser.mezon_id, hashAuthDto.TenancyName);
+                return loginResult;
             }
             catch (Exception e)
             {
@@ -207,44 +172,8 @@ namespace RMALMS.Authorization
                 var userData = JsonConvert.DeserializeObject<MezonUser>(userResponse.Content);
                 _logger.LogWarning($"Try to login with user email: {userData.sub}");
 
-                Tenant tenant = null;
-
-                //Get and check tenant
-                using (UnitOfWorkManager.Current.SetTenantId(null))
-                {
-                    if (!MultiTenancyConfig.IsEnabled)
-                    {
-                        tenant = await GetDefaultTenantAsync();
-                    }
-
-                    else if (!string.IsNullOrWhiteSpace(tenancyName))
-                    {
-                        tenant = await TenantRepository.FirstOrDefaultAsync(t => t.TenancyName == tenancyName);
-                        if (tenant == null)
-                        {
-                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.InvalidTenancyName);
-                        }
-
-                        if (!tenant.IsActive)
-                        {
-                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.TenantIsNotActive, tenant);
-                        }
-                    }
-                    var tenantId = tenant == null ? (int?)null : tenant.Id;
-                    using (UnitOfWorkManager.Current.SetTenantId(tenantId))
-                    {
-                        await UserManager.InitializeOptionsAsync(tenantId);
-                        var user = await UserManager.FindByNameOrEmailAsync(tenantId, userData.sub);
-                        if (user == null)
-                            throw new UserFriendlyException(string.Format("Login Fail - Account does not exist"));
-
-                        var isLockOut = await UserManager.IsLockedOutAsync(user);
-                        if (isLockOut)
-                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut, tenant, user);
-                        var logỉnResult = await CreateLoginResultAsync(user, tenant);
-                        return logỉnResult;
-                    }
-                }
+                var loginResult = await HandleAuthWithEmail(userData.sub, tenancyName);
+                return loginResult;
             }
             catch (Exception e)
             {
@@ -260,6 +189,7 @@ namespace RMALMS.Authorization
             {
                 throw new ArgumentNullException(nameof(token));
             }
+            
             try
             {
                 GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(token);
@@ -271,57 +201,10 @@ namespace RMALMS.Authorization
                 var correctIssuer = payload.Issuer == "accounts.google.com" || payload.Issuer == "https://accounts.google.com";
                 var correctExpriryTime = payload.ExpirationTimeSeconds != null || payload.ExpirationTimeSeconds > 0;
 
-                Tenant tenant = null;
                 if (correctAudience && correctIssuer && correctExpriryTime)
                 {
-                    //Get and check tenant
-                    using (UnitOfWorkManager.Current.SetTenantId(null))
-                    {
-                        if (!MultiTenancyConfig.IsEnabled)
-                        {
-                            tenant = await GetDefaultTenantAsync();
-                        }
-                        else if (!string.IsNullOrWhiteSpace(tenancyName))
-                        {
-                            tenant = await TenantRepository.FirstOrDefaultAsync(t => t.TenancyName == tenancyName);
-                            if (tenant == null)
-                            {
-                                return new AbpLoginResult<Tenant, User>(AbpLoginResultType.InvalidTenancyName);
-                            }
-
-                            if (!tenant.IsActive)
-                            {
-                                return new AbpLoginResult<Tenant, User>(AbpLoginResultType.TenantIsNotActive, tenant);
-                            }
-                        }
-                    }
-                    var tenantId = tenant == null ? (int?)null : tenant.Id;
-                    using (UnitOfWorkManager.Current.SetTenantId(tenantId))
-                    {
-                        await UserManager.InitializeOptionsAsync(tenantId);
-
-                        var user = await UserManager.FindByNameOrEmailAsync(tenantId, emailAddress);
-                        if (user == null)
-                        {
-
-                            throw new UserFriendlyException(string.Format("Login Fail - Account does not exist"));
-                        }
-
-                        if (await UserManager.IsLockedOutAsync(user))
-                        {
-                            return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut, tenant, user);
-                        }
-                        if (shouldLockout)
-                        {
-                            if (await TryLockOutAsync(tenantId, user.Id))
-                            {
-                                return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut, tenant, user);
-                            }
-                        }
-
-                        await UserManager.ResetAccessFailedCountAsync(user);
-                        return await CreateLoginResultAsync(user, tenant);
-                    }
+                    var loginResult = await HandleAuthWithEmail(emailAddress, tenancyName, shouldLockout);    
+                    return loginResult;
                 }
                 else
                 {
@@ -332,6 +215,79 @@ namespace RMALMS.Authorization
             {
                 return new AbpLoginResult<Tenant, User>(AbpLoginResultType.InvalidUserNameOrEmailAddress, null);
             }
+        }
+
+        private async Task<AbpLoginResult<Tenant, User>> HandleAuthWithEmail(string emailAddress, string tenancyName, bool shouldLockout = true)
+        {
+            Tenant tenant = null;
+
+            //Get and check tenant
+            using (UnitOfWorkManager.Current.SetTenantId(null))
+            {
+                if (!MultiTenancyConfig.IsEnabled)
+                {
+                    tenant = await GetDefaultTenantAsync();
+                }
+
+                else if (!string.IsNullOrWhiteSpace(tenancyName))
+                {
+                    tenant = await TenantRepository.FirstOrDefaultAsync(t => t.TenancyName == tenancyName);
+                    if (tenant == null)
+                    {
+                        return new AbpLoginResult<Tenant, User>(AbpLoginResultType.InvalidTenancyName);
+                    }
+
+                    if (!tenant.IsActive)
+                    {
+                        return new AbpLoginResult<Tenant, User>(AbpLoginResultType.TenantIsNotActive, tenant);
+                    }
+                }
+                var tenantId = tenant == null ? (int?)null : tenant.Id;
+                using (UnitOfWorkManager.Current.SetTenantId(tenantId))
+                {
+                    await UserManager.InitializeOptionsAsync(tenantId);
+                    var user = await UserManager.FindByNameOrEmailAsync(tenantId, emailAddress);
+                    if (user == null)
+                        throw new UserFriendlyException(string.Format("Login Fail - Account does not exist"));
+
+                    var isLockOut = await UserManager.IsLockedOutAsync(user);
+                    if (isLockOut)
+                        return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut, tenant, user);
+                    var logỉnResult = await CreateLoginResultAsync(user, tenant);
+                    return logỉnResult;
+                }
+            }
+        }
+
+        private HashData HashParamsParser(string queryString) {
+            var queryParams = HttpUtility.ParseQueryString(queryString);
+            var hashData = new HashData
+            {
+                query_id = queryParams["query_id"],
+                user = queryParams["user"],
+                auth_date = long.Parse(queryParams["auth_date"]),
+                signature = queryParams["signature"],
+                hash = queryParams["hash"]
+            };
+            return hashData;
+        }
+        private string HashParamsStringify(object hashData) {
+            var queryString = new StringBuilder();
+
+            var properties = hashData.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(hashData);
+                if (value != null)
+                {
+                    if (queryString.Length > 0)
+                        queryString.Append("&");
+                    queryString.AppendFormat($"{Uri.EscapeDataString(property.Name)}={Uri.EscapeDataString(value.ToString())}");
+                }
+            }
+
+            return queryString.ToString();
         }
     }
 }

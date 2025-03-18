@@ -27,7 +27,6 @@ export class AccountComponent extends AppComponentBase implements OnInit {
     
         this._appAuthService.listenToPong();
         this._appAuthService.listenToUserHashInfo();
-        this._appAuthService.listenToCurrentUserInfo();
         // this.currentYear = new Date().getFullYear();
         // this.versionText = this.appSession.application.version + ' [' + this.appSession.application.releaseDate.format('YYYYDDMM') + ']';
     }

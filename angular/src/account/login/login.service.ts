@@ -39,17 +39,6 @@ export class LoginService {
         this.clear();
     }
 
-    authenticate(tenancyName: string, redirectUrl: string, finallyCallback?: () => void): void {
-        finallyCallback = finallyCallback || (() => { });
-
-        this._tokenAuthService
-            .authenticate(this.authenticateModel)
-            .pipe(finalize(() => { finallyCallback() }))
-            .subscribe((result: AuthenticateResultModel) => {
-                this.processAuthenticateResult(result, tenancyName, redirectUrl);
-            });
-    }
-
     authenticateMezonHash(authDto: IHashMezonAuthModel, errorHandller?: (error?: any) => any): void {
         this._tokenAuthService
             .mezonHashAuthenticate(authDto)
@@ -167,23 +156,5 @@ export class LoginService {
         this.authenticateModel.rememberClient = false;
         this.authenticateResult = null;
         this.rememberMe = false;
-    }
-
-    checkReCaptcha(add?: boolean): boolean {
-        const countSetting: number = AppConsts.reCaptcha.loginCount;
-        if (countSetting === 100) {
-            return false;
-        }
-        let count: number = +sessionStorage.getItem('reCaptcha');
-
-        if (count < countSetting - 1) {
-            if (add) {
-                count++;
-                sessionStorage.setItem('reCaptcha', JSON.stringify(count));
-            }
-            return false;
-        } else {
-            return true;
-        }
     }
 }

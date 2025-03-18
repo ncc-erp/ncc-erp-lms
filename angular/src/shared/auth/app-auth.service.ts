@@ -6,12 +6,10 @@ import { MezonAppEvent, MezonWebViewEvent } from 'types/webview';
 
 @Injectable()
 export class AppAuthService {
-    private userHashInfo = new Subject<any>();
-    private currentUserInfo = new Subject<any>();
+    private userHashData = new Subject<string>();
     private isInMezon = new Subject<boolean>();
 
-    userHashInfo$ = this.userHashInfo.asObservable();
-    currentUserInfo$ = this.currentUserInfo.asObservable();
+    userHashData$ = this.userHashData.asObservable();
     isInMezon$ = this.isInMezon.asObservable();
 
     constructor(private _reportService: ReportService) { }
@@ -31,28 +29,8 @@ export class AppAuthService {
     }
 
     listenToUserHashInfo() {
-        window.Mezon.WebView.onEvent("USER_HASH_INFO" as MezonAppEvent, async (_, userHashData: any) => {
-            this.userHashInfo.next(userHashData.message);
-        });
-    }
-
-    listenToCurrentUserInfo() {
-        window.Mezon.WebView.onEvent("CURRENT_USER_INFO" as MezonAppEvent, async (_, userData: any) => {
-            if (!userData || !userData.user) {
-                return;
-            }
-            const mezonUser = {
-                email: userData.email,
-                mezon_id: userData.mezon_id,
-                user: {
-                    avatar_url: userData.user.avatar_url,
-                    display_name: userData.user.display_name,
-                    id: userData.user.id,
-                    username: userData.user.username,
-                },
-                wallet: userData.wallet,
-            };
-            this.currentUserInfo.next(mezonUser);
+        window.Mezon.WebView.onEvent("USER_HASH_INFO" as MezonAppEvent, async (_, data: any) => {
+            this.userHashData.next(data.message.web_app_data);
         });
     }
 

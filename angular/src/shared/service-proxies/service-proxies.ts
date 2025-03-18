@@ -2998,12 +2998,7 @@ export interface IMezonAuthModel {
     tenancyName: string;
 }
 export interface IHashMezonAuthModel {
-    hashKey: string;
-    userId: string;
-    userName: string;
-    userEmail: string;
-    avatar: string;
-    name: string;
+    hashData: string;
     tenancyName: string;
 }
 export class AuthenticateModel implements IAuthenticateModel {

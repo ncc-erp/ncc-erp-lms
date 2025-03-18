@@ -1,8 +1,3 @@
-export interface IUserHashInfo {
-  user_id: string;
-  hash: string;
-}
-
 export interface IMezonUser {
   email: string;
   mezon_id: string;

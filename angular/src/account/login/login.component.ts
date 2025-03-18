@@ -1,15 +1,13 @@
 ﻿import { AbpSessionService } from '@abp/session/abp-session.service';
 import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BaseService } from '@app/services/base-service/base.service';
+import { ActivatedRoute } from '@angular/router';
 import { accountModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/app-component-base';
 import { AppConsts } from '@shared/AppConsts';
-import { AppTenantAvailabilityState } from '@shared/AppEnums';
 import { AppAuthService } from '@shared/auth/app-auth.service';
-import { IHashMezonAuthModel, IsTenantAvailableInput, IsTenantAvailableOutput } from '@shared/service-proxies/service-proxies';
+import { IHashMezonAuthModel } from '@shared/service-proxies/service-proxies';
 import { SocialAuthService, SocialUser } from 'angularx-social-login';
-import { IMezonUser, IUserHashInfo } from 'types/userTypes';
+import { Base64 } from 'js-base64';
 import { LoginService } from './login.service';
 
 @Component({
@@ -29,8 +27,7 @@ export class LoginComponent extends AppComponentBase {
     tenancyName: string;
     name: string;
     user: SocialUser;
-    hashUser: IUserHashInfo;
-    mezonUser: IMezonUser;
+    hashData: string;
     loggedIn: boolean;
     returnUrl: string;
     isMezonApp: boolean = false;
@@ -43,9 +40,7 @@ export class LoginComponent extends AppComponentBase {
     constructor(
         injector: Injector,
         public loginService: LoginService,
-        private _router: Router,
         private _sessionService: AbpSessionService,
-        private baseService: BaseService,
         private authService: SocialAuthService,
         private _appAuthService: AppAuthService,
         private route: ActivatedRoute,
@@ -63,13 +58,9 @@ export class LoginComponent extends AppComponentBase {
             this.isMezonApp = status;
         });
 
-        this._appAuthService.currentUserInfo$.subscribe((userData) => {
-            this.mezonUser = userData;
-        });
-
-        this._appAuthService.userHashInfo$.subscribe((userHashData) => {
-            this.hashUser = userHashData;
-            this.loginWithHash(this.hashUser, this.mezonUser);
+        this._appAuthService.userHashData$.subscribe((userHashData) => {
+            this.hashData = userHashData;
+            this.loginWithHash(this.hashData);
         });
 
         this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
@@ -79,11 +70,12 @@ export class LoginComponent extends AppComponentBase {
         }
         this.authService.authState.subscribe((user) => {
             this.authService.authState.subscribe((user) => {
-                // if (user) {
-                //     this.loginService.authenticateGoogle(user.idToken, this.tenancyName, this.returnUrl);
-                // }
             }, err => this.authService.signOut());
         })
+    }
+
+    ngOnDestroy(): void {
+        this._appAuthService.removeEventListeners();
     }
 
     ngAfterViewInit(): void {
@@ -102,55 +94,14 @@ export class LoginComponent extends AppComponentBase {
         return true;
     }
 
-
-    login(): void {
-        this.submitting = true;
-        const input = new IsTenantAvailableInput();
-        input.tenancyName = this.tenancyName;
-
-        // this.showCaptcha = this.loginService.checkReCaptcha(true);
-        // if (this.showCaptcha) {
-        //     if (!this.captchaSuccess) { return } else { this.childReCaptcha.reset(); }
-        // }
-        if (this.tenancyName != null && this.tenancyName !== '') {
-            this.baseService.accountService.isTenantAvailable(input)
-                .subscribe((result: IsTenantAvailableOutput) => {
-                    switch (result.state) {
-                        case AppTenantAvailabilityState.Available:
-                            abp.multiTenancy.setTenantIdCookie(result.tenantId);
-                            this.loginService.authenticate(this.tenancyName, this.returnUrl,
-                                () => this.submitting = false
-                            );
-                            return;
-                        case AppTenantAvailabilityState.InActive:
-                            this.message.warn(this.l('TenantIsNotActive', this.tenancyName));
-                            break;
-                        case AppTenantAvailabilityState.NotFound: // NotFound
-                            this.message.warn(this.l('ThereIsNoTenantDefinedWithName{0}', this.tenancyName));
-                            break;
-                    }
-                });
-        } else {
-            abp.multiTenancy.setTenantIdCookie(undefined);
-            this.loginService.authenticate(this.tenancyName, this.returnUrl,
-                () => this.submitting = false
-            );
-        }
-    }
-
-    loginWithHash(hashUser: IUserHashInfo, mezonUser: IMezonUser){
-        if (hashUser && mezonUser) {
+    loginWithHash(hashData: string){
+        if (hashData) {
             this.isAuthenticating = true;
-            const hashData: IHashMezonAuthModel = {
-                hashKey: hashUser.hash,
-                userId: hashUser.user_id,
-                userName: mezonUser.user.username,
-                userEmail: mezonUser.email,
-                name: mezonUser.user.display_name,
-                avatar: mezonUser.user.avatar_url,
+            const hashAuthData: IHashMezonAuthModel = {
+                hashData: Base64.encode(hashData),
                 tenancyName: this.tenancyName
             }
-            this.loginService.authenticateMezonHash(hashData,(error) => {
+            this.loginService.authenticateMezonHash(hashAuthData, (error) => {
                 console.log("Error: ", error);
                 this.isAuthenFailed = true;
             });
@@ -160,7 +111,7 @@ export class LoginComponent extends AppComponentBase {
     retryHashLogin(){
         this.isAuthenticating = false;
         this.isAuthenFailed = false;
-        this.loginWithHash(this.hashUser, this.mezonUser);
+        this.loginWithHash(this.hashData);
     }
     
     // @ts-ignore
@@ -169,14 +120,14 @@ export class LoginComponent extends AppComponentBase {
         const state = Date.now().toString()
         const scope = 'openid offline';
         const responseType = 'code';
-        const searchParams = new URLSearchParams()
 
+        const searchParams = new URLSearchParams()
         searchParams.set('client_id', AppConsts.mezonClientId)
         searchParams.set('redirect_uri', AppConsts.redirectUri)
         searchParams.set('response_type', responseType)
         searchParams.set('scope', scope)
         searchParams.set('state', state)
-
+        
         const url = `${authServerUrl}/oauth2/auth?${searchParams.toString()}`
         window.location.href = url;
     }
