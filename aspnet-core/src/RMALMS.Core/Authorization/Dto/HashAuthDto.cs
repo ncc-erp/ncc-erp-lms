@@ -3,13 +3,18 @@ namespace RMALMS.Authorization.Dto
 {
     public class MezonHashAuthDto
     {
-        public string HashKey { get; set; }
-        public string UserId { get; set; }
-        public string UserName { get; set; }
-        public string UserEmail { get; set; }
-        public string Name { get; set; }
-        public string Avatar { get; set; }
+        public string HashData { get; set; }
         public string TenancyName { get; set; } = "NCC";
+    }
+
+    public class BaseHashData {
+        public string query_id { get; set; }
+        public string user { get; set; }
+        public long auth_date { get; set; }
+        public string signature { get; set; }
+    }
+    public class HashData : BaseHashData {
+        public string hash { get; set; }
     }
 
 

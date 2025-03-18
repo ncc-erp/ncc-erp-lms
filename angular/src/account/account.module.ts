@@ -18,7 +18,6 @@ import { AccountComponent } from './account.component';
 import { AccountLanguagesComponent } from './layout/account-languages.component';
 import { LoginComponent } from './login/login.component';
 import { LoginService } from './login/login.service';
-import { RegisterComponent } from './register/register.component';
 import { TenantChangeModalComponent } from './tenant/tenant-change-modal.component';
 import { TenantChangeComponent } from './tenant/tenant-change.component';
 
@@ -48,7 +47,6 @@ import { ReCaptcha2Component } from './login/re-captcha2.component';
         TenantChangeComponent,
         TenantChangeModalComponent,
         LoginComponent,
-        RegisterComponent,
         CallbackComponent,
         AccountLanguagesComponent,
         ReCaptcha2Component
