@@ -105,11 +105,11 @@ namespace RMALMS.Authorization
                 var rawHashData = hashAuthDto.HashData.DecodeBase64();
 
                 var hashData = HashParamsParser(rawHashData);
-                var hashParams = new BaseHashData { query_id = hashData.query_id, user = hashData.user, auth_date = hashData.auth_date, signature = hashData.signature };
-                var mezonUser = JsonConvert.DeserializeObject<MezonUser>(hashParams.user);
+                var hashParamsString = rawHashData.Split("&hash=")[0];
+                var mezonUser = JsonConvert.DeserializeObject<MezonUser>(hashData.user);
 
                 byte[] secretKey = Hasher.HMAC_SHA256(Encoding.UTF8.GetBytes(appToken), Encoding.UTF8.GetBytes("WebAppData"));
-                var hashedData = Hasher.HEX(Hasher.HMAC_SHA256(secretKey, Encoding.UTF8.GetBytes(HashParamsStringify(hashParams))));
+                var hashedData = Hasher.HEX(Hasher.HMAC_SHA256(secretKey, Encoding.UTF8.GetBytes(hashParamsString)));
             
                 if (hashData.hash.Equals(hashedData) == false)
                     throw new UserFriendlyException("Authenticattion failed - Invalid hash key");
