@@ -11,6 +11,9 @@ namespace RMALMS.Users.Dto
     public class CreateUserDto : IShouldNormalize
     {
         [Required]
+        public string MezonId { get; set; }
+
+        [Required]
         [StringLength(AbpUserBase.MaxUserNameLength)]
         public string UserName { get; set; }
 

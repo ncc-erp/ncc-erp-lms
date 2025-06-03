@@ -14,6 +14,10 @@ namespace RMALMS.Users.Dto
     {
         [Required]
         [StringLength(AbpUserBase.MaxUserNameLength)]
+        public string? MezonId { get; set; }
+
+        [Required]
+        [StringLength(AbpUserBase.MaxUserNameLength)]
         [ApplySearchAttribute]
         public string UserName { get; set; }
 

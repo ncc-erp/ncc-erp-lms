@@ -1,9 +1,9 @@
-import { Component, ViewChild, Injector, Output, EventEmitter, ElementRef, OnInit } from '@angular/core';
-import { ModalDirective } from 'ngx-bootstrap';
-import { UserServiceProxy, CreateUserDto, RoleDto } from '@shared/service-proxies/service-proxies';
-import { AppComponentBase } from '@shared/app-component-base';
-import { finalize } from 'rxjs/operators';
+import { Component, ElementRef, EventEmitter, Injector, OnInit, Output, ViewChild } from '@angular/core';
 import { PasswordValidator } from '@app/general/user-profile/component/tab-profile/password-requied';
+import { finalize } from '@node_modules/rxjs/operators';
+import { AppComponentBase } from '@shared/app-component-base';
+import { CreateUserDto, RoleDto, UserServiceProxy } from '@shared/service-proxies/service-proxies';
+import { ModalDirective } from 'ngx-bootstrap';
 
 @Component({
     selector: 'create-user-modal',
@@ -58,6 +58,7 @@ export class CreateUserComponent extends AppComponentBase implements OnInit {
 
         this.user.roleNames = roles;
         this.saving = true;
+        console.log("USER", this.user);
         this._userService.create(this.user)
             .pipe(finalize(() => { this.saving = false; }))
             .subscribe(() => {

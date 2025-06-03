@@ -34,6 +34,7 @@ namespace RMALMS.Authorization.Users
 
         [ForeignKey(nameof(StatusId))]
         public UserStatus Status { get; set; }
+        public string? MezonId { get; set; }
         public Guid? StatusId { get; set; }
         public string Biography { get; set; }
         public string DisplayName { get; set; }

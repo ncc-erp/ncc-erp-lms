@@ -337,6 +337,7 @@ namespace RMALMS.Users
                              from creator in userCreates.DefaultIfEmpty()
                              select new UserDto
                              {
+                                 MezonId = user.MezonId,
                                  Name = user.Name,
                                  UserName = user.UserName,
                                  Surname = user.Surname,

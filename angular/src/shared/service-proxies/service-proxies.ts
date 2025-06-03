@@ -1309,8 +1309,7 @@ export class UserServiceProxy {
         let url_ = this.baseUrl + "/api/services/app/User/Create";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(input);
-
+        const content_ = JSON.stringify({...input});
         let options_: any = {
             body: content_,
             observe: "response",
@@ -3261,6 +3260,7 @@ export interface IExternalAuthenticateResultModel {
 }
 
 export class CreateUserDto implements ICreateUserDto {
+    mezonId: string;
     userName: string;
     name: string;
     surname: string;
@@ -3329,6 +3329,7 @@ export class CreateUserDto implements ICreateUserDto {
 }
 
 export interface ICreateUserDto {
+    mezonId: string;
     userName: string;
     name: string;
     surname: string;
@@ -3339,6 +3340,7 @@ export interface ICreateUserDto {
 }
 
 export class UserDto implements IUserDto {
+    mezonId: string | undefined;
     userName: string;
     name: string;
     surname: string;
@@ -3364,6 +3366,7 @@ export class UserDto implements IUserDto {
 
     init(data?: any) {
         if (data) {
+            this.mezonId = data["mezonId"];
             this.userName = data["userName"];
             this.name = data["name"];
             this.surname = data["surname"];
@@ -3391,6 +3394,7 @@ export class UserDto implements IUserDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["mezonId"] = this.mezonId;
         data["userName"] = this.userName;
         data["name"] = this.name;
         data["surname"] = this.surname;
@@ -3418,6 +3422,7 @@ export class UserDto implements IUserDto {
 }
 
 export interface IUserDto {
+    mezonId: string | undefined;
     userName: string;
     name: string;
     surname: string;

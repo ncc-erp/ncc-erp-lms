@@ -10,6 +10,7 @@ namespace RMALMS.Users.Dto
     /// </summary>
     public class UserBrifDto: EntityDto<long>
     {        
+        public string? MezonId { get; set; }
         public string UserName { get; set; }        
         public bool IsActive { get; set; }
         public string StatusName { get; set; }
