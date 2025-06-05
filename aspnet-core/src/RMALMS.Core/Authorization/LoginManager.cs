@@ -35,12 +35,14 @@ namespace RMALMS.Authorization
 {
     public class LogInManager : AbpLogInManager<Tenant, Role, User>
     {
-        private readonly IConfiguration _configration;
+        private readonly IConfiguration _configuration;
+        private readonly IRepository<User, long> _userRepository;
         private readonly ILogger _logger;
         public LogInManager(
             UserManager userManager,
             IMultiTenancyConfig multiTenancyConfig,
             IRepository<Tenant> tenantRepository,
+            IRepository<User, long> userRepository,
             IUnitOfWorkManager unitOfWorkManager,
             ISettingManager settingManager,
             IConfiguration configuration,
@@ -64,7 +66,8 @@ namespace RMALMS.Authorization
                   roleManager,
                   claimsPrincipalFactory)
         {
-            _configration = configuration;
+            _configuration = configuration;
+            _userRepository = userRepository;
             _logger = logger;
         }
         [UnitOfWork]
@@ -101,7 +104,7 @@ namespace RMALMS.Authorization
             }
             try
             {
-                var appToken = _configration["Authentication:Mezon:AppToken"] ?? throw new ArgumentNullException("Invalid AppToken");
+                var appToken = _configuration["Authentication:Mezon:AppToken"] ?? throw new ArgumentNullException("Invalid AppToken");
                 var rawHashData = hashAuthDto.HashData.DecodeBase64();
 
                 var hashData = HashParamsParser(rawHashData);
@@ -112,16 +115,16 @@ namespace RMALMS.Authorization
                 var hashedData = Hasher.HEX(Hasher.HMAC_SHA256(secretKey, Encoding.UTF8.GetBytes(hashParamsString)));
             
                 if (hashData.hash.Equals(hashedData) == false)
-                    throw new UserFriendlyException("Authenticattion failed - Invalid hash key");
+                    throw new UserFriendlyException("Authentication failed - Invalid hash key");
 
                 _logger.LogWarning($"Try to login with user email: {mezonUser.mezon_id}");
                 
-                var loginResult = await HandleAuthWithEmail(mezonUser.mezon_id, hashAuthDto.TenancyName);
+                var loginResult = await HandleAuthWithEmailOrMezonId(mezonUser.mezon_id, mezonUser.id, hashAuthDto.TenancyName);
                 return loginResult;
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Authenticattion failed - Can't authenticate with Mezon server");
+                _logger.LogError(e, "Authentication failed - Can't authenticate with Mezon server");
                 return new AbpLoginResult<Tenant, User>(AbpLoginResultType.UnknownExternalLogin, null);
             }
         }
@@ -133,9 +136,9 @@ namespace RMALMS.Authorization
             }
             try
             {
-                var clientId = _configration["Authentication:Mezon:ClientId"] ?? throw new ArgumentNullException("Invalid ClientId");
-                var clientSecret = _configration["Authentication:Mezon:ClientSecret"] ?? throw new ArgumentNullException("Invalid ClientSecret");
-                var authServerUrl = _configration["Authentication:Mezon:AuthServerUrl"] ?? throw new ArgumentNullException("Invalid AuthServer");
+                var clientId = _configuration["Authentication:Mezon:ClientId"] ?? throw new ArgumentNullException("Invalid ClientId");
+                var clientSecret = _configuration["Authentication:Mezon:ClientSecret"] ?? throw new ArgumentNullException("Invalid ClientSecret");
+                var authServerUrl = _configuration["Authentication:Mezon:AuthServerUrl"] ?? throw new ArgumentNullException("Invalid AuthServer");
                 _logger.LogWarning($"Authenticating with Mezon server: {authServerUrl}, clientId: {clientId}, redirectUri: {redirectUri}");
                 var restClient = new RestClient(authServerUrl);
                 // Validate auth code
@@ -152,12 +155,12 @@ namespace RMALMS.Authorization
                 var response = await restClient.ExecuteTaskAsync(authRequest);
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new UserFriendlyException("Authenticattion failed - Can't verify auth code with Mezon server");
+                    throw new UserFriendlyException("Authentication failed - Can't verify auth code with Mezon server");
                 }
                 var authData = JsonConvert.DeserializeObject<MezonTokenData>(response.Content);
                 if (authData is null || authData.access_token.IsNullOrEmpty())
                 {
-                    throw new UserFriendlyException("Authenticattion failed - Can't get access token from Mezon server");
+                    throw new UserFriendlyException("Authentication failed - Can't get access token from Mezon server");
                 }
 
                 // Get user info
@@ -166,18 +169,18 @@ namespace RMALMS.Authorization
                 var userResponse = await restClient.ExecuteTaskAsync(userInfoRequest);
                 if (userResponse.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new UserFriendlyException("Authenticattion failed - Can't get user info from Mezon server");
+                    throw new UserFriendlyException("Authentication failed - Can't get user info from Mezon server");
                 }
 
                 var userData = JsonConvert.DeserializeObject<MezonUser>(userResponse.Content);
                 _logger.LogWarning($"Try to login with user email: {userData.sub}");
 
-                var loginResult = await HandleAuthWithEmail(userData.sub, tenancyName);
+                var loginResult = await HandleAuthWithEmailOrMezonId(userData.sub, userData.user_id, tenancyName);
                 return loginResult;
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Authenticattion failed - Can't authenticate with Mezon server");
+                _logger.LogError(e, "Authentication failed - Can't authenticate with Mezon server");
                 return new AbpLoginResult<Tenant, User>(AbpLoginResultType.UnknownExternalLogin, null);
             }
         }
@@ -199,11 +202,11 @@ namespace RMALMS.Authorization
                 var clientAppId = await SettingManager.GetSettingValueAsync(AppSettingNames.ClientAppId); //get clientAppId from setting
                 var correctAudience = payload.AudienceAsList.Any(s => s == clientAppId);
                 var correctIssuer = payload.Issuer == "accounts.google.com" || payload.Issuer == "https://accounts.google.com";
-                var correctExpriryTime = payload.ExpirationTimeSeconds != null || payload.ExpirationTimeSeconds > 0;
+                var correctExpireTime = payload.ExpirationTimeSeconds != null || payload.ExpirationTimeSeconds > 0;
 
-                if (correctAudience && correctIssuer && correctExpriryTime)
+                if (correctAudience && correctIssuer && correctExpireTime)
                 {
-                    var loginResult = await HandleAuthWithEmail(emailAddress, tenancyName, shouldLockout);    
+                    var loginResult = await HandleAuthWithEmailOrMezonId(emailAddress, null, tenancyName, shouldLockout);    
                     return loginResult;
                 }
                 else
@@ -217,7 +220,7 @@ namespace RMALMS.Authorization
             }
         }
 
-        private async Task<AbpLoginResult<Tenant, User>> HandleAuthWithEmail(string emailAddress, string tenancyName, bool shouldLockout = true)
+        private async Task<AbpLoginResult<Tenant, User>> HandleAuthWithEmailOrMezonId(string emailAddress, string mezonId, string tenancyName, bool shouldLockout = true)
         {
             Tenant tenant = null;
 
@@ -246,15 +249,16 @@ namespace RMALMS.Authorization
                 using (UnitOfWorkManager.Current.SetTenantId(tenantId))
                 {
                     await UserManager.InitializeOptionsAsync(tenantId);
-                    var user = await UserManager.FindByNameOrEmailAsync(tenantId, emailAddress);
+                    var user = await _userRepository.FirstOrDefaultAsync(u => u.MezonId == mezonId || u.EmailAddress == emailAddress);
+                               
                     if (user == null)
                         throw new UserFriendlyException(string.Format("Login Fail - Account does not exist"));
 
                     var isLockOut = await UserManager.IsLockedOutAsync(user);
                     if (isLockOut)
                         return new AbpLoginResult<Tenant, User>(AbpLoginResultType.LockedOut, tenant, user);
-                    var logỉnResult = await CreateLoginResultAsync(user, tenant);
-                    return logỉnResult;
+                    var loginResult = await CreateLoginResultAsync(user, tenant);
+                    return loginResult;
                 }
             }
         }

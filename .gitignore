@@ -8,3 +8,6 @@ aspnet-core/src/RMALMS.Web.Host/App_Data/Logs/
 aspnet-core/src/RMALMS.Web.Mvc/App_Data/Logs/
 aspnet-core/src/RMALMS.Migrator/Logs/Logs.txt
 /aspnet-core/build/outputs
+
+# System files
+.DS_Store

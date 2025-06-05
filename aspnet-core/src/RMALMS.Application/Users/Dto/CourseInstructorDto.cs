@@ -10,6 +10,7 @@ namespace RMALMS.Users.Dto
 {
     public class CourseInstructorDto : EntityDto<long>
     {
+        public string MezonId { get; set; }
         [StringLength(AbpUserBase.MaxUserNameLength)]
         public string UserName { get; set; }
         [StringLength(AbpUserBase.MaxNameLength)]
