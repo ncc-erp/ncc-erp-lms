@@ -111,7 +111,8 @@ namespace RMALMS.Authorization
                 var hashParamsString = rawHashData.Split("&hash=")[0];
                 var mezonUser = JsonConvert.DeserializeObject<MezonUser>(hashData.user);
 
-                byte[] secretKey = Hasher.HMAC_SHA256(Encoding.UTF8.GetBytes(appToken), Encoding.UTF8.GetBytes("WebAppData"));
+                string hashedBotToken = Hasher.MD5Hash(appToken);
+                byte[] secretKey = Hasher.HMAC_SHA256(Encoding.UTF8.GetBytes(hashedBotToken), Encoding.UTF8.GetBytes("WebAppData"));
                 var hashedData = Hasher.HEX(Hasher.HMAC_SHA256(secretKey, Encoding.UTF8.GetBytes(hashParamsString)));
             
                 if (hashData.hash.Equals(hashedData) == false)
@@ -173,9 +174,9 @@ namespace RMALMS.Authorization
                 }
 
                 var userData = JsonConvert.DeserializeObject<MezonUser>(userResponse.Content);
-                _logger.LogWarning($"Try to login with user email: {userData.sub}");
+                _logger.LogWarning($"Try to login with user email: {userData.email}");
 
-                var loginResult = await HandleAuthWithEmailOrMezonId(userData.sub, userData.user_id, tenancyName);
+                var loginResult = await HandleAuthWithEmailOrMezonId(userData.email, userData.user_id, tenancyName);
                 return loginResult;
             }
             catch (Exception e)

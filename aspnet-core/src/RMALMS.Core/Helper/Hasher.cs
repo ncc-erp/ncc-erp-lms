@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -9,6 +10,18 @@ public static class Hasher
         using (var hmac = new HMACSHA256(key))
         {
             return hmac.ComputeHash(data);
+        }
+    }
+
+    public static string MD5Hash(string inputData)
+    {
+        using (var md5 = MD5.Create())
+        {
+            return string.Join(string.Empty, MD5.Create()
+                .ComputeHash(
+                    Encoding.ASCII.GetBytes(inputData))
+                .Select(s => s.ToString("x2")
+                ));
         }
     }
 
