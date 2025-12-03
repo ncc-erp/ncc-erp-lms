@@ -78,6 +78,7 @@ jobs:
           cd /var/www/migrator_git/lms/dev-dotnet-migrator-lms/
           dotnet2 RMALMS.Migrator.dll -q
 
+
       - name: Restart Server
         run: |
           cd aspnet-core/
