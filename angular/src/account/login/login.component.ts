@@ -52,17 +52,6 @@ export class LoginComponent extends AppComponentBase {
         this.tenancyName = localStorage.getItem('tenancyName') ? localStorage.getItem('tenancyName') : 'NCC';
     }
     ngOnInit(): void {
-
-        // Subscribe to Observables for updates
-        this._appAuthService.isInMezon$.subscribe((status) => {
-            this.isMezonApp = status;
-        });
-
-        this._appAuthService.userHashData$.subscribe((userHashData) => {
-            this.hashData = userHashData;
-            this.loginWithHash(this.hashData);
-        });
-
         this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
         if (this.appSession.tenant) {
             this.tenancyName = this.appSession.tenant.tenancyName;
@@ -72,10 +61,14 @@ export class LoginComponent extends AppComponentBase {
             this.authService.authState.subscribe((user) => {
             }, err => this.authService.signOut());
         })
-    }
 
-    ngOnDestroy(): void {
-        this._appAuthService.removeEventListeners();
+        this.route.queryParams.subscribe(params => {
+            if (params['data']) {
+                this.hashData = params['data'];
+                this.isMezonApp = true;
+                this.loginWithHash(this.hashData);
+            }
+        });
     }
 
     ngAfterViewInit(): void {
@@ -94,7 +87,7 @@ export class LoginComponent extends AppComponentBase {
         return true;
     }
 
-    loginWithHash(hashData: string){
+    loginWithHash(hashData: string) {
         if (hashData) {
             this.isAuthenticating = true;
             const hashAuthData: IHashMezonAuthModel = {
@@ -108,12 +101,12 @@ export class LoginComponent extends AppComponentBase {
         }
     }
 
-    retryHashLogin(){
+    retryHashLogin() {
         this.isAuthenticating = false;
         this.isAuthenFailed = false;
         this.loginWithHash(this.hashData);
     }
-    
+
     // @ts-ignore
     loginWithMezon() {
         const authServerUrl = AppConsts.mezonAuthServerUrl;
@@ -121,13 +114,13 @@ export class LoginComponent extends AppComponentBase {
         const scope = 'openid offline';
         const responseType = 'code';
 
-        const searchParams = new URLSearchParams()
-        searchParams.set('client_id', AppConsts.mezonClientId)
-        searchParams.set('redirect_uri', AppConsts.redirectUri)
-        searchParams.set('response_type', responseType)
-        searchParams.set('scope', scope)
-        searchParams.set('state', state)
-        
+        const searchParams = new URLSearchParams({
+            client_id: AppConsts.mezonClientId,
+            redirect_uri: AppConsts.redirectUri,
+            response_type: responseType,
+            scope: scope,
+            state: state,
+        });
         const url = `${authServerUrl}/oauth2/auth?${searchParams.toString()}`
         window.location.href = url;
     }

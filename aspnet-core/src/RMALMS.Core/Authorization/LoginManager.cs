@@ -109,7 +109,8 @@ namespace RMALMS.Authorization
 
                 var hashData = HashParamsParser(rawHashData);
                 var hashParamsString = rawHashData.Split("&hash=")[0];
-                var mezonUser = JsonConvert.DeserializeObject<MezonUser>(hashData.user);
+                var mezonUser = JsonConvert.DeserializeObject<MezonUser>(hashData.user) 
+                    ?? throw new UserFriendlyException("Authentication failed - Can't parse user data from Mezon server");
 
                 string hashedBotToken = Hasher.MD5Hash(appToken);
                 byte[] secretKey = Hasher.HMAC_SHA256(Encoding.UTF8.GetBytes(hashedBotToken), Encoding.UTF8.GetBytes("WebAppData"));
@@ -275,24 +276,6 @@ namespace RMALMS.Authorization
                 hash = queryParams["hash"]
             };
             return hashData;
-        }
-        private string HashParamsStringify(object hashData) {
-            var queryString = new StringBuilder();
-
-            var properties = hashData.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            foreach (var property in properties)
-            {
-                var value = property.GetValue(hashData);
-                if (value != null)
-                {
-                    if (queryString.Length > 0)
-                        queryString.Append("&");
-                    queryString.AppendFormat($"{Uri.EscapeDataString(property.Name)}={Uri.EscapeDataString(value.ToString())}");
-                }
-            }
-
-            return queryString.ToString();
         }
     }
 }

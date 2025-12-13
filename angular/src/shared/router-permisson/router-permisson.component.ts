@@ -1,6 +1,6 @@
 import { Component, OnInit, Injector } from '@angular/core';
 import { PermissionCheckerService } from 'abp-ng2-module/dist/src/auth/permission-checker.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AppSessionService } from '@shared/session/app-session.service';
 import { PermissonConstants } from '@app/models/constant';
 import { AppComponentBase } from '@shared/app-component-base';
@@ -16,12 +16,23 @@ export class RouterPermissonComponent extends AppComponentBase implements OnInit
     private injector: Injector,
     private _permissionChecker: PermissionCheckerService,
     private _router: Router,
-    private _sessionService: AppSessionService
+    private _sessionService: AppSessionService,
+    private _activatedRoute: ActivatedRoute
   ) { super(injector) }
 
   ngOnInit() {
-    this._router.navigate([this.selectBestRoute()]);
+    // Check if 'data' query param exists (Mezon mini-app)
+    this._activatedRoute.queryParams.subscribe(params => {
+      const hasDataParam = params['data'];
+      const route = this.selectBestRoute();
+      if (hasDataParam && !this._sessionService.user) {
+        this._router.navigate([route], { queryParams: { data: params['data'] } });
+      } else {
+        this._router.navigate([route]);
+      }
+    });
   }
+  
   selectBestRoute(): string {
     if (!this._sessionService.user) {
       return '/account/login';
