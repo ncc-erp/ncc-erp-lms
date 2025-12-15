@@ -114,13 +114,13 @@ export class LoginComponent extends AppComponentBase {
         const scope = 'openid offline';
         const responseType = 'code';
 
-        const searchParams = new URLSearchParams({
-            client_id: AppConsts.mezonClientId,
-            redirect_uri: AppConsts.redirectUri,
-            response_type: responseType,
-            scope: scope,
-            state: state,
-        });
+        const searchParams = new URLSearchParams();
+        searchParams.append('client_id', AppConsts.mezonClientId);
+        searchParams.append('redirect_uri', AppConsts.redirectUri);
+        searchParams.append('response_type', responseType);
+        searchParams.append('scope', scope);
+        searchParams.append('state', state);
+        
         const url = `${authServerUrl}/oauth2/auth?${searchParams.toString()}`
         window.location.href = url;
     }
