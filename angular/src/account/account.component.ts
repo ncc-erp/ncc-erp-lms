@@ -12,21 +12,10 @@ import { AppAuthService } from '@shared/auth/app-auth.service';
 export class AccountComponent extends AppComponentBase implements OnInit {
 
     private viewContainerRef: ViewContainerRef;
-
-    // versionText: string;
-    // currentYear: number;
-
     public constructor(
         injector: Injector,
-        private _appAuthService: AppAuthService
     ) {
         super(injector);
-
-        this._appAuthService.ping();
-        this._appAuthService.sendBotId();
-    
-        this._appAuthService.listenToPong();
-        this._appAuthService.listenToUserHashInfo();
         // this.currentYear = new Date().getFullYear();
         // this.versionText = this.appSession.application.version + ' [' + this.appSession.application.releaseDate.format('YYYYDDMM') + ']';
     }

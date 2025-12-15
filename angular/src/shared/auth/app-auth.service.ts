@@ -1,9 +1,8 @@
 ﻿import { Injectable } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ReportService } from '@app/services/systems-admin-services/report.service';
 import { AppConsts } from '@shared/AppConsts';
-import { Subject } from 'rxjs';
-import { MezonAppEvent, MezonWebViewEvent } from 'types/webview';
-
+import { Subject, Subscription } from 'rxjs';
 @Injectable()
 export class AppAuthService {
     private userHashData = new Subject<string>();
@@ -12,33 +11,9 @@ export class AppAuthService {
     userHashData$ = this.userHashData.asObservable();
     isInMezon$ = this.isInMezon.asObservable();
 
-    constructor(private _reportService: ReportService) { }
-
-    ping() {
-        window.Mezon.WebView.postEvent("PING" as MezonWebViewEvent, { message: "PING" }, () => { })
-    }
-
-    listenToPong() {
-        window.Mezon.WebView.onEvent("PONG" as MezonAppEvent, () => {
-            this.isInMezon.next(true);
-        });
-    }
-
-    sendBotId() {
-        window.Mezon.WebView.postEvent("SEND_BOT_ID" as MezonWebViewEvent, { appId: AppConsts.mezonAppId }, () => { })
-    }
-
-    listenToUserHashInfo() {
-        window.Mezon.WebView.onEvent("USER_HASH_INFO" as MezonAppEvent, async (_, data: any) => {
-            this.userHashData.next(data.message.web_app_data);
-        });
-    }
-
-    removeEventListeners() {
-        window.Mezon.WebView.offEvent("CURRENT_USER_INFO" as MezonAppEvent, () => { })
-        window.Mezon.WebView.offEvent("USER_HASH_INFO" as MezonAppEvent, () => { })
-    }
-
+    constructor(
+        private _reportService: ReportService,
+    ) { }
     logout(reload?: boolean): void {
         // Add Log out to table AbpUserLoginAttempts
         this._reportService.CreateUserLogoutInfo().subscribe();

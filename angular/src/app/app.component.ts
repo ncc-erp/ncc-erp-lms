@@ -11,7 +11,6 @@ import { BaseService } from './services/base-service/base.service';
 })
 export class AppComponent extends AppComponentBase implements OnInit, AfterViewInit, OnDestroy {
 
-
     private viewContainerRef: ViewContainerRef;
     isShow: boolean = false;
     isBrowsing: boolean = false;
