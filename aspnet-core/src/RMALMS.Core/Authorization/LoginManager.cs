@@ -80,7 +80,7 @@ namespace RMALMS.Authorization
         }
 
         [UnitOfWork]
-        public async Task<AbpLoginResult<Tenant, User>> LoginHashMezonAsnyc(MezonHashAuthDto hashAuthDto)
+        public async Task<AbpLoginResult<Tenant, User>> LoginHashMezonAsync(MezonHashAuthDto hashAuthDto)
         {
             var result = await AuthMezonHashAsync(hashAuthDto);
             var user = result.User;
@@ -88,7 +88,7 @@ namespace RMALMS.Authorization
             return result;
         }
         [UnitOfWork]
-        public async Task<AbpLoginResult<Tenant, User>> LoginMezonAsnyc(string authCode, string redirectUri, string tenancyName = null)
+        public async Task<AbpLoginResult<Tenant, User>> LoginMezonAsync(string authCode, string redirectUri, string tenancyName = null)
         {
             var result = await AuthMezonServerAsync(authCode, redirectUri, tenancyName);
             var user = result.User;
@@ -111,7 +111,7 @@ namespace RMALMS.Authorization
                 var hashParamsString = rawHashData.Split("&hash=")[0];
                 var mezonUser = JsonConvert.DeserializeObject<MezonUser>(hashData.user) 
                     ?? throw new UserFriendlyException("Authentication failed - Can't parse user data from Mezon server");
-
+               
                 string hashedBotToken = Hasher.MD5Hash(appToken);
                 byte[] secretKey = Hasher.HMAC_SHA256(Encoding.UTF8.GetBytes(hashedBotToken), Encoding.UTF8.GetBytes("WebAppData"));
                 var hashedData = Hasher.HEX(Hasher.HMAC_SHA256(secretKey, Encoding.UTF8.GetBytes(hashParamsString)));
@@ -119,9 +119,9 @@ namespace RMALMS.Authorization
                 if (hashData.hash.Equals(hashedData) == false)
                     throw new UserFriendlyException("Authentication failed - Invalid hash key");
 
-                _logger.LogWarning($"Try to login with user email: {mezonUser.mezon_id}");
+                _logger.LogWarning($"Try to login with user email: {mezonUser.email}");
                 
-                var loginResult = await HandleAuthWithEmailOrMezonId(mezonUser.mezon_id, mezonUser.id, hashAuthDto.TenancyName);
+                var loginResult = await HandleAuthWithEmailOrMezonId(mezonUser.email, mezonUser.id, hashAuthDto.TenancyName);
                 return loginResult;
             }
             catch (Exception e)

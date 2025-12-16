@@ -140,7 +140,7 @@ namespace RMALMS.Controllers
 
         private async Task<AbpLoginResult<Tenant, User>> GetLoginResultMezonHashAsync(MezonHashAuthDto authDto)
         {
-            var loginResult = await _logInManager.LoginHashMezonAsnyc(authDto);
+            var loginResult = await _logInManager.LoginHashMezonAsync(authDto);
 
             switch (loginResult.Result)
             {
@@ -152,7 +152,7 @@ namespace RMALMS.Controllers
         }
         private async Task<AbpLoginResult<Tenant, User>> GetLoginResultMezonAsync(string authCode, string redirectUri, string tenancyName = null)
         {
-            var loginResult = await _logInManager.LoginMezonAsnyc(authCode, redirectUri, tenancyName);
+            var loginResult = await _logInManager.LoginMezonAsync(authCode, redirectUri, tenancyName);
 
             switch (loginResult.Result)
             {
